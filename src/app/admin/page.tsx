@@ -28,6 +28,21 @@ export default function AdminPage() {
     loadExistingDocs();
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowPathDropdown(false);
+    };
+
+    if (showPathDropdown) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showPathDropdown]);
+
   const loadExistingDocs = async () => {
     try {
       setIsLoading(true);
@@ -35,6 +50,34 @@ export default function AdminPage() {
       const data = await response.json();
       if (data.docs) {
         setFiles(data.docs);
+
+        // 提取所有可用的路径
+        const paths = new Set<string>();
+        data.docs.forEach((doc: FileItem) => {
+          const pathParts = doc.path.split('/');
+          for (let i = 0; i < pathParts.length; i++) {
+            const partialPath = pathParts.slice(0, i + 1).join('/');
+            if (partialPath) {
+              paths.add(partialPath);
+            }
+          }
+          // 添加目录路径
+          if (pathParts.length > 1) {
+            const dirPath = pathParts.slice(0, -1).join('/');
+            if (dirPath) {
+              paths.add(dirPath);
+            }
+          }
+        });
+
+        // 添加一些常用路径
+        paths.add('api');
+        paths.add('tutorials');
+        paths.add('getting-started');
+        paths.add('guides');
+        paths.add('reference');
+
+        setAvailablePaths(Array.from(paths).sort());
       }
     } catch (error) {
       console.error('Failed to load documents:', error);
@@ -47,22 +90,49 @@ export default function AdminPage() {
     const uploadedFiles = event.target.files;
     if (!uploadedFiles) return;
 
-    Array.from(uploadedFiles).forEach(file => {
+    setUploadStatus('正在上传文件...');
+
+    Array.from(uploadedFiles).forEach((file, index) => {
       if (file.name.endsWith('.md')) {
         const reader = new FileReader();
         reader.onload = (e) => {
           const content = e.target?.result as string;
+          const fileName = file.name;
+          const baseName = fileName.replace('.md', '');
+
           const newFile: FileItem = {
-            name: file.name,
-            path: file.name.replace('.md', ''),
+            name: fileName,
+            path: baseName,
             content,
             isNew: true
           };
-          setFiles(prev => [...prev, newFile]);
+
+          setFiles(prev => {
+            // 检查是否已存在同名文件
+            const existingIndex = prev.findIndex(f => f.path === baseName);
+            if (existingIndex >= 0) {
+              // 替换现有文件
+              const updated = [...prev];
+              updated[existingIndex] = newFile;
+              return updated;
+            } else {
+              // 添加新文件
+              return [...prev, newFile];
+            }
+          });
+
+          // 如果是最后一个文件，清除状态
+          if (index === uploadedFiles.length - 1) {
+            setUploadStatus('文件上传完成！');
+            setTimeout(() => setUploadStatus(''), 3000);
+          }
         };
         reader.readAsText(file);
       }
     });
+
+    // 清空文件输入
+    event.target.value = '';
   };
 
   const createNewFile = () => {
@@ -152,23 +222,8 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              文档管理
-            </h1>
-            <a
-              href="/docs"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              查看文档
-            </a>
-          </div>
-        </div>
-      </header>
+    <AdminAuth>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
@@ -201,6 +256,11 @@ export default function AdminPage() {
                     />
                   </label>
                 </div>
+                {uploadStatus && (
+                  <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                    {uploadStatus}
+                  </div>
+                )}
               </div>
 
               {/* Create New File */}
@@ -216,13 +276,41 @@ export default function AdminPage() {
                     onChange={(e) => setNewFileName(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                   />
-                  <input
-                    type="text"
-                    placeholder="路径 (例: getting-started 或 api/endpoints)"
-                    value={newFilePath}
-                    onChange={(e) => setNewFilePath(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="路径 (例: getting-started 或 api/endpoints)"
+                      value={newFilePath}
+                      onChange={(e) => setNewFilePath(e.target.value)}
+                      onFocus={() => setShowPathDropdown(true)}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPathDropdown(!showPathDropdown)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </button>
+
+                    {showPathDropdown && availablePaths.length > 0 && (
+                      <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                        {availablePaths.map((path, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => {
+                              setNewFilePath(path);
+                              setShowPathDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 first:rounded-t-lg last:rounded-b-lg"
+                          >
+                            {path}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={createNewFile}
                     disabled={!newFileName.trim()}
@@ -335,17 +423,19 @@ export default function AdminPage() {
                   </div>
                 </div>
 
-                <div className="p-4">
+                <div className="h-[calc(100vh-16rem)] overflow-hidden">
                   {isEditing ? (
                     <textarea
                       value={currentFile.content}
                       onChange={(e) => updateFileContent(e.target.value)}
-                      className="w-full h-96 p-4 border border-gray-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                      className="w-full h-full p-4 border-0 resize-none font-mono text-sm focus:ring-0 focus:outline-none dark:bg-gray-800 dark:text-gray-100"
                       placeholder="在这里编写 Markdown 内容..."
                     />
                   ) : (
-                    <div className="prose max-w-none dark:prose-invert">
-                      <div dangerouslySetInnerHTML={{ __html: marked(currentFile.content) }} />
+                    <div className="h-full overflow-y-auto p-4">
+                      <div className="prose max-w-none dark:prose-invert">
+                        <div dangerouslySetInnerHTML={{ __html: marked(currentFile.content) }} />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -362,6 +452,7 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </AdminAuth>
   );
 }
