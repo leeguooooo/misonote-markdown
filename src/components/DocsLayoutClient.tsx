@@ -72,32 +72,34 @@ export default function DocsLayoutClient({ docTree, children }: DocsLayoutClient
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 flex justify-center">
-          {/* Document Content - 真正居中 */}
-          <main className="w-full max-w-5xl relative z-20 xl:mr-36">
+        <div className="flex-1">
+          {/* Document Content - 在减去右侧边栏后的空间内居中 */}
+          <main className="relative z-20">
             <div className="min-h-[calc(100vh-4rem)] bg-transparent">
-              {/* 内容容器 */}
-              <div className="px-6 py-4">
-                <div className="bg-white/92 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200/50 p-8 relative w-full">
-                  {/* 内容区域的微妙网格背景 */}
-                  <div className="absolute inset-0 bg-grid-docs-subtle opacity-20 rounded-xl pointer-events-none"></div>
-                  <div className="relative z-10">
-                    {children}
+              {/* 为右侧评论区预留空间，然后在剩余空间内居中 */}
+              <div className="xl:pr-72">
+                <div className="max-w-4xl mx-auto px-6 py-4">
+                  <div className="bg-white/92 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200/50 p-8 relative w-full">
+                    {/* 内容区域的微妙网格背景 */}
+                    <div className="absolute inset-0 bg-grid-docs-subtle opacity-20 rounded-xl pointer-events-none"></div>
+                    <div className="relative z-10">
+                      {children}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </main>
 
-          {/* Right Sidebar for Comments - 调整宽度 */}
-          <aside className="hidden xl:block w-72 flex-shrink-0">
+          {/* Right Sidebar for Comments - 固定定位 */}
+          <div className="hidden xl:block">
             <div
               id="comments-sidebar"
               className="fixed top-16 right-0 w-72 h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm border-l border-gray-200 overflow-y-auto z-30"
             >
               {/* Comments will be rendered here */}
             </div>
-          </aside>
+          </div>
         </div>
       </div>
     </div>
