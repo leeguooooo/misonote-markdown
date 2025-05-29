@@ -1,17 +1,21 @@
 'use client';
 
-import { useState } from 'react';
-import { 
-  ChevronRight, 
-  ChevronDown, 
-  Folder, 
-  FolderOpen, 
-  FileText, 
-  Edit3, 
-  Save, 
+import { useState, useRef } from 'react';
+import {
+  ChevronRight,
+  ChevronDown,
+  Folder,
+  FolderOpen,
+  FileText,
+  Edit3,
+  Save,
   Trash2,
   Plus,
-  Search
+  Search,
+  Copy,
+  Move,
+  FolderPlus,
+  MoreHorizontal
 } from 'lucide-react';
 
 interface FileItem {
@@ -37,6 +41,9 @@ interface FileTreeProps {
   onFileSave: (file: FileItem) => void;
   onFileDelete: (file: FileItem) => void;
   onCreateFile: (parentPath: string) => void;
+  onFileMove: (sourcePath: string, targetPath: string) => Promise<void>;
+  onFileRename: (filePath: string, newName: string) => Promise<void>;
+  onCreateDirectory: (parentPath: string, dirName: string) => Promise<void>;
 }
 
 export default function FileTree({
@@ -47,9 +54,26 @@ export default function FileTree({
   onFileSave,
   onFileDelete,
   onCreateFile,
+  onFileMove,
+  onFileRename,
+  onCreateDirectory,
 }: FileTreeProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['']));
   const [searchTerm, setSearchTerm] = useState('');
+  const [draggedItem, setDraggedItem] = useState<TreeNode | null>(null);
+  const [dragOverItem, setDragOverItem] = useState<TreeNode | null>(null);
+  const [renamingItem, setRenamingItem] = useState<string | null>(null);
+  const [newName, setNewName] = useState('');
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    node: TreeNode;
+  } | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState<{
+    parentPath: string;
+    type: 'file' | 'directory';
+  } | null>(null);
+  const renameInputRef = useRef<HTMLInputElement>(null);
 
   // 构建树结构
   const buildTree = (files: FileItem[]): TreeNode[] => {
@@ -130,7 +154,7 @@ export default function FileTree({
     if (!searchTerm) return nodes;
 
     const filtered: TreeNode[] = [];
-    
+
     nodes.forEach(node => {
       if (node.type === 'file') {
         if (node.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

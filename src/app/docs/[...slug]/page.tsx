@@ -2,6 +2,7 @@ import { getDocBySlug, getAllDocs } from '@/lib/docs';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { notFound } from 'next/navigation';
 import { Clock, Calendar } from 'lucide-react';
+import EditButton from '@/components/EditButton';
 
 interface DocPageProps {
   params: Promise<{
@@ -38,9 +39,12 @@ export default async function DocPage({ params }: DocPageProps) {
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
       {/* Document Header */}
       <div className="border-b border-gray-200 dark:border-gray-700 px-8 py-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          {doc.title}
-        </h1>
+        <div className="flex items-start justify-between mb-4">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            {doc.title}
+          </h1>
+          <EditButton docPath={slug.join('/')} />
+        </div>
 
         <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-2">

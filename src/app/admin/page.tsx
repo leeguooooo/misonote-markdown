@@ -3,15 +3,18 @@
 import { useState, useEffect } from 'react';
 import { Upload, Plus } from 'lucide-react';
 import AdminAuth from '@/components/auth/AdminAuth';
-import FileTree from '@/components/admin/FileTree';
+import EnhancedFileTree from '@/components/admin/EnhancedFileTree';
 import MarkdownEditor from '@/components/admin/MarkdownEditor';
 import CreateFileDialog from '@/components/admin/CreateFileDialog';
+import DragDropUpload from '@/components/admin/DragDropUpload';
 
 interface FileItem {
   name: string;
   path: string;
   content: string;
   isNew?: boolean;
+  isHidden?: boolean;
+  metadata?: any;
 }
 
 export default function AdminPage() {
@@ -28,6 +31,22 @@ export default function AdminPage() {
   useEffect(() => {
     loadExistingDocs();
   }, []);
+
+  // 处理 URL 参数中的编辑请求
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const editPath = urlParams.get('edit');
+
+    if (editPath && files.length > 0) {
+      const fileToEdit = files.find(f => f.path === editPath);
+      if (fileToEdit) {
+        setCurrentFile(fileToEdit);
+        // 清除 URL 参数
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+  }, [files]);
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('admin-token');
@@ -83,9 +102,8 @@ export default function AdminPage() {
   };
 
   // 处理文件上传
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFiles = event.target.files;
-    if (!uploadedFiles) return;
+  const handleFileUpload = (uploadedFiles: FileList) => {
+    if (!uploadedFiles || uploadedFiles.length === 0) return;
 
     setUploadStatus('正在上传文件...');
 
@@ -121,10 +139,11 @@ export default function AdminPage() {
           }
         };
         reader.readAsText(file);
+      } else {
+        setUploadStatus('请上传 .md 格式的文件');
+        setTimeout(() => setUploadStatus(''), 3000);
       }
     });
-
-    event.target.value = '';
   };
 
   // 创建新文件
@@ -210,6 +229,109 @@ export default function AdminPage() {
     setShowCreateDialog(true);
   };
 
+  // 处理文件移动
+  const handleFileMove = async (sourcePath: string, targetPath: string) => {
+    try {
+      const response = await fetch('/api/admin/file-operations', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          operation: 'move',
+          source: sourcePath,
+          target: targetPath,
+        }),
+      });
+
+      if (response.ok) {
+        await loadExistingDocs(); // 重新加载文件列表
+        alert('文件移动成功！');
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || '移动失败');
+      }
+    } catch (error) {
+      console.error('移动文件失败:', error);
+      throw error;
+    }
+  };
+
+  // 处理文件重命名
+  const handleFileRename = async (filePath: string, newName: string) => {
+    try {
+      const response = await fetch('/api/admin/file-operations', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          operation: 'rename',
+          source: filePath,
+          newName: newName,
+        }),
+      });
+
+      if (response.ok) {
+        await loadExistingDocs(); // 重新加载文件列表
+        alert('文件重命名成功！');
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || '重命名失败');
+      }
+    } catch (error) {
+      console.error('重命名文件失败:', error);
+      throw error;
+    }
+  };
+
+  // 处理创建目录
+  const handleCreateDirectory = async (parentPath: string, dirName: string) => {
+    try {
+      const response = await fetch('/api/admin/file-operations', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          operation: 'create-directory',
+          target: parentPath ? `${parentPath}/${dirName}` : dirName,
+        }),
+      });
+
+      if (response.ok) {
+        await loadExistingDocs(); // 重新加载文件列表
+        alert('目录创建成功！');
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || '创建目录失败');
+      }
+    } catch (error) {
+      console.error('创建目录失败:', error);
+      throw error;
+    }
+  };
+
+  // 处理隐藏/显示切换
+  const handleToggleHidden = async (filePath: string) => {
+    try {
+      const response = await fetch('/api/admin/file-operations', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          operation: 'toggle-hidden',
+          source: filePath,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        await loadExistingDocs(); // 重新加载文件列表
+        alert(result.message);
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || '切换隐藏状态失败');
+      }
+    } catch (error) {
+      console.error('切换隐藏状态失败:', error);
+      throw error;
+    }
+  };
+
   return (
     <AdminAuth>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
@@ -231,31 +353,17 @@ export default function AdminPage() {
 
             {/* 上传区域 */}
             <div className="mb-4">
-              <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 transition-colors">
-                <div className="flex flex-col items-center justify-center">
-                  <Upload className="w-6 h-6 mb-1 text-gray-500 dark:text-gray-400" />
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    上传 Markdown 文件
-                  </p>
-                </div>
-                <input
-                  type="file"
-                  multiple
-                  accept=".md"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </label>
-              {uploadStatus && (
-                <div className="mt-2 text-sm text-green-600 dark:text-green-400">
-                  {uploadStatus}
-                </div>
-              )}
+              <DragDropUpload
+                onFilesUpload={handleFileUpload}
+                uploadStatus={uploadStatus}
+                accept=".md"
+                multiple={true}
+              />
             </div>
           </div>
 
           {/* 文件树 */}
-          <FileTree
+          <EnhancedFileTree
             files={files}
             currentFile={currentFile}
             onFileSelect={setCurrentFile}
@@ -263,6 +371,11 @@ export default function AdminPage() {
             onFileSave={handleSaveFile}
             onFileDelete={handleDeleteFile}
             onCreateFile={handleCreateFileFromPath}
+            onFileMove={handleFileMove}
+            onFileRename={handleFileRename}
+            onCreateDirectory={handleCreateDirectory}
+            onToggleHidden={handleToggleHidden}
+            showHidden={true}
           />
         </div>
 

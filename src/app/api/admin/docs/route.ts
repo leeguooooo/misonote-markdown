@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllDocs } from '@/lib/docs';
 import { authenticateRequest } from '@/lib/auth';
+import { fileSystemManager } from '@/lib/file-operations';
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,14 +16,19 @@ export async function GET(request: NextRequest) {
 
     const docs = getAllDocs();
 
-    const formattedDocs = docs.map(doc => ({
-      name: `${doc.slug.join('/')}.md`,
-      path: doc.slug.join('/'),
-      content: doc.content,
-      title: doc.title,
-      lastModified: doc.lastModified,
-      isNew: false
-    }));
+    const formattedDocs = docs.map(doc => {
+      const docPath = doc.slug.join('/');
+      return {
+        name: `${docPath}.md`,
+        path: docPath,
+        content: doc.content,
+        title: doc.title,
+        lastModified: doc.lastModified,
+        isNew: false,
+        isHidden: fileSystemManager.isHidden(docPath),
+        metadata: fileSystemManager.getMetadata(docPath)
+      };
+    });
 
     return NextResponse.json({ docs: formattedDocs });
   } catch (error) {

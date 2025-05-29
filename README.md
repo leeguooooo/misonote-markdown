@@ -1,5 +1,7 @@
 # Markdown 文档预览系统
 
+[English](./README.en.md) | [日本語](./README.ja.md) | 中文
+
 一个现代化的 Markdown 文档管理和预览系统，支持 Mermaid 图表、全局搜索、目录导航等功能。
 
 ## ✨ 特性
