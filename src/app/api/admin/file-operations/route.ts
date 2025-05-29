@@ -23,11 +23,39 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        await fileSystemManager.moveFile(source, target);
-        return NextResponse.json({
-          success: true,
-          message: '文件移动成功'
-        });
+
+        try {
+          await fileSystemManager.moveFile(source, target);
+          return NextResponse.json({
+            success: true,
+            message: '移动成功'
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '移动失败';
+
+          if (errorMessage === 'Cannot move directory into itself') {
+            return NextResponse.json(
+              { error: '不能将目录移动到自己的子目录中' },
+              { status: 400 }
+            );
+          }
+
+          if (errorMessage === 'Target file already exists') {
+            return NextResponse.json(
+              { error: '目标位置已存在同名文件或目录' },
+              { status: 400 }
+            );
+          }
+
+          if (errorMessage === 'Source file does not exist') {
+            return NextResponse.json(
+              { error: '源文件或目录不存在' },
+              { status: 404 }
+            );
+          }
+
+          throw error;
+        }
 
       case 'rename':
         if (!source || !newName) {

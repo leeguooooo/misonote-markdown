@@ -282,12 +282,22 @@ export default function EnhancedFileTree({
       return;
     }
 
+    // 检查是否试图将文件夹移动到自己的子目录中
+    if (draggedItem.type === 'folder') {
+      if (targetNode.path.startsWith(draggedItem.path + '/') || targetNode.path === draggedItem.path) {
+        alert('不能将文件夹移动到自己的子目录中');
+        setDraggedItem(null);
+        return;
+      }
+    }
+
     try {
-      const newPath = `${targetNode.path}/${draggedItem.name}`;
+      const newPath = targetNode.path ? `${targetNode.path}/${draggedItem.name}` : draggedItem.name;
       await onFileMove(draggedItem.path, newPath);
     } catch (error) {
-      console.error('移动文件失败:', error);
-      alert('移动文件失败');
+      console.error('移动失败:', error);
+      const errorMessage = error instanceof Error ? error.message : '移动失败';
+      alert(errorMessage);
     }
 
     setDraggedItem(null);
@@ -463,13 +473,15 @@ export default function EnhancedFileTree({
       return (
         <div key={node.path}>
           <div
+            draggable
+            onDragStart={(e) => handleDragStart(e, node)}
             onDragOver={(e) => handleDragOver(e, node.path)}
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, node)}
             onContextMenu={(e) => handleContextMenu(e, node)}
             className={`flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors ${
               isDragOver ? 'bg-green-50 dark:bg-green-900/20 border border-green-300' : ''
-            }`}
+            } ${draggedItem?.path === node.path ? 'opacity-50' : ''}`}
             style={{ paddingLeft: `${level * 20 + 8}px` }}
           >
             <div
@@ -509,8 +521,22 @@ export default function EnhancedFileTree({
                 </div>
               ) : (
                 <>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <span className={`text-sm font-medium flex items-center gap-2 ${
+                    (node.file?.isHidden ||
+                     files.find(f => f.path === node.path && f.type === 'folder')?.isHidden)
+                      ? 'text-gray-400 dark:text-gray-500 italic'
+                      : 'text-gray-900 dark:text-gray-100'
+                  }`}>
+                    {(node.file?.isHidden ||
+                      files.find(f => f.path === node.path && f.type === 'folder')?.isHidden) &&
+                      <EyeOff className="w-3 h-3" />}
                     {node.name || '根目录'}
+                    {(node.file?.isHidden ||
+                      files.find(f => f.path === node.path && f.type === 'folder')?.isHidden) && (
+                      <span className="ml-2 px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded">
+                        隐藏
+                      </span>
+                    )}
                   </span>
                   <span className="text-xs text-gray-500">
                     ({(node.children || []).length})
@@ -603,14 +629,48 @@ export default function EnhancedFileTree({
       </div>
 
       {/* 文件树 */}
-      <div className="flex-1 overflow-y-auto p-2">
+      <div
+        className="flex-1 overflow-y-auto p-2"
+        onDragOver={(e) => {
+          if (draggedItem) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            setDragOverItem('root');
+          }
+        }}
+        onDragLeave={() => setDragOverItem(null)}
+        onDrop={async (e) => {
+          e.preventDefault();
+          setDragOverItem(null);
+
+          if (draggedItem && draggedItem.path.includes('/')) {
+            // 只有在子目录中的项目才能移动到根目录
+            try {
+              const newPath = draggedItem.name;
+              await onFileMove(draggedItem.path, newPath);
+            } catch (error) {
+              console.error('移动到根目录失败:', error);
+              const errorMessage = error instanceof Error ? error.message : '移动失败';
+              alert(errorMessage);
+            }
+            setDraggedItem(null);
+          }
+        }}
+      >
         {filteredTree.length > 0 ? (
-          <div className="space-y-1">
+          <div className={`space-y-1 ${dragOverItem === 'root' ? 'bg-green-50 dark:bg-green-900/20 border-2 border-dashed border-green-300 rounded-lg p-2' : ''}`}>
             {filteredTree.map(node => renderNode(node))}
           </div>
         ) : (
           <div className="text-center text-gray-500 dark:text-gray-400 py-8">
             {searchTerm ? '未找到匹配的文件' : '暂无文件'}
+          </div>
+        )}
+
+        {/* 根目录拖拽提示 */}
+        {draggedItem && dragOverItem === 'root' && draggedItem.path.includes('/') && (
+          <div className="absolute bottom-4 left-4 right-4 bg-green-100 dark:bg-green-900/30 border border-green-300 rounded-lg p-3 text-center text-sm text-green-700 dark:text-green-300">
+            释放以移动到根目录
           </div>
         )}
       </div>

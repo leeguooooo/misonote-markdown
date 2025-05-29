@@ -68,23 +68,80 @@ export class FileSystemManager {
     const fullSourcePath = this.getFullPath(sourcePath);
     const fullTargetPath = this.getFullPath(targetPath);
 
+    // 检查源文件/目录是否存在
+    if (!fs.existsSync(fullSourcePath)) {
+      throw new Error('Source file does not exist');
+    }
+
+    // 检查目标文件/目录是否已存在
+    if (fs.existsSync(fullTargetPath)) {
+      throw new Error('Target file already exists');
+    }
+
+    // 检查是否试图将目录移动到自己的子目录中
+    const sourceStats = fs.statSync(fullSourcePath);
+    if (sourceStats.isDirectory()) {
+      const normalizedSource = path.resolve(fullSourcePath);
+      const normalizedTarget = path.resolve(fullTargetPath);
+
+      if (normalizedTarget.startsWith(normalizedSource + path.sep)) {
+        throw new Error('Cannot move directory into itself');
+      }
+    }
+
     // 确保目标目录存在
     const targetDir = path.dirname(fullTargetPath);
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }
 
-    // 检查源文件是否存在
-    if (!fs.existsSync(fullSourcePath)) {
-      throw new Error('Source file does not exist');
-    }
-
-    // 检查目标文件是否已存在
-    if (fs.existsSync(fullTargetPath)) {
-      throw new Error('Target file already exists');
-    }
-
+    // 移动文件或目录
     fs.renameSync(fullSourcePath, fullTargetPath);
+
+    // 移动对应的元数据文件
+    const sourceMetadataPath = fullSourcePath + '.metadata.json';
+    const targetMetadataPath = fullTargetPath + '.metadata.json';
+
+    if (fs.existsSync(sourceMetadataPath)) {
+      fs.renameSync(sourceMetadataPath, targetMetadataPath);
+    }
+
+    // 如果是目录，需要更新所有子文件的元数据路径引用
+    if (sourceStats.isDirectory()) {
+      this.updateSubDirectoryMetadata(fullTargetPath, sourcePath, targetPath);
+    }
+  }
+
+  /**
+   * 更新子目录的元数据路径引用
+   */
+  private updateSubDirectoryMetadata(dirPath: string, oldBasePath: string, newBasePath: string): void {
+    if (!fs.existsSync(dirPath)) return;
+
+    const items = fs.readdirSync(dirPath);
+
+    for (const item of items) {
+      const itemPath = path.join(dirPath, item);
+      const stat = fs.statSync(itemPath);
+
+      if (stat.isDirectory()) {
+        // 递归处理子目录
+        this.updateSubDirectoryMetadata(itemPath, oldBasePath, newBasePath);
+      }
+
+      // 更新元数据文件中的路径引用（如果需要的话）
+      const metadataPath = itemPath + '.metadata.json';
+      if (fs.existsSync(metadataPath)) {
+        try {
+          const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf-8'));
+          // 这里可以添加路径更新逻辑，如果元数据中存储了绝对路径的话
+          metadata.lastModified = new Date().toISOString();
+          fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+        } catch (error) {
+          // 忽略元数据文件错误
+        }
+      }
+    }
   }
 
   /**
