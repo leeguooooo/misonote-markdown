@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { authenticateRequest } from '@/lib/auth';
+import { fileSystemManager } from '@/lib/file-operations';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,35 +15,29 @@ export async function POST(request: NextRequest) {
 
     const { path: docPath, content, name } = await request.json();
 
-    if (!docPath || !content) {
+    if (!docPath || content === undefined) {
       return NextResponse.json(
         { error: 'Path and content are required' },
         { status: 400 }
       );
     }
 
-    // Ensure the docs directory exists
-    const docsDir = path.join(process.cwd(), 'docs');
-    if (!fs.existsSync(docsDir)) {
-      fs.mkdirSync(docsDir, { recursive: true });
+    // 验证内容类型
+    if (typeof content !== 'string') {
+      return NextResponse.json(
+        { error: 'Content must be a string' },
+        { status: 400 }
+      );
     }
 
-    // Create the full file path
-    const fullPath = path.join(docsDir, `${docPath}.md`);
-
-    // Create directory if it doesn't exist
-    const dir = path.dirname(fullPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    // Write the file
-    fs.writeFileSync(fullPath, content, 'utf-8');
+    // 使用安全的文件写入方法
+    const filePath = docPath.endsWith('.md') ? docPath : `${docPath}.md`;
+    await fileSystemManager.writeFile(filePath, content);
 
     return NextResponse.json({
       success: true,
       message: 'Document saved successfully',
-      path: fullPath
+      path: filePath
     });
   } catch (error) {
     console.error('Save document error:', error);

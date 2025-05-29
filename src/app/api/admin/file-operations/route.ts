@@ -1,12 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/auth';
 import { fileSystemManager } from '@/lib/file-operations';
+import { uploadLimiter } from '@/lib/rate-limiter';
+import { getClientIP, getSafeErrorMessage, logSecurityEvent, validateContentType } from '@/lib/security-utils';
 
 export async function POST(request: NextRequest) {
   try {
+    // 验证 Content-Type
+    if (!validateContentType(request, ['application/json'])) {
+      logSecurityEvent('Invalid Content-Type', { contentType: request.headers.get('content-type') }, request);
+      return NextResponse.json(
+        { error: 'Invalid content type' },
+        { status: 400 }
+      );
+    }
+
+    // 速率限制检查
+    const clientIP = getClientIP(request);
+    if (uploadLimiter.isRateLimited(clientIP)) {
+      logSecurityEvent('Rate limit exceeded', { clientIP }, request);
+      return NextResponse.json(
+        { error: 'Too many requests' },
+        { status: 429 }
+      );
+    }
+
     // 验证认证
     const user = authenticateRequest(request);
     if (!user) {
+      logSecurityEvent('Unauthorized access attempt', { clientIP }, request);
       return NextResponse.json(
         { error: '未授权访问' },
         { status: 401 }

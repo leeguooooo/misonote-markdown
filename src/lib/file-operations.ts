@@ -36,6 +36,12 @@ export class FileSystemManager {
     this.ensureBaseDirectory();
   }
 
+  // 安全配置常量
+  private readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  private readonly MAX_CONTENT_LENGTH = 1024 * 1024; // 1MB for text content
+  private readonly ALLOWED_EXTENSIONS = ['.md', '.txt'];
+  private readonly MAX_DEPTH = 10; // 最大目录深度
+
   private ensureBaseDirectory() {
     if (!fs.existsSync(this.basePath)) {
       fs.mkdirSync(this.basePath, { recursive: true });
@@ -46,8 +52,30 @@ export class FileSystemManager {
    * 验证路径安全性
    */
   private validatePath(filePath: string): boolean {
-    const resolvedPath = path.resolve(this.basePath, filePath);
-    return resolvedPath.startsWith(this.basePath);
+    // 检查空路径
+    if (!filePath || typeof filePath !== 'string') {
+      return false;
+    }
+
+    // 规范化路径，移除多余的分隔符和相对路径
+    const normalizedPath = path.normalize(filePath);
+
+    // 检查是否包含危险的路径遍历字符
+    if (normalizedPath.includes('..') || normalizedPath.startsWith('/') || normalizedPath.includes('\0')) {
+      return false;
+    }
+
+    // 检查是否包含危险字符
+    const dangerousChars = /[<>:"|?*\x00-\x1f]/;
+    if (dangerousChars.test(normalizedPath)) {
+      return false;
+    }
+
+    // 解析完整路径并验证是否在基础目录内
+    const resolvedPath = path.resolve(this.basePath, normalizedPath);
+    const isWithinBase = resolvedPath.startsWith(this.basePath + path.sep) || resolvedPath === this.basePath;
+
+    return isWithinBase;
   }
 
   /**
@@ -55,6 +83,90 @@ export class FileSystemManager {
    */
   private getFullPath(filePath: string): string {
     return path.join(this.basePath, filePath);
+  }
+
+  /**
+   * 验证文件扩展名
+   */
+  private validateFileExtension(fileName: string): boolean {
+    const ext = path.extname(fileName).toLowerCase();
+    return this.ALLOWED_EXTENSIONS.includes(ext);
+  }
+
+  /**
+   * 验证内容大小
+   */
+  private validateContentSize(content: string): boolean {
+    const contentSize = Buffer.byteLength(content, 'utf8');
+    return contentSize <= this.MAX_CONTENT_LENGTH;
+  }
+
+  /**
+   * 验证目录深度
+   */
+  private validateDirectoryDepth(filePath: string): boolean {
+    const depth = filePath.split(path.sep).length;
+    return depth <= this.MAX_DEPTH;
+  }
+
+  /**
+   * 验证文件内容是否为有效的文本
+   */
+  private validateTextContent(content: string): boolean {
+    try {
+      // 检查是否包含二进制内容
+      for (let i = 0; i < content.length; i++) {
+        const charCode = content.charCodeAt(i);
+        // 允许常见的控制字符：换行、回车、制表符
+        if (charCode < 32 && charCode !== 9 && charCode !== 10 && charCode !== 13) {
+          return false;
+        }
+      }
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * 安全写入文件
+   */
+  async writeFile(filePath: string, content: string): Promise<void> {
+    // 验证路径
+    if (!this.validatePath(filePath)) {
+      throw new Error('Invalid file path');
+    }
+
+    // 验证目录深度
+    if (!this.validateDirectoryDepth(filePath)) {
+      throw new Error('Directory depth exceeds maximum allowed');
+    }
+
+    // 验证文件扩展名
+    if (!this.validateFileExtension(filePath)) {
+      throw new Error('File extension not allowed');
+    }
+
+    // 验证内容大小
+    if (!this.validateContentSize(content)) {
+      throw new Error('Content size exceeds maximum allowed');
+    }
+
+    // 验证文本内容
+    if (!this.validateTextContent(content)) {
+      throw new Error('Invalid text content detected');
+    }
+
+    const fullPath = this.getFullPath(filePath);
+
+    // 确保目录存在
+    const dir = path.dirname(fullPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    // 写入文件
+    fs.writeFileSync(fullPath, content, 'utf8');
   }
 
   /**
@@ -315,20 +427,44 @@ export class FileSystemManager {
    * 验证文件名
    */
   validateFileName(fileName: string): boolean {
-    // 检查非法字符
-    const invalidChars = /[<>:"/\\|?*\x00-\x1f]/;
-    if (invalidChars.test(fileName)) {
+    // 检查空文件名
+    if (!fileName || typeof fileName !== 'string') {
       return false;
     }
 
-    // 检查保留名称
-    const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
-    if (reservedNames.test(fileName)) {
+    // 移除前后空格
+    const trimmedName = fileName.trim();
+
+    // 检查长度（更严格的限制）
+    if (trimmedName.length === 0 || trimmedName.length > 200) {
       return false;
     }
 
-    // 检查长度
-    if (fileName.length === 0 || fileName.length > 255) {
+    // 检查非法字符（更全面）
+    const invalidChars = /[<>:"/\\|?*\x00-\x1f\x7f-\x9f]/;
+    if (invalidChars.test(trimmedName)) {
+      return false;
+    }
+
+    // 检查是否以点开头或结尾
+    if (trimmedName.startsWith('.') || trimmedName.endsWith('.')) {
+      return false;
+    }
+
+    // 检查是否以空格结尾
+    if (trimmedName.endsWith(' ')) {
+      return false;
+    }
+
+    // 检查保留名称（Windows）
+    const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\.|$)/i;
+    if (reservedNames.test(trimmedName)) {
+      return false;
+    }
+
+    // 检查是否只包含允许的字符
+    const allowedChars = /^[a-zA-Z0-9\u4e00-\u9fa5\-_\s()[\]{}]+$/;
+    if (!allowedChars.test(trimmedName)) {
       return false;
     }
 
