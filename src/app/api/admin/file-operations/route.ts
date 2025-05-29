@@ -25,12 +25,35 @@ export async function POST(request: NextRequest) {
         }
 
         try {
-          await fileSystemManager.moveFile(source, target);
+          // 处理文件移动的路径逻辑
+          let sourceFilePath = source;
+          let targetFilePath = target;
+
+          // 检查源文件是否存在，如果不存在则尝试添加 .md 扩展名
+          if (!fileSystemManager.exists(source)) {
+            const sourceWithMd = `${source}.md`;
+            if (fileSystemManager.exists(sourceWithMd)) {
+              sourceFilePath = sourceWithMd;
+            }
+          }
+
+          // 如果目标路径以 .md 结尾，说明这是一个文件移动操作
+          // 需要确保源文件也是 .md 文件
+          if (target.endsWith('.md')) {
+            if (!sourceFilePath.endsWith('.md')) {
+              sourceFilePath = `${source}.md`;
+            }
+          }
+
+          console.log('Moving:', { sourceFilePath, targetFilePath });
+
+          await fileSystemManager.moveFile(sourceFilePath, targetFilePath);
           return NextResponse.json({
             success: true,
             message: '移动成功'
           });
         } catch (error) {
+          console.error('Move operation error:', error);
           const errorMessage = error instanceof Error ? error.message : '移动失败';
 
           if (errorMessage === 'Cannot move directory into itself') {
@@ -54,7 +77,10 @@ export async function POST(request: NextRequest) {
             );
           }
 
-          throw error;
+          return NextResponse.json(
+            { error: errorMessage },
+            { status: 500 }
+          );
         }
 
       case 'rename':

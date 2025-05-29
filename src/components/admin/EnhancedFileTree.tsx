@@ -292,7 +292,25 @@ export default function EnhancedFileTree({
     }
 
     try {
-      const newPath = targetNode.path ? `${targetNode.path}/${draggedItem.name}` : draggedItem.name;
+      // 构建正确的目标路径
+      let newPath: string;
+
+      if (draggedItem.type === 'file') {
+        // 文件移动：目标路径应该包含完整的文件名
+        const fileName = draggedItem.name;
+        newPath = targetNode.path ? `${targetNode.path}/${fileName}` : fileName;
+      } else {
+        // 文件夹移动：目标路径应该是文件夹名
+        const folderName = draggedItem.name;
+        newPath = targetNode.path ? `${targetNode.path}/${folderName}` : folderName;
+      }
+
+      console.log('Frontend move:', {
+        source: draggedItem.path,
+        target: newPath,
+        type: draggedItem.type
+      });
+
       await onFileMove(draggedItem.path, newPath);
     } catch (error) {
       console.error('移动失败:', error);
@@ -646,7 +664,23 @@ export default function EnhancedFileTree({
           if (draggedItem && draggedItem.path.includes('/')) {
             // 只有在子目录中的项目才能移动到根目录
             try {
-              const newPath = draggedItem.name;
+              // 构建根目录的目标路径
+              let newPath: string;
+
+              if (draggedItem.type === 'file') {
+                // 文件移动到根目录：使用完整文件名
+                newPath = draggedItem.name;
+              } else {
+                // 文件夹移动到根目录：使用文件夹名
+                newPath = draggedItem.name;
+              }
+
+              console.log('Move to root:', {
+                source: draggedItem.path,
+                target: newPath,
+                type: draggedItem.type
+              });
+
               await onFileMove(draggedItem.path, newPath);
             } catch (error) {
               console.error('移动到根目录失败:', error);
