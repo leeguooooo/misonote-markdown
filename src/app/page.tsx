@@ -14,12 +14,20 @@ export default function Home() {
                 文档中心
               </span>
             </div>
-            <Link
-              href="/docs"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              开始使用
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/docs"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                开始使用
+              </Link>
+              <Link
+                href="/admin"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                管理文档
+              </Link>
+            </div>
           </div>
         </div>
       </header>

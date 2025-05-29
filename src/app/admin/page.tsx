@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Upload, FolderPlus, FileText, Save, Trash2, Edit3 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Upload, FolderPlus, FileText, Save, Trash2, Edit3, RefreshCw, ChevronDown } from 'lucide-react';
+import { marked } from 'marked';
+import AdminAuth from '@/components/AdminAuth';
 
 interface FileItem {
   name: string;
@@ -16,6 +18,30 @@ export default function AdminPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [newFilePath, setNewFilePath] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [availablePaths, setAvailablePaths] = useState<string[]>([]);
+  const [showPathDropdown, setShowPathDropdown] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+
+  // Load existing documents on component mount
+  useEffect(() => {
+    loadExistingDocs();
+  }, []);
+
+  const loadExistingDocs = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/admin/docs');
+      const data = await response.json();
+      if (data.docs) {
+        setFiles(data.docs);
+      }
+    } catch (error) {
+      console.error('Failed to load documents:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = event.target.files;
@@ -41,17 +67,17 @@ export default function AdminPage() {
 
   const createNewFile = () => {
     if (!newFileName.trim()) return;
-    
+
     const fileName = newFileName.endsWith('.md') ? newFileName : `${newFileName}.md`;
     const filePath = newFilePath.trim() || newFileName.replace('.md', '');
-    
+
     const newFile: FileItem = {
       name: fileName,
       path: filePath,
       content: `# ${newFileName.replace('.md', '')}\n\n在这里编写你的文档内容...\n`,
       isNew: true
     };
-    
+
     setFiles(prev => [...prev, newFile]);
     setCurrentFile(newFile);
     setIsEditing(true);
@@ -74,7 +100,7 @@ export default function AdminPage() {
       });
 
       if (response.ok) {
-        setFiles(prev => prev.map(f => 
+        setFiles(prev => prev.map(f =>
           f.path === file.path ? { ...f, isNew: false } : f
         ));
         alert('文件保存成功！');
@@ -117,10 +143,10 @@ export default function AdminPage() {
 
   const updateFileContent = (content: string) => {
     if (!currentFile) return;
-    
+
     const updatedFile = { ...currentFile, content };
     setCurrentFile(updatedFile);
-    setFiles(prev => prev.map(f => 
+    setFiles(prev => prev.map(f =>
       f.path === currentFile.path ? updatedFile : f
     ));
   };
@@ -210,9 +236,18 @@ export default function AdminPage() {
 
               {/* File List */}
               <div>
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  文件列表
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    文件列表
+                  </h3>
+                  <button
+                    onClick={loadExistingDocs}
+                    disabled={isLoading}
+                    className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {files.map((file, index) => (
                     <div
@@ -299,7 +334,7 @@ export default function AdminPage() {
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="p-4">
                   {isEditing ? (
                     <textarea
@@ -310,7 +345,7 @@ export default function AdminPage() {
                     />
                   ) : (
                     <div className="prose max-w-none dark:prose-invert">
-                      <div dangerouslySetInnerHTML={{ __html: currentFile.content }} />
+                      <div dangerouslySetInnerHTML={{ __html: marked(currentFile.content) }} />
                     </div>
                   )}
                 </div>

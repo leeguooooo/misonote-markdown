@@ -26,9 +26,15 @@ importers:
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
+      highlight.js:
+        specifier: ^11.11.1
+        version: 11.11.1
       lucide-react:
         specifier: ^0.511.0
         version: 0.511.0(react@19.1.0)
+      marked:
+        specifier: ^15.0.12
+        version: 15.0.12
       mermaid:
         specifier: ^11.6.0
         version: 11.6.0
