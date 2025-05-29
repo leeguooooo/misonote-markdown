@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, startTransition, useCallback } from 'react';
 import { MessageCircle, Send, Heart, Reply, Clock, ChevronDown, ChevronUp, Crown, Shield, Trash2 } from 'lucide-react';
 import { useUser } from './UserManager';
 
@@ -30,6 +30,8 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+
+  // React 19 并发特性已集成到组件逻辑中
 
   // 确保组件已挂载，避免 hydration 错误
   useEffect(() => {
@@ -75,7 +77,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
     loadComments();
   }, [docPath]);
 
-  const handleSubmitComment = async () => {
+  const handleSubmitComment = useCallback(async () => {
     if (!newComment.trim() || !isLoggedIn || !user) return;
 
     setIsLoading(true);
@@ -96,7 +98,10 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
 
       if (response.ok) {
         const data = await response.json();
-        setComments(prev => [data.comment, ...prev]);
+        // 使用 startTransition 来标记非紧急的状态更新
+        startTransition(() => {
+          setComments(prev => [data.comment, ...prev]);
+        });
         setNewComment('');
       } else {
         // 如果 API 失败，本地添加
@@ -109,7 +114,9 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
           likes: 0,
           replies: []
         };
-        setComments(prev => [comment, ...prev]);
+        startTransition(() => {
+          setComments(prev => [comment, ...prev]);
+        });
         setNewComment('');
       }
     } catch (error) {
@@ -124,14 +131,16 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
         likes: 0,
         replies: []
       };
-      setComments(prev => [comment, ...prev]);
+      startTransition(() => {
+        setComments(prev => [comment, ...prev]);
+      });
       setNewComment('');
     }
 
     setIsLoading(false);
-  };
+  }, [newComment, isLoggedIn, user, docPath]);
 
-  const handleSubmitReply = async (parentId: string) => {
+  const handleSubmitReply = useCallback(async (parentId: string) => {
     if (!replyContent.trim() || !isLoggedIn || !user) return;
 
     setIsLoading(true);
@@ -153,11 +162,14 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
 
       if (response.ok) {
         const data = await response.json();
-        setComments(prev => prev.map(comment =>
-          comment.id === parentId
-            ? { ...comment, replies: [...comment.replies, data.comment] }
-            : comment
-        ));
+        // 使用 startTransition 来标记非紧急的状态更新
+        startTransition(() => {
+          setComments(prev => prev.map(comment =>
+            comment.id === parentId
+              ? { ...comment, replies: [...comment.replies, data.comment] }
+              : comment
+          ));
+        });
       } else {
         // 本地添加回复
         const reply: Comment = {
@@ -170,20 +182,23 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
           replies: []
         };
 
-        setComments(prev => prev.map(comment =>
-          comment.id === parentId
-            ? { ...comment, replies: [...comment.replies, reply] }
-            : comment
-        ));
+        startTransition(() => {
+          setComments(prev => prev.map(comment =>
+            comment.id === parentId
+              ? { ...comment, replies: [...comment.replies, reply] }
+              : comment
+          ));
+        });
       }
     } catch (error) {
       console.error('Failed to submit reply:', error);
     }
 
+    // 清理状态时不使用 startTransition，因为这些是紧急更新
     setReplyContent('');
     setReplyTo(null);
     setIsLoading(false);
-  };
+  }, [replyContent, isLoggedIn, user, docPath]);
 
   const handleLike = async (commentId: string, isReply = false, parentId?: string) => {
     try {
@@ -322,38 +337,54 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
   }) => {
     const replyInputRef = useRef<HTMLTextAreaElement>(null);
     const [hasSetInitialFocus, setHasSetInitialFocus] = useState(false);
-    const [isComposing, setIsComposing] = useState(false);
+    const composingRef = useRef(false); // 使用 ref 来避免状态更新导致的重渲染
 
-    // 只在回复框刚打开时设置一次焦点
+    // React 19 并发特性优化焦点管理
+
+    // 简化的焦点设置逻辑
     useEffect(() => {
       if (replyTo === comment.id && replyInputRef.current && !hasSetInitialFocus) {
-        // 使用 setTimeout 确保 DOM 更新完成后再设置焦点
-        setTimeout(() => {
-          const textarea = replyInputRef.current;
-          if (textarea && !isComposing) {
-            textarea.focus();
-            // 将光标移到文本末尾
-            const length = textarea.value.length;
-            textarea.setSelectionRange(length, length);
-            setHasSetInitialFocus(true);
-          }
-        }, 0);
+        const textarea = replyInputRef.current;
+        // 简单直接的焦点设置
+        textarea.focus();
+        setHasSetInitialFocus(true);
       }
 
       // 当回复框关闭时重置状态
       if (replyTo !== comment.id) {
         setHasSetInitialFocus(false);
       }
-    }, [replyTo, comment.id, hasSetInitialFocus, isComposing]);
+    }, [replyTo, comment.id, hasSetInitialFocus]);
 
     // 处理中文输入法事件
-    const handleCompositionStart = () => {
-      setIsComposing(true);
-    };
+    const handleCompositionStart = useCallback(() => {
+      composingRef.current = true;
+    }, []);
 
-    const handleCompositionEnd = () => {
-      setIsComposing(false);
-    };
+    const handleCompositionEnd = useCallback(() => {
+      composingRef.current = false;
+    }, []);
+
+    // 使用非受控组件方式处理中文输入
+    const [localValue, setLocalValue] = useState('');
+
+    // 同步外部状态到本地状态
+    useEffect(() => {
+      if (replyTo === comment.id) {
+        setLocalValue(replyContent);
+      }
+    }, [replyTo, comment.id, replyContent]);
+
+    // 处理输入变化
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const value = e.target.value;
+      setLocalValue(value);
+
+      // 只在非输入法组合期间更新外部状态
+      if (!composingRef.current) {
+        setReplyContent(value);
+      }
+    }, []);
 
     return (
     <div className={`${isReply ? 'ml-6 mt-3' : 'mb-4'} bg-gray-50 dark:bg-gray-700 rounded-lg p-3`}>
@@ -411,15 +442,21 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
             )}
           </div>
 
-          {/* 回复输入框 */}
+          {/* 回复输入框 - 使用优化后的状态管理 */}
           {replyTo === comment.id && (
             <div className="mt-3 p-2 bg-white dark:bg-gray-600 rounded">
               <textarea
                 ref={replyInputRef}
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
+                value={localValue}
+                onChange={handleInputChange}
                 onCompositionStart={handleCompositionStart}
-                onCompositionEnd={handleCompositionEnd}
+                onCompositionEnd={(e) => {
+                  handleCompositionEnd();
+                  // 输入法结束后确保状态同步
+                  const value = e.currentTarget.value;
+                  setLocalValue(value);
+                  setReplyContent(value);
+                }}
                 placeholder={`回复 ${comment.author}...`}
                 className="w-full p-2 text-sm border border-gray-300 dark:border-gray-500 rounded resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                 rows={2}
@@ -427,16 +464,24 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
               <div className="flex justify-end gap-2 mt-2">
                 <button
                   onClick={() => {
+                    // 立即清理状态，确保响应性
                     setReplyTo(null);
                     setReplyContent('');
+                    setLocalValue('');
                   }}
                   className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   取消
                 </button>
                 <button
-                  onClick={() => handleSubmitReply(comment.id)}
-                  disabled={!replyContent.trim() || isLoading}
+                  onClick={() => {
+                    // 确保使用最新的本地值
+                    if (localValue.trim()) {
+                      setReplyContent(localValue);
+                      handleSubmitReply(comment.id);
+                    }
+                  }}
+                  disabled={!localValue.trim() || isLoading}
                   className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   回复
@@ -542,7 +587,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
                   请先登录后再发表评论
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">
-                  点击右上角的"登录"按钮选择身份
+                  点击右上角的&ldquo;登录&rdquo;按钮选择身份
                 </p>
               </div>
             )}
