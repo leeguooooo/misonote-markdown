@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Plus } from 'lucide-react';
+import { Upload, Plus, FolderPlus } from 'lucide-react';
 import AdminAuth from '@/components/auth/AdminAuth';
 import EnhancedFileTree from '@/components/admin/EnhancedFileTree';
 import MarkdownEditor from '@/components/admin/MarkdownEditor';
@@ -342,13 +342,27 @@ export default function AdminPage() {
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 文件管理
               </h2>
-              <button
-                onClick={() => setShowCreateDialog(true)}
-                className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                title="创建新文件"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const dirName = prompt('请输入文件夹名称:');
+                    if (dirName && dirName.trim()) {
+                      handleCreateDirectory('', dirName.trim());
+                    }
+                  }}
+                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                  title="创建根目录文件夹"
+                >
+                  <FolderPlus className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setShowCreateDialog(true)}
+                  className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                  title="创建新文件"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {/* 上传区域 */}
