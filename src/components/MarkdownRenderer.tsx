@@ -17,14 +17,17 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
         components={{
-          code({ node, inline, className, children, ...props }) {
+          code({ className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '');
             const language = match ? match[1] : '';
-            
-            if (!inline && language === 'mermaid') {
+
+            // 检查是否为代码块（有语言类名）还是内联代码
+            const isCodeBlock = className && className.startsWith('language-');
+
+            if (isCodeBlock && language === 'mermaid') {
               return <MermaidDiagram chart={String(children).replace(/\n$/, '')} />;
             }
-            
+
             return (
               <code className={className} {...props}>
                 {children}
@@ -91,8 +94,8 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           a({ href, children }) {
             return (
-              <a 
-                href={href} 
+              <a
+                href={href}
                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
                 target={href?.startsWith('http') ? '_blank' : undefined}
                 rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
