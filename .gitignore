@@ -40,3 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 logs
+docs/推广文章/掘金知乎推广文章.md

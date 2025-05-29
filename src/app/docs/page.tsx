@@ -1,6 +1,23 @@
 import { getDocBySlug } from '@/lib/docs';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '文档中心',
+  description: '浏览所有可用的文档，包括教程、API 文档、指南等。支持 Markdown 格式和 Mermaid 图表。',
+  keywords: ['文档', '教程', 'API', '指南', 'Markdown', 'Mermaid'],
+  openGraph: {
+    title: '文档中心 - 浏览所有文档',
+    description: '浏览所有可用的文档，包括教程、API 文档、指南等。支持 Markdown 格式和 Mermaid 图表。',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: '文档中心 - 浏览所有文档',
+    description: '浏览所有可用的文档，包括教程、API 文档、指南等。',
+  },
+};
 
 export default function DocsHomePage() {
   // Try to get the main README.md file
@@ -16,7 +33,7 @@ export default function DocsHomePage() {
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             这里是你的文档主页。请在 docs 目录下添加 README.md 文件来自定义此页面。
           </p>
-          
+
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 text-left">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
               快速开始：
@@ -38,7 +55,7 @@ export default function DocsHomePage() {
                 完整支持 GitHub Flavored Markdown，包括表格、代码块、任务列表等。
               </p>
             </div>
-            
+
             <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-green-900 dark:text-green-100 mb-2">
                 📊 Mermaid 图表

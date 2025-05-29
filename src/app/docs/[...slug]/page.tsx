@@ -3,6 +3,7 @@ import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { notFound } from 'next/navigation';
 import { Clock, Calendar } from 'lucide-react';
 import EditButton from '@/components/EditButton';
+import { Metadata } from 'next';
 
 interface DocPageProps {
   params: Promise<{
@@ -15,6 +16,64 @@ export async function generateStaticParams() {
   return docs.map((doc) => ({
     slug: doc.slug,
   }));
+}
+
+export async function generateMetadata({ params }: DocPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const decodedSlug = slug.map(segment => decodeURIComponent(segment));
+  const doc = getDocBySlug(decodedSlug);
+
+  if (!doc) {
+    return {
+      title: '文档未找到',
+      description: '请求的文档不存在',
+    };
+  }
+
+  // 提取文档摘要（前200个字符）
+  const excerpt = doc.content.replace(/[#*`]/g, '').substring(0, 200).trim() + '...';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+  const docUrl = `${baseUrl}/docs/${slug.join('/')}`;
+
+  return {
+    title: doc.title,
+    description: excerpt,
+    keywords: [doc.title, ...decodedSlug, 'Markdown', '文档', '教程'],
+    authors: [{ name: '文档中心团队' }],
+    alternates: {
+      canonical: docUrl,
+    },
+    openGraph: {
+      type: 'article',
+      locale: 'zh_CN',
+      url: docUrl,
+      title: doc.title,
+      description: excerpt,
+      siteName: '文档中心',
+      publishedTime: doc.lastModified.toISOString(),
+      modifiedTime: doc.lastModified.toISOString(),
+      section: decodedSlug[0] || '文档',
+      tags: decodedSlug,
+      images: [
+        {
+          url: '/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: doc.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: doc.title,
+      description: excerpt,
+      images: ['/og-image.png'],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
 }
 
 export default async function DocPage({ params }: DocPageProps) {

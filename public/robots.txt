@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /docs
+Allow: /docs/*
+Disallow: /admin
+Disallow: /api/admin
+Disallow: /api/auth
+
+# Sitemap
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
