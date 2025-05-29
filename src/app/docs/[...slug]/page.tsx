@@ -190,7 +190,7 @@ export default async function DocPage({ params }: DocPageProps) {
         </div>
 
       {/* 功能测试区域 */}
-      <div className="bg-blue-50   border border-blue-200   rounded-lg p-6 mb-8">
+      {/* <div className="bg-blue-50   border border-blue-200   rounded-lg p-6 mb-8">
         <h3 className="text-lg font-semibold text-blue-900   mb-4">
           🎯 功能测试区域
         </h3>
@@ -203,16 +203,16 @@ export default async function DocPage({ params }: DocPageProps) {
           <p>💾 <strong>数据持久化</strong>：评论和标注数据自动保存，刷新不丢失</p>
           <p>📝 <strong>测试文本</strong>：这是一段可以用来测试划词标注功能的文本，请尝试选中这段文字。</p>
         </div>
-      </div>
+      </div> */}
 
       {/* Debug Panel */}
-      <DebugPanel />
+      {/* <DebugPanel /> */}
 
       {/* Admin Controls */}
-      <AdminControls docPath={decodedSlug.join('/')} />
+      {/* <AdminControls docPath={decodedSlug.join('/')} /> */}
 
       {/* Immersive Reader */}
-      <ImmersiveReader />
+      {/* <ImmersiveReader /> */}
 
         {/* Right Sidebar Comments */}
         <DocPageClient docPath={decodedSlug.join('/')} />

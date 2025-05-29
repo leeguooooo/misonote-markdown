@@ -33,16 +33,25 @@ export default function DocsLayoutClient({ docTree, children }: DocsLayoutClient
   };
 
   return (
-    <div className="min-h-screen bg-gray-50  ">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50 relative">
+      {/* 文档页面背景网格 - 多层叠加 */}
+      <div className="fixed inset-0 bg-grid-docs opacity-50 pointer-events-none"></div>
+      <div className="fixed inset-0 bg-grid-floating opacity-60 pointer-events-none"></div>
+
+      {/* 微妙的浮动装饰 */}
+      <div className="fixed top-20 right-10 w-32 h-32 bg-blue-400/8 rounded-full blur-2xl pointer-events-none animate-pulse" style={{ animationDuration: '4s' }}></div>
+      <div className="fixed bottom-20 left-10 w-40 h-40 bg-purple-400/8 rounded-full blur-2xl pointer-events-none animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }}></div>
+      <div className="fixed top-1/2 right-1/4 w-24 h-24 bg-indigo-400/6 rounded-full blur-xl pointer-events-none animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }}></div>
+
       {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 z-40 bg-white   border-b border-gray-200  ">
+      <div className="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <Header onMenuToggle={handleMenuToggle} isMobileMenuOpen={isMobileMenuOpen} />
       </div>
 
       <div className="flex pt-16">
         {/* Fixed Desktop Sidebar */}
         <div className="hidden lg:block w-64 flex-shrink-0">
-          <div className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] overflow-y-auto border-r border-gray-200   bg-white  ">
+          <div className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] overflow-y-auto border-r border-gray-200 bg-white/95 backdrop-blur-sm z-30">
             <Sidebar docTree={docTree} currentPath={currentPath} />
           </div>
         </div>
@@ -54,7 +63,7 @@ export default function DocsLayoutClient({ docTree, children }: DocsLayoutClient
               className="fixed inset-0 bg-black/50"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <div className="relative bg-white   w-64 mt-16">
+            <div className="relative bg-white/95 backdrop-blur-sm w-64 mt-16">
               <div className="h-[calc(100vh-4rem)] overflow-y-auto">
                 <Sidebar docTree={docTree} currentPath={currentPath} />
               </div>
@@ -65,19 +74,26 @@ export default function DocsLayoutClient({ docTree, children }: DocsLayoutClient
         {/* Main Content Area */}
         <div className="flex-1 flex">
           {/* Document Content */}
-          <main className="flex-1 min-w-0">
-            <div className="min-h-[calc(100vh-4rem)] bg-gray-50  ">
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
+          <main className="flex-1 min-w-0 relative z-20">
+            <div className="min-h-[calc(100vh-4rem)] bg-transparent">
+              {/* 响应式容器：充分利用可用空间 */}
+              <div className="w-full px-2 sm:px-3 lg:px-4 xl:px-6 py-3 sm:py-4">
+                <div className="bg-white/92 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200/50 p-4 sm:p-6 lg:p-8 relative w-full">
+                  {/* 内容区域的微妙网格背景 */}
+                  <div className="absolute inset-0 bg-grid-docs-subtle opacity-20 rounded-xl pointer-events-none"></div>
+                  <div className="relative z-10">
+                    {children}
+                  </div>
+                </div>
               </div>
             </div>
           </main>
 
-          {/* Right Sidebar for Comments */}
-          <aside className="hidden xl:block w-80 flex-shrink-0">
+          {/* Right Sidebar for Comments - 调整宽度 */}
+          <aside className="hidden xl:block w-72 flex-shrink-0">
             <div
               id="comments-sidebar"
-              className="fixed top-16 right-0 w-80 h-[calc(100vh-4rem)] bg-white   border-l border-gray-200   overflow-y-auto"
+              className="fixed top-16 right-0 w-72 h-[calc(100vh-4rem)] bg-white/95 backdrop-blur-sm border-l border-gray-200 overflow-y-auto z-30"
             >
               {/* Comments will be rendered here */}
             </div>

@@ -336,9 +336,13 @@ export default function AdminPage() {
 
   return (
     <AdminAuth>
-      <div className="min-h-screen bg-gray-50   flex">
+      <div className="min-h-screen bg-gray-50 flex relative">
+        {/* 管理页面背景网格 */}
+        <div className="fixed inset-0 bg-grid-slate-200 bg-grid-lg opacity-25 pointer-events-none"></div>
+        <div className="fixed inset-0 bg-grid-dots-purple opacity-15 pointer-events-none"></div>
+
         {/* 左侧文件树 */}
-        <div className="w-80 bg-white   border-r border-gray-200  ">
+        <div className="w-80 bg-white/95 backdrop-blur-sm border-r border-gray-200 relative z-10">
           <div className="p-4 border-b border-gray-200  ">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900  ">
@@ -396,21 +400,27 @@ export default function AdminPage() {
         </div>
 
         {/* 右侧编辑器 */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col relative z-10">
           {currentFile ? (
-            <MarkdownEditor
-              file={currentFile}
-              onContentChange={handleContentChange}
-              onSave={() => handleSaveFile(currentFile)}
-              isFullscreen={isFullscreen}
-              onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
-            />
+            <div className="flex-1 bg-white/90 backdrop-blur-sm">
+              <MarkdownEditor
+                file={currentFile}
+                onContentChange={handleContentChange}
+                onSave={() => handleSaveFile(currentFile)}
+                isFullscreen={isFullscreen}
+                onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
+              />
+            </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-white  ">
-              <div className="text-center text-gray-500  ">
-                <Upload className="w-16 h-16 mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">选择文件开始编辑</h3>
-                <p>从左侧选择文件或创建新文件来开始编辑</p>
+            <div className="flex-1 flex items-center justify-center bg-white/90 backdrop-blur-sm relative">
+              {/* 空状态的微妙网格背景 */}
+              <div className="absolute inset-0 bg-grid-blue-100 bg-grid-sm opacity-30 pointer-events-none"></div>
+              <div className="text-center text-gray-500 relative z-10">
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-12 shadow-xl border border-gray-200/50">
+                  <Upload className="w-16 h-16 mx-auto mb-4 text-blue-500" />
+                  <h3 className="text-lg font-medium mb-2">选择文件开始编辑</h3>
+                  <p>从左侧选择文件或创建新文件来开始编辑</p>
+                </div>
               </div>
             </div>
           )}

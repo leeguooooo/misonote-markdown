@@ -34,6 +34,7 @@ body {
 .prose {
   color: #374151;
   max-width: none;
+  width: 100%;
 }
 
 .prose h1,
@@ -160,6 +161,131 @@ mark {
 .bg-grid-slate-100 {
   background-image: linear-gradient(to right, rgb(241 245 249 / 0.5) 1px, transparent 1px),
                     linear-gradient(to bottom, rgb(241 245 249 / 0.5) 1px, transparent 1px);
+}
+
+.bg-grid-slate-200 {
+  background-image: linear-gradient(to right, rgb(226 232 240 / 0.6) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgb(226 232 240 / 0.6) 1px, transparent 1px);
+}
+
+.bg-grid-blue-100 {
+  background-image: linear-gradient(to right, rgb(219 234 254 / 0.4) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgb(219 234 254 / 0.4) 1px, transparent 1px);
+}
+
+.bg-grid-purple-100 {
+  background-image: linear-gradient(to right, rgb(243 232 255 / 0.4) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgb(243 232 255 / 0.4) 1px, transparent 1px);
+}
+
+/* 网格背景尺寸变体 */
+.bg-grid-sm {
+  background-size: 16px 16px;
+}
+
+.bg-grid-md {
+  background-size: 20px 20px;
+}
+
+.bg-grid-lg {
+  background-size: 32px 32px;
+}
+
+.bg-grid-xl {
+  background-size: 48px 48px;
+}
+
+/* 高级网格背景效果 */
+.bg-grid-dots {
+  background-image: radial-gradient(circle, rgb(148 163 184 / 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-grid-dots-blue {
+  background-image: radial-gradient(circle, rgb(59 130 246 / 0.2) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-grid-dots-purple {
+  background-image: radial-gradient(circle, rgb(147 51 234 / 0.2) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* 动态网格背景 */
+.bg-grid-animated {
+  background-image:
+    linear-gradient(to right, rgb(59 130 246 / 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(59 130 246 / 0.1) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 40px 40px;
+  }
+}
+
+/* 渐变网格背景 */
+.bg-grid-gradient {
+  background-image:
+    linear-gradient(to right, rgb(59 130 246 / 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(147 51 234 / 0.1) 1px, transparent 1px),
+    linear-gradient(135deg, rgb(59 130 246 / 0.05), rgb(147 51 234 / 0.05));
+  background-size: 32px 32px, 32px 32px, 100% 100%;
+}
+
+/* 3D 网格效果 */
+.bg-grid-3d {
+  background-image:
+    linear-gradient(to right, rgb(59 130 246 / 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(59 130 246 / 0.15) 1px, transparent 1px);
+  background-size: 24px 24px;
+  position: relative;
+}
+
+.bg-grid-3d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(to right, rgb(147 51 234 / 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(147 51 234 / 0.1) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: 12px 12px;
+  pointer-events: none;
+}
+
+/* 文档页面专用网格 */
+.bg-grid-docs {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.3) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.3) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-grid-docs-subtle {
+  background-image:
+    linear-gradient(to right, rgb(203 213 225 / 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(203 213 225 / 0.4) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* 浮动网格效果 */
+.bg-grid-floating {
+  background-image:
+    linear-gradient(to right, rgb(59 130 246 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(59 130 246 / 0.08) 1px, transparent 1px),
+    radial-gradient(circle at 25% 25%, rgb(59 130 246 / 0.05) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, rgb(147 51 234 / 0.05) 2px, transparent 2px);
+  background-size: 24px 24px, 24px 24px, 48px 48px, 48px 48px;
+  background-position: 0 0, 0 0, 0 0, 24px 24px;
 }
 
 
