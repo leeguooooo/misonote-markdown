@@ -19,9 +19,17 @@ export async function generateStaticParams() {
 
 export default async function DocPage({ params }: DocPageProps) {
   const { slug } = await params;
-  const doc = getDocBySlug(slug);
+
+  // 解码 URL 编码的中文字符
+  const decodedSlug = slug.map(segment => decodeURIComponent(segment));
+
+  console.log('Original slug:', slug);
+  console.log('Decoded slug:', decodedSlug);
+
+  const doc = getDocBySlug(decodedSlug);
 
   if (!doc) {
+    console.log('Document not found for slug:', decodedSlug);
     notFound();
   }
 
@@ -43,7 +51,7 @@ export default async function DocPage({ params }: DocPageProps) {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             {doc.title}
           </h1>
-          <EditButton docPath={slug.join('/')} />
+          <EditButton docPath={decodedSlug.join('/')} />
         </div>
 
         <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
@@ -66,14 +74,14 @@ export default async function DocPage({ params }: DocPageProps) {
                 文档
               </a>
             </li>
-            {slug.map((segment, index) => (
+            {decodedSlug.map((segment, index) => (
               <li key={index} className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                {index === slug.length - 1 ? (
+                {index === decodedSlug.length - 1 ? (
                   <span className="text-gray-500 dark:text-gray-400">{segment}</span>
                 ) : (
                   <a
-                    href={`/docs/${slug.slice(0, index + 1).join('/')}`}
+                    href={`/docs/${decodedSlug.slice(0, index + 1).map(s => encodeURIComponent(s)).join('/')}`}
                     className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     {segment}
@@ -95,7 +103,7 @@ export default async function DocPage({ params }: DocPageProps) {
         <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <div>
             文档路径：<code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
-              /{slug.join('/')}
+              /{decodedSlug.join('/')}
             </code>
           </div>
 

@@ -22,7 +22,9 @@ import {
   EyeOff,
   ArrowUpDown,
   SortAsc,
-  SortDesc
+  SortDesc,
+  Expand,
+  Minimize
 } from 'lucide-react';
 
 interface FileItem {
@@ -73,7 +75,7 @@ export default function EnhancedFileTree({
   onToggleHidden,
   showHidden = true,
 }: EnhancedFileTreeProps) {
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['']));
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [draggedItem, setDraggedItem] = useState<TreeNode | null>(null);
   const [dragOverItem, setDragOverItem] = useState<string | null>(null);
@@ -384,6 +386,30 @@ export default function EnhancedFileTree({
     setExpandedFolders(newExpanded);
   };
 
+  // 展开所有文件夹
+  const expandAll = () => {
+    const allFolderPaths = new Set<string>();
+
+    const collectFolderPaths = (nodes: TreeNode[]) => {
+      nodes.forEach(node => {
+        if (node.type === 'folder') {
+          allFolderPaths.add(node.path);
+          if (node.children) {
+            collectFolderPaths(node.children);
+          }
+        }
+      });
+    };
+
+    collectFolderPaths(buildTree(files));
+    setExpandedFolders(allFolderPaths);
+  };
+
+  // 折叠所有文件夹
+  const collapseAll = () => {
+    setExpandedFolders(new Set());
+  };
+
   const renderNode = (node: TreeNode, level: number = 0): React.ReactNode => {
     const isExpanded = expandedFolders.has(node.path);
     const isSelected = currentFile?.path === node.path;
@@ -620,29 +646,49 @@ export default function EnhancedFileTree({
           />
         </div>
 
-        {/* 排序控制 */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-gray-500 dark:text-gray-400">排序:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'type')}
-            className="px-2 py-1 border border-gray-300 rounded text-xs bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
-          >
-            <option value="name">名称</option>
-            <option value="date">日期</option>
-            <option value="type">类型</option>
-          </select>
-          <button
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-            title={sortOrder === 'asc' ? '升序' : '降序'}
-          >
-            {sortOrder === 'asc' ? (
-              <SortAsc className="w-3 h-3" />
-            ) : (
-              <SortDesc className="w-3 h-3" />
-            )}
-          </button>
+        {/* 排序和展开控制 */}
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500 dark:text-gray-400">排序:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'type')}
+              className="px-2 py-1 border border-gray-300 rounded text-xs bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+            >
+              <option value="name">名称</option>
+              <option value="date">日期</option>
+              <option value="type">类型</option>
+            </select>
+            <button
+              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              title={sortOrder === 'asc' ? '升序' : '降序'}
+            >
+              {sortOrder === 'asc' ? (
+                <SortAsc className="w-3 h-3" />
+              ) : (
+                <SortDesc className="w-3 h-3" />
+              )}
+            </button>
+          </div>
+
+          {/* 展开/折叠控制 */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={expandAll}
+              className="px-2 py-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="展开所有文件夹"
+            >
+              <Expand className="w-3 h-3" />
+            </button>
+            <button
+              onClick={collapseAll}
+              className="px-2 py-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              title="折叠所有文件夹"
+            >
+              <Minimize className="w-3 h-3" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -778,7 +824,7 @@ export default function EnhancedFileTree({
         共 {files.length} 个文件
         {searchTerm && ` (显示 ${filteredTree.length} 个匹配)`}
         <div className="mt-1 text-xs text-gray-400">
-          💡 拖拽文件到文件夹可移动，右键查看更多选项
+          💡 点击文件夹展开，拖拽移动文件，右键查看更多选项
         </div>
       </div>
     </div>

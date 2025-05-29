@@ -99,7 +99,7 @@ export function getDocTree(): DocTree {
 
         children.push({
           name: item.replace('.md', ''),
-          path: fullPath,
+          path: slug.join('/'), // 使用相对路径而不是绝对路径
           type: 'file',
           file,
         });
@@ -116,7 +116,7 @@ export function getDocTree(): DocTree {
 
     return {
       name,
-      path: dir,
+      path: basePath.join('/'), // 使用相对路径而不是绝对路径
       type: 'directory',
       children,
     };
