@@ -1,8 +1,15 @@
-# Markdown 文档预览系统
+# 现代化 Markdown 文档预览系统
+
+[![GitHub stars](https://img.shields.io/github/stars/leeguooooo/markdown-site?style=social)](https://github.com/leeguooooo/markdown-site)
+[![GitHub forks](https://img.shields.io/github/forks/leeguooooo/markdown-site?style=social)](https://github.com/leeguooooo/markdown-site)
+[![GitHub license](https://img.shields.io/github/license/leeguooooo/markdown-site)](https://github.com/leeguooooo/markdown-site/blob/main/LICENSE)
+[![Made by leeguoo](https://img.shields.io/badge/Made%20by-leeguoo-blue)](https://github.com/leeguooooo)
 
 [English](./README.en.md) | [日本語](./README.ja.md) | 中文
 
 一个现代化的 Markdown 文档管理和预览系统，支持 Mermaid 图表、全局搜索、目录导航等功能。
+
+> 🚀 **如果这个项目对你有帮助，请给个 ⭐ Star 支持一下！**
 
 ## ✨ 特性
 
@@ -21,8 +28,8 @@
 
 1. **克隆项目**
    ```bash
-   git clone <repository-url>
-   cd markdown-preview
+   git clone https://github.com/leeguooooo/markdown-site
+   cd markdown-site
    ```
 
 2. **安装依赖**
@@ -203,5 +210,13 @@ MIT License
 3. 查看 [文档](./docs)
 
 ---
+
+## 👨‍💻 作者
+
+**leeguoo** - [GitHub](https://github.com/leeguooooo) | [个人主页](docs/关于作者/leeguoo.md)
+
+## 🌟 致谢
+
+感谢所有为这个项目做出贡献的开发者！
 
 **享受使用 Markdown 文档系统！** 🎉

@@ -23,8 +23,9 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
           "query-input": "required name=search_term_string"
         },
         "author": {
-          "@type": "Organization",
-          "name": "文档中心团队"
+          "@type": "Person",
+          "name": "leeguoo",
+          "url": "https://github.com/leeguooooo"
         }
       };
       break;
@@ -39,16 +40,14 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
         "datePublished": data.publishedTime,
         "dateModified": data.modifiedTime,
         "author": {
-          "@type": "Organization",
-          "name": "文档中心团队"
+          "@type": "Person",
+          "name": "leeguoo",
+          "url": "https://github.com/leeguooooo"
         },
         "publisher": {
-          "@type": "Organization",
-          "name": "文档中心",
-          "logo": {
-            "@type": "ImageObject",
-            "url": `${data.baseUrl}/logo.png`
-          }
+          "@type": "Person",
+          "name": "leeguoo",
+          "url": "https://github.com/leeguooooo"
         },
         "mainEntityOfPage": {
           "@type": "WebPage",
@@ -72,8 +71,9 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
           "priceCurrency": "USD"
         },
         "author": {
-          "@type": "Organization",
-          "name": "文档中心团队"
+          "@type": "Person",
+          "name": "leeguoo",
+          "url": "https://github.com/leeguooooo"
         }
       };
       break;

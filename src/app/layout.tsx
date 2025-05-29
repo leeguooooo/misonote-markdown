@@ -20,9 +20,9 @@ export const metadata: Metadata = {
   },
   description: "开源的现代化 Markdown 文档预览系统，支持 Mermaid 图表、全局搜索、目录导航、拖拽管理。基于 Next.js 14 构建，提供完整的文档管理解决方案。",
   keywords: ["Markdown", "文档系统", "Mermaid", "Next.js", "开源", "文档预览", "全局搜索", "图表", "文档管理"],
-  authors: [{ name: "文档中心团队" }],
-  creator: "文档中心",
-  publisher: "文档中心",
+  authors: [{ name: "leeguoo", url: "https://github.com/leeguooooo" }],
+  creator: "leeguoo",
+  publisher: "leeguoo",
   formatDetection: {
     email: false,
     address: false,
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     title: '现代化 Markdown 文档系统',
     description: '开源的现代化 Markdown 文档预览系统，支持 Mermaid 图表、全局搜索、目录导航',
     images: ['/og-image.png'],
-    creator: '@docs_center',
+    creator: '@leeguoo',
   },
   robots: {
     index: true,

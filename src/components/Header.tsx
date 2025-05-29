@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Menu, X, BookOpen } from 'lucide-react';
 import SearchDialog from './SearchDialog';
+import GitHubLink from './GitHubLink';
 import { DocFile } from '@/lib/docs';
 
 interface HeaderProps {
@@ -82,18 +83,21 @@ export default function Header({ onMenuToggle, isMobileMenuOpen }: HeaderProps) 
                 文档
               </Link>
               <Link
-                href="/docs/api"
+                href="/docs/示例文档/api"
                 className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
               >
                 API
               </Link>
               <Link
-                href="/docs/tutorials"
+                href="/docs/示例文档/tutorials"
                 className="text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors"
               >
                 教程
               </Link>
             </nav>
+
+            {/* GitHub Link */}
+            <GitHubLink variant="header" />
 
             {/* Theme toggle could go here */}
           </div>
