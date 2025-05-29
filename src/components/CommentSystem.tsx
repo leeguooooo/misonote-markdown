@@ -168,7 +168,7 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
     isReply?: boolean;
     parentId?: string;
   }) => (
-    <div className={`${isReply ? 'ml-12 mt-4' : 'mb-6'} bg-white   rounded-lg p-4 border border-gray-200  
+    <div className={`${isReply ? 'ml-12 mt-4' : 'mb-6'} bg-white rounded-lg p-4 border border-gray-200`}>
       <div className="flex items-start gap-3">
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
           {comment.author[0]}
