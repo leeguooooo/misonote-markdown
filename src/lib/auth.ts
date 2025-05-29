@@ -7,6 +7,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-i
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 const DEFAULT_ADMIN_PASSWORD = 'admin123'; // 仅用于开发环境
 
+// 调试信息
+console.log('🔍 环境变量调试信息:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('JWT_SECRET:', JWT_SECRET ? '已设置' : '未设置');
+console.log('ADMIN_PASSWORD_HASH:', ADMIN_PASSWORD_HASH ? '已设置' : '未设置');
+if (ADMIN_PASSWORD_HASH) {
+  console.log('ADMIN_PASSWORD_HASH 长度:', ADMIN_PASSWORD_HASH.length);
+  console.log('ADMIN_PASSWORD_HASH 前缀:', ADMIN_PASSWORD_HASH.substring(0, 10));
+}
+
 export interface AuthUser {
   id: string;
   username: string;
@@ -70,7 +80,7 @@ export function verifyToken(token: string): AuthUser | null {
  */
 export function authenticateRequest(request: NextRequest): AuthUser | null {
   const authHeader = request.headers.get('authorization');
-  
+
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null;
   }
@@ -111,18 +121,18 @@ export function getSecurityStatus() {
  */
 function getSecurityRecommendations(): string[] {
   const recommendations: string[] = [];
-  
+
   if (!ADMIN_PASSWORD_HASH) {
     recommendations.push('设置 ADMIN_PASSWORD_HASH 环境变量');
   }
-  
+
   if (JWT_SECRET === 'your-super-secret-jwt-key-change-in-production') {
     recommendations.push('设置 JWT_SECRET 环境变量');
   }
-  
+
   if (isProduction() && recommendations.length > 0) {
     recommendations.unshift('⚠️ 生产环境安全警告');
   }
-  
+
   return recommendations;
 }
