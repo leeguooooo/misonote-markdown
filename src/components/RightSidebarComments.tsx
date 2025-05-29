@@ -387,7 +387,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
     }, []);
 
     return (
-    <div className={`${isReply ? 'ml-6 mt-3' : 'mb-4'} bg-gray-50 dark:bg-gray-700 rounded-lg p-3`}>
+    <div className={`${isReply ? 'ml-6 mt-3' : 'mb-4'} bg-gray-50   rounded-lg p-3`}>
       <div className="flex items-start gap-2">
         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${getUserBadgeColor(comment.authorRole)}`}>
           {comment.author[0]}
@@ -395,15 +395,15 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium text-gray-900 dark:text-gray-100 text-sm">{comment.author}</span>
+            <span className="font-medium text-gray-900   text-sm">{comment.author}</span>
             {getRoleIcon(comment.authorRole)}
-            <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+            <span className="text-xs text-gray-500   flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {formatTime(comment.timestamp)}
             </span>
           </div>
 
-          <p className="text-gray-700 dark:text-gray-300 text-sm mb-2 leading-relaxed">{comment.content}</p>
+          <p className="text-gray-700   text-sm mb-2 leading-relaxed">{comment.content}</p>
 
           <div className="flex items-center gap-3">
             <button
@@ -411,7 +411,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
               className={`flex items-center gap-1 text-xs transition-colors ${
                 comment.isLiked
                   ? 'text-red-500'
-                  : 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400'
+                  : 'text-gray-500 hover:text-red-500    '
               }`}
             >
               <Heart className={`w-3 h-3 ${comment.isLiked ? 'fill-current' : ''}`} />
@@ -421,7 +421,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
             {!isReply && (
               <button
                 onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500     transition-colors"
               >
                 <Reply className="w-3 h-3" />
                 回复
@@ -433,7 +433,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
               <button
                 onClick={() => handleDeleteComment(comment.id, isReply, parentId)}
                 disabled={deletingCommentId === comment.id}
-                className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500     transition-colors disabled:opacity-50"
                 title="删除评论"
               >
                 <Trash2 className="w-3 h-3" />
@@ -444,7 +444,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
 
           {/* 回复输入框 - 使用优化后的状态管理 */}
           {replyTo === comment.id && (
-            <div className="mt-3 p-2 bg-white dark:bg-gray-600 rounded">
+            <div className="mt-3 p-2 bg-white   rounded">
               <textarea
                 ref={replyInputRef}
                 value={localValue}
@@ -458,7 +458,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
                   setReplyContent(value);
                 }}
                 placeholder={`回复 ${comment.author}...`}
-                className="w-full p-2 text-sm border border-gray-300 dark:border-gray-500 rounded resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-2 text-sm border border-gray-300   rounded resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                 rows={2}
               />
               <div className="flex justify-end gap-2 mt-2">
@@ -469,7 +469,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
                     setReplyContent('');
                     setLocalValue('');
                   }}
-                  className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  className="px-2 py-1 text-xs text-gray-600   hover:text-gray-800  "
                 >
                   取消
                 </button>
@@ -515,16 +515,16 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
   if (!isMounted) {
     return (
       <div className="h-full flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200  ">
           <div className="flex items-center gap-2">
             <MessageCircle className="w-4 h-4 text-blue-600" />
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="font-semibold text-gray-900  ">
               评论
             </h3>
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <div className="text-gray-500 dark:text-gray-400">加载中...</div>
+          <div className="text-gray-500  ">加载中...</div>
         </div>
       </div>
     );
@@ -533,16 +533,16 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200  ">
         <div className="flex items-center gap-2">
           <MessageCircle className="w-4 h-4 text-blue-600" />
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="font-semibold text-gray-900  ">
             评论 ({comments.length})
           </h3>
         </div>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          className="p-1 text-gray-500 hover:text-gray-700    "
         >
           {isCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
@@ -551,14 +551,14 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
       {!isCollapsed && (
         <>
           {/* 新评论输入 */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-600">
+          <div className="p-4 border-b border-gray-200  ">
             {isLoggedIn ? (
               <>
                 <div className="flex items-center gap-2 mb-3">
                   <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-medium ${getUserBadgeColor(user?.role)}`}>
                     {user?.name[0]}
                   </div>
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                  <span className="text-sm text-gray-700  ">
                     以 <strong>{user?.name}</strong> 身份发表评论
                   </span>
                   {getRoleIcon(user?.role)}
@@ -567,7 +567,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="分享你的想法..."
-                  className="w-full p-3 text-sm border border-gray-300 dark:border-gray-600 rounded resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full p-3 text-sm border border-gray-300   rounded resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows={3}
                 />
                 <div className="flex justify-end mt-2">
@@ -583,10 +583,10 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
               </>
             ) : (
               <div className="text-center py-6">
-                <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
+                <p className="text-gray-500   text-sm mb-3">
                   请先登录后再发表评论
                 </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">
+                <p className="text-xs text-gray-400  ">
                   点击右上角的&ldquo;登录&rdquo;按钮选择身份
                 </p>
               </div>
@@ -598,7 +598,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
             {comments.length === 0 ? (
               <div className="text-center py-8">
                 <MessageCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500 dark:text-gray-400 text-sm">还没有评论，来发表第一个评论吧！</p>
+                <p className="text-gray-500   text-sm">还没有评论，来发表第一个评论吧！</p>
               </div>
             ) : (
               comments

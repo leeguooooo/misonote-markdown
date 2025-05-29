@@ -112,17 +112,17 @@ export default async function DocPage({ params }: DocPageProps) {
     <ImmersiveWrapper>
       <div className="space-y-8">
         {/* Document Content */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="bg-white   rounded-lg shadow-sm border border-gray-200  ">
           {/* Document Header */}
-          <div className="border-b border-gray-200 dark:border-gray-700 px-8 py-6">
+          <div className="border-b border-gray-200   px-8 py-6">
             <div className="flex items-start justify-between mb-4">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              <h1 className="text-3xl font-bold text-gray-900  ">
                 {doc.title}
               </h1>
               <EditButton docPath={decodedSlug.join('/')} />
             </div>
 
-            <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-6 text-sm text-gray-500  ">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span>最后更新：{formatDate(doc.lastModified)}</span>
@@ -138,7 +138,7 @@ export default async function DocPage({ params }: DocPageProps) {
             <nav className="mt-4">
               <ol className="flex items-center space-x-2 text-sm">
                 <li>
-                  <a href="/docs" className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                  <a href="/docs" className="text-blue-600 hover:text-blue-800    ">
                     文档
                   </a>
                 </li>
@@ -146,11 +146,11 @@ export default async function DocPage({ params }: DocPageProps) {
                   <li key={index} className="flex items-center">
                     <span className="mx-2 text-gray-400">/</span>
                     {index === decodedSlug.length - 1 ? (
-                      <span className="text-gray-500 dark:text-gray-400">{segment}</span>
+                      <span className="text-gray-500  ">{segment}</span>
                     ) : (
                       <a
                         href={`/docs/${decodedSlug.slice(0, index + 1).map(s => encodeURIComponent(s)).join('/')}`}
-                        className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                        className="text-blue-600 hover:text-blue-800    "
                       >
                         {segment}
                       </a>
@@ -169,19 +169,19 @@ export default async function DocPage({ params }: DocPageProps) {
           </div>
 
           {/* Document Footer */}
-          <div className="border-t border-gray-200 dark:border-gray-700 px-8 py-4">
-            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+          <div className="border-t border-gray-200   px-8 py-4">
+            <div className="flex items-center justify-between text-sm text-gray-500  ">
               <div>
-                文档路径：<code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
+                文档路径：<code className="bg-gray-100   px-2 py-1 rounded text-xs">
                   /{decodedSlug.join('/')}
                 </code>
               </div>
 
               <div className="flex items-center gap-4">
-                <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                <button className="text-blue-600 hover:text-blue-800    ">
                   编辑此页
                 </button>
-                <button className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                <button className="text-blue-600 hover:text-blue-800    ">
                   报告问题
                 </button>
               </div>
@@ -190,11 +190,11 @@ export default async function DocPage({ params }: DocPageProps) {
         </div>
 
       {/* 功能测试区域 */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6 mb-8">
-        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-4">
+      <div className="bg-blue-50   border border-blue-200   rounded-lg p-6 mb-8">
+        <h3 className="text-lg font-semibold text-blue-900   mb-4">
           🎯 功能测试区域
         </h3>
-        <div className="space-y-3 text-blue-800 dark:text-blue-200">
+        <div className="space-y-3 text-blue-800  ">
           <p>✅ <strong>用户登录</strong>：右上角登录选择身份（管理员/用户）</p>
           <p>✅ <strong>划词标注</strong>：登录后选中文档文字，会出现标注菜单</p>
           <p>✅ <strong>右侧评论栏</strong>：在右侧可以看到评论区域（大屏幕显示）</p>

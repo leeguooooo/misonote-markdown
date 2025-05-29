@@ -12,7 +12,7 @@ interface MarkdownRendererProps {
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   return (
-    <div className="prose prose-slate max-w-none dark:prose-invert">
+    <div className="prose prose-slate max-w-none  ">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
@@ -36,7 +36,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           pre({ children }) {
             return (
-              <pre className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 overflow-x-auto">
+              <pre className="bg-gray-50   rounded-lg p-4 overflow-x-auto">
                 {children}
               </pre>
             );
@@ -44,7 +44,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           table({ children }) {
             return (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <table className="min-w-full divide-y divide-gray-200  ">
                   {children}
                 </table>
               </div>
@@ -52,42 +52,42 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           th({ children }) {
             return (
-              <th className="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th className="px-6 py-3 bg-gray-50   text-left text-xs font-medium text-gray-500   uppercase tracking-wider">
                 {children}
               </th>
             );
           },
           td({ children }) {
             return (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900  ">
                 {children}
               </td>
             );
           },
           blockquote({ children }) {
             return (
-              <blockquote className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 dark:bg-blue-900/20 my-4">
+              <blockquote className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50   my-4">
                 {children}
               </blockquote>
             );
           },
           h1({ children }) {
             return (
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+              <h1 className="text-3xl font-bold text-gray-900   mt-8 mb-4 pb-2 border-b border-gray-200  ">
                 {children}
               </h1>
             );
           },
           h2({ children }) {
             return (
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-6 mb-3">
+              <h2 className="text-2xl font-semibold text-gray-900   mt-6 mb-3">
                 {children}
               </h2>
             );
           },
           h3({ children }) {
             return (
-              <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mt-5 mb-2">
+              <h3 className="text-xl font-medium text-gray-900   mt-5 mb-2">
                 {children}
               </h3>
             );
@@ -96,7 +96,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             return (
               <a
                 href={href}
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+                className="text-blue-600   hover:text-blue-800   underline"
                 target={href?.startsWith('http') ? '_blank' : undefined}
                 rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
               >
@@ -120,7 +120,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           li({ children }) {
             return (
-              <li className="text-gray-700 dark:text-gray-300">
+              <li className="text-gray-700  ">
                 {children}
               </li>
             );

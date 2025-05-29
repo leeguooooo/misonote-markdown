@@ -62,12 +62,12 @@ export default function GitHubLink({
           href={githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${baseClasses} px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 font-medium ${className}`}
+          className={`${baseClasses} px-4 py-2 bg-gray-900   text-white   rounded-lg hover:bg-gray-800   font-medium ${className}`}
         >
           <Github className="w-5 h-5" />
           <span>GitHub</span>
           {showStats && stats && (
-            <div className="flex items-center gap-3 ml-2 pl-2 border-l border-gray-600 dark:border-gray-400">
+            <div className="flex items-center gap-3 ml-2 pl-2 border-l border-gray-600  ">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4" />
                 <span className="text-sm">{stats.stars}</span>
@@ -88,7 +88,7 @@ export default function GitHubLink({
           href={githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${baseClasses} px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm hover:bg-blue-200 dark:hover:bg-blue-800 ${className}`}
+          className={`${baseClasses} px-3 py-1 bg-blue-100   text-blue-800   rounded-full text-sm hover:bg-blue-200   ${className}`}
         >
           <Github className="w-4 h-4" />
           <span>开源项目</span>
@@ -101,7 +101,7 @@ export default function GitHubLink({
           href={githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${baseClasses} text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 ${className}`}
+          className={`${baseClasses} text-gray-600   hover:text-gray-900   ${className}`}
           title="查看源代码"
         >
           <Github className="w-5 h-5" />
@@ -123,14 +123,14 @@ export default function GitHubLink({
             href={githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            className="flex items-center gap-2 text-gray-600   hover:text-gray-900  "
           >
             <Github className="w-5 h-5" />
             <span>开源项目</span>
             <ExternalLink className="w-4 h-4" />
           </a>
           {showStats && stats && (
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-500">
+            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500  ">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4" />
                 <span>{stats.stars} Stars</span>
@@ -141,13 +141,13 @@ export default function GitHubLink({
               </div>
             </div>
           )}
-          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+          <p className="text-xs text-gray-500   mt-1">
             Made with ❤️ by{' '}
             <a
               href={process.env.NEXT_PUBLIC_AUTHOR_GITHUB}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-blue-600   hover:underline"
             >
               {authorName}
             </a>

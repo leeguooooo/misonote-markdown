@@ -423,9 +423,9 @@ export default function EnhancedFileTree({
           draggable
           onDragStart={(e) => handleDragStart(e, node)}
           onContextMenu={(e) => handleContextMenu(e, node)}
-          className={`flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors ${
-            isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-          } ${isDragOver ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
+          className={`flex items-center justify-between group hover:bg-gray-50   rounded-lg transition-colors ${
+            isSelected ? 'bg-blue-50  ' : ''
+          } ${isDragOver ? 'bg-green-50  ' : ''}`}
           style={{ paddingLeft: `${level * 20 + 8}px` }}
         >
           <div
@@ -457,8 +457,8 @@ export default function EnhancedFileTree({
             ) : (
               <span className={`text-sm truncate flex items-center gap-2 ${
                 node.file.isHidden
-                  ? 'text-gray-400 dark:text-gray-500 italic'
-                  : 'text-gray-900 dark:text-gray-100'
+                  ? 'text-gray-400   italic'
+                  : 'text-gray-900  '
               }`}>
                 {node.file.isHidden && <EyeOff className="w-3 h-3" />}
                 {node.file.name}
@@ -523,8 +523,8 @@ export default function EnhancedFileTree({
             onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, node)}
             onContextMenu={(e) => handleContextMenu(e, node)}
-            className={`flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors ${
-              isDragOver ? 'bg-green-50 dark:bg-green-900/20 border border-green-300' : ''
+            className={`flex items-center justify-between group hover:bg-gray-50   rounded-lg transition-colors ${
+              isDragOver ? 'bg-green-50   border border-green-300' : ''
             } ${draggedItem?.path === node.path ? 'opacity-50' : ''}`}
             style={{ paddingLeft: `${level * 20 + 8}px` }}
           >
@@ -568,8 +568,8 @@ export default function EnhancedFileTree({
                   <span className={`text-sm font-medium flex items-center gap-2 ${
                     (node.file?.isHidden ||
                      files.find(f => f.path === node.path && f.type === 'folder')?.isHidden)
-                      ? 'text-gray-400 dark:text-gray-500 italic'
-                      : 'text-gray-900 dark:text-gray-100'
+                      ? 'text-gray-400   italic'
+                      : 'text-gray-900  '
                   }`}>
                     {(node.file?.isHidden ||
                       files.find(f => f.path === node.path && f.type === 'folder')?.isHidden) &&
@@ -634,7 +634,7 @@ export default function EnhancedFileTree({
   return (
     <div className="h-full flex flex-col">
       {/* 搜索框和排序控制 */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200  ">
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -642,18 +642,18 @@ export default function EnhancedFileTree({
             placeholder="搜索文件..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 text-sm"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500       text-sm"
           />
         </div>
 
         {/* 排序和展开控制 */}
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-gray-500 dark:text-gray-400">排序:</span>
+            <span className="text-gray-500  ">排序:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'type')}
-              className="px-2 py-1 border border-gray-300 rounded text-xs bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+              className="px-2 py-1 border border-gray-300 rounded text-xs bg-white      "
             >
               <option value="name">名称</option>
               <option value="date">日期</option>
@@ -661,7 +661,7 @@ export default function EnhancedFileTree({
             </select>
             <button
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className="p-1 text-gray-500 hover:text-gray-700     transition-colors"
               title={sortOrder === 'asc' ? '升序' : '降序'}
             >
               {sortOrder === 'asc' ? (
@@ -676,14 +676,14 @@ export default function EnhancedFileTree({
           <div className="flex items-center gap-1">
             <button
               onClick={expandAll}
-              className="px-2 py-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="px-2 py-1 text-gray-500 hover:text-gray-700     transition-colors rounded hover:bg-gray-100  "
               title="展开所有文件夹"
             >
               <Expand className="w-3 h-3" />
             </button>
             <button
               onClick={collapseAll}
-              className="px-2 py-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="px-2 py-1 text-gray-500 hover:text-gray-700     transition-colors rounded hover:bg-gray-100  "
               title="折叠所有文件夹"
             >
               <Minimize className="w-3 h-3" />
@@ -738,18 +738,18 @@ export default function EnhancedFileTree({
         }}
       >
         {filteredTree.length > 0 ? (
-          <div className={`space-y-1 ${dragOverItem === 'root' ? 'bg-green-50 dark:bg-green-900/20 border-2 border-dashed border-green-300 rounded-lg p-2' : ''}`}>
+          <div className={`space-y-1 ${dragOverItem === 'root' ? 'bg-green-50   border-2 border-dashed border-green-300 rounded-lg p-2' : ''}`}>
             {filteredTree.map(node => renderNode(node))}
           </div>
         ) : (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+          <div className="text-center text-gray-500   py-8">
             {searchTerm ? '未找到匹配的文件' : '暂无文件'}
           </div>
         )}
 
         {/* 根目录拖拽提示 */}
         {draggedItem && dragOverItem === 'root' && draggedItem.path.includes('/') && (
-          <div className="absolute bottom-4 left-4 right-4 bg-green-100 dark:bg-green-900/30 border border-green-300 rounded-lg p-3 text-center text-sm text-green-700 dark:text-green-300">
+          <div className="absolute bottom-4 left-4 right-4 bg-green-100   border border-green-300 rounded-lg p-3 text-center text-sm text-green-700  ">
             释放以移动到根目录
           </div>
         )}
@@ -758,7 +758,7 @@ export default function EnhancedFileTree({
       {/* 右键菜单 */}
       {contextMenu && (
         <div
-          className="fixed bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-2 z-50"
+          className="fixed bg-white   border border-gray-200   rounded-lg shadow-lg py-2 z-50"
           style={{ left: contextMenu.x, top: contextMenu.y }}
         >
           <button
@@ -766,7 +766,7 @@ export default function EnhancedFileTree({
               startRename(contextMenu.node);
               setContextMenu(null);
             }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100   flex items-center gap-2"
           >
             <Edit3 className="w-4 h-4" />
             重命名
@@ -777,7 +777,7 @@ export default function EnhancedFileTree({
                 onCreateFile(contextMenu.node.path);
                 setContextMenu(null);
               }}
-              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100   flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               创建文件
@@ -788,7 +788,7 @@ export default function EnhancedFileTree({
               onToggleHidden(contextMenu.node.path);
               setContextMenu(null);
             }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100   flex items-center gap-2"
           >
             {(contextMenu.node.file?.isHidden ||
               (contextMenu.node.type === 'folder' &&
@@ -811,7 +811,7 @@ export default function EnhancedFileTree({
               }
               setContextMenu(null);
             }}
-            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600"
+            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100   flex items-center gap-2 text-red-600"
           >
             <Trash2 className="w-4 h-4" />
             删除
@@ -820,7 +820,7 @@ export default function EnhancedFileTree({
       )}
 
       {/* 统计信息 */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+      <div className="p-4 border-t border-gray-200   text-xs text-gray-500  ">
         共 {files.length} 个文件
         {searchTerm && ` (显示 ${filteredTree.length} 个匹配)`}
         <div className="mt-1 text-xs text-gray-400">

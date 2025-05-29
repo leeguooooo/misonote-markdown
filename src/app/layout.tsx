@@ -4,7 +4,6 @@ import "./globals.css";
 import StructuredData from "@/components/StructuredData";
 import { UserProvider } from "@/components/UserManager";
 import { ImmersiveProvider } from "@/components/ImmersiveReader";
-import { ThemeProvider } from "@/components/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,13 +81,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
-      <head>
-        <script src="/theme-script.js" suppressHydrationWarning />
-      </head>
+    <html lang="zh-CN">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning
       >
         <StructuredData
           type="website"
@@ -96,13 +91,11 @@ export default function RootLayout({
             url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
           }}
         />
-        <ThemeProvider>
-          <UserProvider>
-            <ImmersiveProvider>
-              {children}
-            </ImmersiveProvider>
-          </UserProvider>
-        </ThemeProvider>
+        <UserProvider>
+          <ImmersiveProvider>
+            {children}
+          </ImmersiveProvider>
+        </UserProvider>
       </body>
     </html>
   );

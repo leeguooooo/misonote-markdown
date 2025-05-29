@@ -125,8 +125,8 @@ export default function DragDropUpload({
           border-2 border-dashed rounded-lg cursor-pointer 
           transition-all duration-200 ease-in-out
           ${isDragOver 
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-105' 
-            : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'
+            ? 'border-blue-500 bg-blue-50   scale-105' 
+            : 'border-gray-300   bg-gray-50   hover:bg-gray-100  '
           }
         `}
       >
@@ -137,19 +137,19 @@ export default function DragDropUpload({
           
           {isDragOver ? (
             <div className="text-center">
-              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              <p className="text-sm font-medium text-blue-600  ">
                 释放文件以上传
               </p>
-              <p className="text-xs text-blue-500 dark:text-blue-300">
+              <p className="text-xs text-blue-500  ">
                 支持 Markdown (.md) 文件
               </p>
             </div>
           ) : (
             <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-sm text-gray-600  ">
                 <span className="font-medium">点击上传</span> 或拖拽文件到此处
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500   mt-1">
                 支持 Markdown (.md) 文件{multiple ? '，可多选' : ''}
               </p>
             </div>
@@ -175,7 +175,7 @@ export default function DragDropUpload({
       )}
 
       {/* 使用提示 */}
-      <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+      <div className="mt-2 text-xs text-gray-400  ">
         💡 提示：
         <ul className="mt-1 space-y-1 list-disc list-inside">
           <li>支持拖拽多个文件同时上传</li>

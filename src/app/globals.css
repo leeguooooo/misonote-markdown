@@ -1,21 +1,33 @@
 @import "tailwindcss";
 
-/* 基础颜色变量 */
+/* 基础颜色变量 - 仅亮色模式 */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #3b82f6;
 }
 
-/* 手动深色模式控制 */
-.dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-}
-
+/* 确保 body 样式正确应用 */
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 /* Custom styles for markdown content */
@@ -119,46 +131,7 @@ body {
   font-weight: 600;
 }
 
-/* Dark mode styles - 优化深色模式颜色 */
-.dark .prose {
-  color: #e2e8f0;
-}
 
-.dark .prose h1,
-.dark .prose h2,
-.dark .prose h3,
-.dark .prose h4,
-.dark .prose h5,
-.dark .prose h6 {
-  color: #f8fafc;
-}
-
-.dark .prose pre {
-  background-color: #1e293b;
-  border: 1px solid #334155;
-}
-
-.dark .prose code {
-  background-color: #334155;
-  color: #f1f5f9;
-}
-
-.dark .prose blockquote {
-  background-color: #1e3a8a;
-  border-left-color: #60a5fa;
-  color: #dbeafe;
-}
-
-.dark .prose th {
-  background-color: #334155;
-  color: #f1f5f9;
-}
-
-.dark .prose th,
-.dark .prose td {
-  border-color: #475569;
-  color: #e2e8f0;
-}
 
 /* Mermaid diagram styles */
 .mermaid-diagram svg {
@@ -173,10 +146,7 @@ mark {
   border-radius: 0.25rem;
 }
 
-.dark mark {
-  background-color: #a16207;
-  color: #fef3c7;
-}
+
 
 /* Line clamp utility */
 .line-clamp-2 {
@@ -192,10 +162,7 @@ mark {
                     linear-gradient(to bottom, rgb(241 245 249 / 0.5) 1px, transparent 1px);
 }
 
-.dark .bg-grid-slate-700\/25 {
-  background-image: linear-gradient(to right, rgb(51 65 85 / 0.25) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgb(51 65 85 / 0.25) 1px, transparent 1px);
-}
+
 
 /* 自定义动画 */
 @keyframes float {
@@ -244,17 +211,7 @@ mark {
   background: rgb(100 116 139);
 }
 
-.dark ::-webkit-scrollbar-track {
-  background: rgb(30 41 59);
-}
 
-.dark ::-webkit-scrollbar-thumb {
-  background: rgb(71 85 105);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgb(100 116 139);
-}
 
 /* 玻璃态效果 */
 .glass {
@@ -263,10 +220,7 @@ mark {
   border: 1px solid rgba(209, 213, 219, 0.3);
 }
 
-.dark .glass {
-  background-color: rgba(17, 24, 39, 0.75);
-  border: 1px solid rgba(75, 85, 99, 0.3);
-}
+
 
 /* 悬浮效果 */
 .hover-lift {
@@ -295,9 +249,7 @@ mark {
   z-index: -1;
 }
 
-.dark .gradient-border::before {
-  background: rgb(17, 24, 39);
-}
+
 
 /* 文本标注样式 */
 .annotation {
@@ -334,9 +286,7 @@ mark {
   background: rgba(59, 130, 246, 0.3);
 }
 
-.dark ::selection {
-  background: rgba(59, 130, 246, 0.5);
-}
+
 
 /* 评论系统样式增强 */
 .comment-avatar {
@@ -406,9 +356,7 @@ html {
   padding: 2rem;
 }
 
-.dark .immersive-reading {
-  background: #0f172a;
-}
+
 
 .immersive-content {
   max-width: 800px;
@@ -439,83 +387,4 @@ html {
   animation: progress-pulse 2s ease-in-out infinite;
 }
 
-/* 深色模式下的滚动条优化 */
-.dark .docs-content::-webkit-scrollbar-track {
-  background: #1e293b;
-}
 
-.dark .docs-content::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.5);
-}
-
-.dark .docs-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.8);
-}
-
-/* 深色模式下的边框和分割线 */
-.dark .border-gray-200 {
-  border-color: #334155;
-}
-
-.dark .border-gray-300 {
-  border-color: #475569;
-}
-
-/* 深色模式下的背景色优化 */
-.dark .bg-gray-50 {
-  background-color: #1e293b;
-}
-
-.dark .bg-gray-100 {
-  background-color: #334155;
-}
-
-.dark .bg-white {
-  background-color: #0f172a;
-}
-
-/* 深色模式下的文本颜色优化 */
-.dark .text-gray-600 {
-  color: #94a3b8;
-}
-
-.dark .text-gray-700 {
-  color: #cbd5e1;
-}
-
-.dark .text-gray-800 {
-  color: #e2e8f0;
-}
-
-.dark .text-gray-900 {
-  color: #f1f5f9;
-}
-
-/* 修复 Tailwind 深色模式类 */
-.dark .dark\:bg-gray-800 {
-  background-color: #1e293b !important;
-}
-
-.dark .dark\:bg-gray-900 {
-  background-color: #0f172a !important;
-}
-
-.dark .dark\:border-gray-700 {
-  border-color: #374151 !important;
-}
-
-.dark .dark\:text-gray-100 {
-  color: #f3f4f6 !important;
-}
-
-.dark .dark\:text-gray-200 {
-  color: #e5e7eb !important;
-}
-
-.dark .dark\:text-gray-300 {
-  color: #d1d5db !important;
-}
-
-.dark .dark\:text-gray-400 {
-  color: #9ca3af !important;
-}

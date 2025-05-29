@@ -187,25 +187,25 @@ export default function CreateFileDialog({
       />
       
       {/* 对话框 */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+      <div className="relative w-full max-w-lg bg-white   rounded-lg shadow-xl border border-gray-200  ">
         {/* 头部 */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200  ">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-blue-100   rounded-lg flex items-center justify-center">
               <FileText className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900  ">
                 创建新文档
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-500  ">
                 选择模板并设置文件信息
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 text-gray-400 hover:text-gray-600   rounded-lg hover:bg-gray-100   transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -215,7 +215,7 @@ export default function CreateFileDialog({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* 文件名 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700   mb-2">
               文件名
             </label>
             <input
@@ -223,17 +223,17 @@ export default function CreateFileDialog({
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
               placeholder="例: getting-started.md"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500      "
               required
             />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs text-gray-500  ">
               如果不以 .md 结尾，会自动添加
             </p>
           </div>
 
           {/* 文件路径 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700   mb-2">
               存放路径
             </label>
             <div className="relative">
@@ -243,15 +243,15 @@ export default function CreateFileDialog({
                 onChange={(e) => setFilePath(e.target.value)}
                 onFocus={() => setShowPathDropdown(true)}
                 placeholder="例: api/endpoints 或留空放在根目录"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500      "
               />
               
               {showPathDropdown && availablePaths.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white   border border-gray-300   rounded-lg shadow-lg max-h-40 overflow-y-auto">
                   <button
                     type="button"
                     onClick={() => handlePathSelect('')}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                    className="w-full text-left px-3 py-2 text-sm text-gray-700   hover:bg-gray-100   flex items-center gap-2"
                   >
                     <Folder className="w-4 h-4" />
                     根目录
@@ -261,7 +261,7 @@ export default function CreateFileDialog({
                       key={index}
                       type="button"
                       onClick={() => handlePathSelect(path)}
-                      className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700   hover:bg-gray-100   flex items-center gap-2"
                     >
                       <Folder className="w-4 h-4" />
                       {path}
@@ -274,7 +274,7 @@ export default function CreateFileDialog({
 
           {/* 模板选择 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-medium text-gray-700   mb-3">
               选择模板
             </label>
             <div className="grid grid-cols-1 gap-3">
@@ -283,8 +283,8 @@ export default function CreateFileDialog({
                   key={key}
                   className={`flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
                     selectedTemplate === key
-                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'border-blue-500 bg-blue-50  '
+                      : 'border-gray-200   hover:bg-gray-50  '
                   }`}
                 >
                   <input
@@ -296,10 +296,10 @@ export default function CreateFileDialog({
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-gray-900 dark:text-gray-100">
+                    <div className="font-medium text-gray-900  ">
                       {template.name}
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    <div className="text-sm text-gray-500   mt-1">
                       {template.content.split('\n').slice(0, 2).join(' ').substring(0, 80)}...
                     </div>
                   </div>
@@ -313,7 +313,7 @@ export default function CreateFileDialog({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 text-gray-700   border border-gray-300   rounded-lg hover:bg-gray-50   transition-colors"
             >
               取消
             </button>

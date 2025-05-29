@@ -193,8 +193,8 @@ export default function FileTree({
       return (
         <div
           key={node.path}
-          className={`flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors ${
-            isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+          className={`flex items-center justify-between group hover:bg-gray-50   rounded-lg transition-colors ${
+            isSelected ? 'bg-blue-50  ' : ''
           }`}
           style={{ paddingLeft: `${level * 20 + 8}px` }}
         >
@@ -203,7 +203,7 @@ export default function FileTree({
             onClick={() => onFileSelect(node.file!)}
           >
             <FileText className="w-4 h-4 text-gray-500 flex-shrink-0" />
-            <span className="text-sm text-gray-900 dark:text-gray-100 truncate">
+            <span className="text-sm text-gray-900   truncate">
               {node.name}
               {node.file.isNew && (
                 <span className="ml-2 px-2 py-0.5 text-xs bg-yellow-100 text-yellow-800 rounded">
@@ -252,7 +252,7 @@ export default function FileTree({
       return (
         <div key={node.path}>
           <div
-            className="flex items-center justify-between group hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="flex items-center justify-between group hover:bg-gray-50   rounded-lg transition-colors"
             style={{ paddingLeft: `${level * 20 + 8}px` }}
           >
             <div
@@ -269,7 +269,7 @@ export default function FileTree({
               ) : (
                 <Folder className="w-4 h-4 text-blue-500 flex-shrink-0" />
               )}
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <span className="text-sm font-medium text-gray-900  ">
                 {node.name || '根目录'}
               </span>
               <span className="text-xs text-gray-500">
@@ -305,7 +305,7 @@ export default function FileTree({
   return (
     <div className="h-full flex flex-col">
       {/* 搜索框 */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-b border-gray-200  ">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -313,7 +313,7 @@ export default function FileTree({
             placeholder="搜索文件..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 text-sm"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500       text-sm"
           />
         </div>
       </div>
@@ -325,14 +325,14 @@ export default function FileTree({
             {filteredTree.map(node => renderNode(node))}
           </div>
         ) : (
-          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+          <div className="text-center text-gray-500   py-8">
             {searchTerm ? '未找到匹配的文件' : '暂无文件'}
           </div>
         )}
       </div>
 
       {/* 统计信息 */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+      <div className="p-4 border-t border-gray-200   text-xs text-gray-500  ">
         共 {files.length} 个文件
         {searchTerm && ` (显示 ${filteredTree.reduce((count, node) => {
           const countFiles = (n: TreeNode): number => {

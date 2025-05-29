@@ -106,16 +106,16 @@ export default function AdminControls({ docPath }: AdminControlsProps) {
   return (
     <>
       {/* 管理员控制面板 */}
-      <div className="fixed bottom-4 left-20 z-50 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-4 shadow-lg">
+      <div className="fixed bottom-4 left-20 z-50 bg-red-50   border border-red-200   rounded-lg p-4 shadow-lg">
         <div className="flex items-center gap-2 mb-3">
           <Shield className="w-4 h-4 text-red-600" />
-          <span className="text-sm font-medium text-red-700 dark:text-red-300">管理员控制</span>
+          <span className="text-sm font-medium text-red-700  ">管理员控制</span>
         </div>
 
         <div className="space-y-2">
           <button
             onClick={() => handleDeleteRequest('comments')}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600   hover:bg-red-100   rounded-lg transition-colors"
           >
             <MessageCircle className="w-4 h-4" />
             清空评论
@@ -123,7 +123,7 @@ export default function AdminControls({ docPath }: AdminControlsProps) {
 
           <button
             onClick={() => handleDeleteRequest('annotations')}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600   hover:bg-red-100   rounded-lg transition-colors"
           >
             <Highlighter className="w-4 h-4" />
             清空标注
@@ -131,7 +131,7 @@ export default function AdminControls({ docPath }: AdminControlsProps) {
 
           <button
             onClick={() => handleDeleteRequest('all')}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors font-medium"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600   hover:bg-red-100   rounded-lg transition-colors font-medium"
           >
             <Trash2 className="w-4 h-4" />
             清空所有
@@ -142,22 +142,22 @@ export default function AdminControls({ docPath }: AdminControlsProps) {
       {/* 确认对话框 */}
       {showConfirmDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-96 max-w-[90vw]">
+          <div className="bg-white   rounded-lg p-6 w-96 max-w-[90vw]">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+              <div className="p-2 bg-red-100   rounded-full">
                 <AlertTriangle className="w-5 h-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900  ">
                 {getDeleteTitle()}
               </h3>
             </div>
 
             <div className="mb-6">
-              <p className="text-gray-700 dark:text-gray-300 mb-3">
+              <p className="text-gray-700   mb-3">
                 {getDeleteMessage()}
               </p>
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
-                <p className="text-sm text-yellow-800 dark:text-yellow-300">
+              <div className="p-3 bg-yellow-50   border border-yellow-200   rounded-lg">
+                <p className="text-sm text-yellow-800  ">
                   ⚠️ <strong>警告：</strong>此操作不可撤销！所有相关数据将被永久删除。
                 </p>
               </div>
@@ -170,7 +170,7 @@ export default function AdminControls({ docPath }: AdminControlsProps) {
                   setDeleteType(null);
                 }}
                 disabled={isDeleting}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50"
+                className="px-4 py-2 text-gray-600   hover:text-gray-800   disabled:opacity-50"
               >
                 取消
               </button>

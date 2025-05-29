@@ -29,8 +29,8 @@ function TreeNode({ node, level, currentPath, expandedFolders, onToggleFolder }:
         href={`/docs/${node.file.slug.join('/')}`}
         className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
           isCurrentFile
-            ? 'bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100'
-            : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+            ? 'bg-blue-100 text-blue-900'
+            : 'text-gray-700 hover:bg-gray-100'
         }`}
         style={{ paddingLeft: `${level * 12 + 12}px` }}
       >
@@ -45,7 +45,7 @@ function TreeNode({ node, level, currentPath, expandedFolders, onToggleFolder }:
       <div>
         <button
           onClick={() => onToggleFolder(node.path)}
-          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           style={{ paddingLeft: `${level * 12 + 12}px` }}
         >
           {isExpanded ? (
@@ -149,10 +149,10 @@ export default function Sidebar({ docTree, currentPath }: SidebarProps) {
   };
 
   return (
-    <div className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
+    <div className="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg font-semibold text-gray-900">
             文档导航
           </h2>
 
@@ -160,14 +160,14 @@ export default function Sidebar({ docTree, currentPath }: SidebarProps) {
           <div className="flex items-center gap-1">
             <button
               onClick={expandAll}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="p-1 text-gray-500 hover:text-gray-700 transition-colors rounded hover:bg-gray-100"
               title="展开所有文件夹"
             >
               <Expand className="w-3 h-3" />
             </button>
             <button
               onClick={collapseAll}
-              className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="p-1 text-gray-500 hover:text-gray-700 transition-colors rounded hover:bg-gray-100"
               title="折叠所有文件夹"
             >
               <Minimize className="w-3 h-3" />

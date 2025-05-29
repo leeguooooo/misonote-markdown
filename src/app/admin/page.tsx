@@ -336,12 +336,12 @@ export default function AdminPage() {
 
   return (
     <AdminAuth>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      <div className="min-h-screen bg-gray-50   flex">
         {/* 左侧文件树 */}
-        <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="w-80 bg-white   border-r border-gray-200  ">
+          <div className="p-4 border-b border-gray-200  ">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900  ">
                 文件管理
               </h2>
               <div className="flex items-center gap-2">
@@ -406,8 +406,8 @@ export default function AdminPage() {
               onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
             />
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-white dark:bg-gray-800">
-              <div className="text-center text-gray-500 dark:text-gray-400">
+            <div className="flex-1 flex items-center justify-center bg-white  ">
+              <div className="text-center text-gray-500  ">
                 <Upload className="w-16 h-16 mx-auto mb-4" />
                 <h3 className="text-lg font-medium mb-2">选择文件开始编辑</h3>
                 <p>从左侧选择文件或创建新文件来开始编辑</p>

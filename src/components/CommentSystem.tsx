@@ -168,7 +168,7 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
     isReply?: boolean;
     parentId?: string;
   }) => (
-    <div className={`${isReply ? 'ml-12 mt-4' : 'mb-6'} bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700`}>
+    <div className={`${isReply ? 'ml-12 mt-4' : 'mb-6'} bg-white   rounded-lg p-4 border border-gray-200  
       <div className="flex items-start gap-3">
         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
           {comment.author[0]}
@@ -176,14 +176,14 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
 
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <span className="font-medium text-gray-900 dark:text-gray-100">{comment.author}</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+            <span className="font-medium text-gray-900  ">{comment.author}</span>
+            <span className="text-sm text-gray-500   flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {formatTime(comment.timestamp)}
             </span>
           </div>
 
-          <p className="text-gray-700 dark:text-gray-300 mb-3 leading-relaxed">{comment.content}</p>
+          <p className="text-gray-700   mb-3 leading-relaxed">{comment.content}</p>
 
           <div className="flex items-center gap-4">
             <button
@@ -191,7 +191,7 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
               className={`flex items-center gap-1 text-sm transition-colors ${
                 comment.isLiked
                   ? 'text-red-500'
-                  : 'text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400'
+                  : 'text-gray-500 hover:text-red-500    '
               }`}
             >
               <Heart className={`w-4 h-4 ${comment.isLiked ? 'fill-current' : ''}`} />
@@ -201,7 +201,7 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
             {!isReply && (
               <button
                 onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                className="flex items-center gap-1 text-sm text-gray-500 hover:text-blue-500     transition-colors"
               >
                 <Reply className="w-4 h-4" />
                 回复
@@ -211,18 +211,18 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
 
           {/* 回复输入框 */}
           {replyTo === comment.id && (
-            <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div className="mt-4 p-3 bg-gray-50   rounded-lg">
               <textarea
                 value={replyContent}
                 onChange={(e) => setReplyContent(e.target.value)}
                 placeholder={`回复 ${comment.author}...`}
-                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full p-3 border border-gray-300   rounded-lg resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 rows={3}
               />
               <div className="flex justify-end gap-2 mt-2">
                 <button
                   onClick={() => setReplyTo(null)}
-                  className="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  className="px-3 py-1 text-sm text-gray-600   hover:text-gray-800  "
                 >
                   取消
                 </button>
@@ -256,26 +256,26 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
   );
 
   return (
-    <div className={`bg-gray-50 dark:bg-gray-900 rounded-xl p-6 ${className}`}>
+    <div className={`bg-gray-50   rounded-xl p-6 ${className}`}>
       <div className="flex items-center gap-2 mb-6">
         <MessageCircle className="w-5 h-5 text-blue-600" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-semibold text-gray-900  ">
           评论 ({comments.length})
         </h3>
       </div>
 
       {/* 新评论输入 */}
       <div className="mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+        <div className="bg-white   rounded-lg border border-gray-200   p-4">
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="分享你的想法..."
-            className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg resize-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full p-3 border border-gray-300   rounded-lg resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             rows={4}
           />
           <div className="flex justify-between items-center mt-3">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-gray-500  ">
               支持 Markdown 语法
             </span>
             <button
@@ -295,7 +295,7 @@ export default function CommentSystem({ docPath, className = '' }: CommentSystem
         {comments.length === 0 ? (
           <div className="text-center py-12">
             <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 dark:text-gray-400">还没有评论，来发表第一个评论吧！</p>
+            <p className="text-gray-500  ">还没有评论，来发表第一个评论吧！</p>
           </div>
         ) : (
           comments.map(comment => (

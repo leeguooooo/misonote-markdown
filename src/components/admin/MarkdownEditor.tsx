@@ -186,13 +186,13 @@ export default function MarkdownEditor({
   };
 
   return (
-    <div className={`flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 ${
+    <div className={`flex flex-col bg-white   rounded-lg shadow-sm border border-gray-200   ${
       isFullscreen ? 'fixed inset-0 z-50' : 'h-full'
     }`}>
       {/* 工具栏 */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200  ">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+          <h3 className="text-lg font-medium text-gray-900  ">
             {file.name}
             {hasUnsavedChanges && (
               <span className="ml-2 text-sm text-orange-600">• 未保存</span>
@@ -202,13 +202,13 @@ export default function MarkdownEditor({
         
         <div className="flex items-center gap-2">
           {/* 视图模式切换 */}
-          <div className="flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+          <div className="flex items-center bg-gray-100   rounded-lg p-1">
             <button
               onClick={() => setMode('edit')}
               className={`px-3 py-1 rounded text-sm transition-colors ${
                 mode === 'edit'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400'
+                  ? 'bg-white   text-gray-900   shadow-sm'
+                  : 'text-gray-600  '
               }`}
             >
               <Edit3 className="w-4 h-4" />
@@ -217,8 +217,8 @@ export default function MarkdownEditor({
               onClick={() => setMode('split')}
               className={`px-3 py-1 rounded text-sm transition-colors ${
                 mode === 'split'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400'
+                  ? 'bg-white   text-gray-900   shadow-sm'
+                  : 'text-gray-600  '
               }`}
             >
               分屏
@@ -227,8 +227,8 @@ export default function MarkdownEditor({
               onClick={() => setMode('preview')}
               className={`px-3 py-1 rounded text-sm transition-colors ${
                 mode === 'preview'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400'
+                  ? 'bg-white   text-gray-900   shadow-sm'
+                  : 'text-gray-600  '
               }`}
             >
               <Eye className="w-4 h-4" />
@@ -240,7 +240,7 @@ export default function MarkdownEditor({
             {hasUnsavedChanges && (
               <button
                 onClick={resetContent}
-                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800     transition-colors"
                 title="重置内容"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -258,7 +258,7 @@ export default function MarkdownEditor({
             {onToggleFullscreen && (
               <button
                 onClick={onToggleFullscreen}
-                className="px-3 py-1 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                className="px-3 py-1 text-gray-600 hover:text-gray-800     transition-colors"
                 title={isFullscreen ? '退出全屏' : '全屏编辑'}
               >
                 {isFullscreen ? (
@@ -274,12 +274,12 @@ export default function MarkdownEditor({
 
       {/* 编辑工具栏 */}
       {(mode === 'edit' || mode === 'split') && (
-        <div className="flex items-center gap-1 p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="flex items-center gap-1 p-2 border-b border-gray-200   bg-gray-50  ">
           {toolbarButtons.map((button, index) => (
             <button
               key={index}
               onClick={button.action}
-              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200       rounded transition-colors"
               title={button.title}
             >
               <button.icon className="w-4 h-4" />
@@ -298,7 +298,7 @@ export default function MarkdownEditor({
               value={file.content}
               onChange={(e) => onContentChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 p-4 border-0 resize-none font-mono text-sm focus:ring-0 focus:outline-none dark:bg-gray-800 dark:text-gray-100 leading-relaxed"
+              className="flex-1 p-4 border-0 resize-none font-mono text-sm focus:ring-0 focus:outline-none     leading-relaxed"
               placeholder="在这里编写 Markdown 内容..."
               spellCheck={false}
             />
@@ -307,14 +307,14 @@ export default function MarkdownEditor({
 
         {/* 分割线 */}
         {mode === 'split' && (
-          <div className="w-px bg-gray-200 dark:bg-gray-700" />
+          <div className="w-px bg-gray-200  " />
         )}
 
         {/* 预览 */}
         {(mode === 'preview' || mode === 'split') && (
           <div className={`${mode === 'split' ? 'w-1/2' : 'w-full'} overflow-y-auto`}>
             <div className="p-4">
-              <div className="prose max-w-none dark:prose-invert">
+              <div className="prose max-w-none  ">
                 <div dangerouslySetInnerHTML={{ __html: marked(file.content) }} />
               </div>
             </div>
@@ -323,7 +323,7 @@ export default function MarkdownEditor({
       </div>
 
       {/* 状态栏 */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200   bg-gray-50   text-xs text-gray-500  ">
         <div className="flex items-center gap-4">
           <span>字符数: {file.content.length}</span>
           <span>行数: {file.content.split('\n').length}</span>
