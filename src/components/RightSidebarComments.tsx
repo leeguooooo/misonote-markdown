@@ -598,7 +598,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
             {comments.length === 0 ? (
               <div className="text-center py-8">
                 <MessageCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500   text-sm">还没有评论，来发表第一个评论吧！</p>
+                <p className="text-gray-500 text-sm">还没有评论，来发表第一个评论吧！</p>
               </div>
             ) : (
               comments

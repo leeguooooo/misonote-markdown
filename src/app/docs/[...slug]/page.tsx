@@ -112,17 +112,17 @@ export default async function DocPage({ params }: DocPageProps) {
     <ImmersiveWrapper>
       <div className="space-y-8">
         {/* Document Content */}
-        <div className="bg-white   rounded-lg shadow-sm border border-gray-200  ">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           {/* Document Header */}
-          <div className="border-b border-gray-200   px-8 py-6">
+          <div className="border-b border-gray-200 px-8 py-6">
             <div className="flex items-start justify-between mb-4">
-              <h1 className="text-3xl font-bold text-gray-900  ">
+              <h1 className="text-3xl font-bold text-gray-900">
                 {doc.title}
               </h1>
               <EditButton docPath={decodedSlug.join('/')} />
             </div>
 
-            <div className="flex items-center gap-6 text-sm text-gray-500  ">
+            <div className="flex items-center gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span>最后更新：{formatDate(doc.lastModified)}</span>
@@ -169,19 +169,19 @@ export default async function DocPage({ params }: DocPageProps) {
           </div>
 
           {/* Document Footer */}
-          <div className="border-t border-gray-200   px-8 py-4">
-            <div className="flex items-center justify-between text-sm text-gray-500  ">
+          <div className="border-t border-gray-200 px-8 py-4">
+            <div className="flex items-center justify-between text-sm text-gray-500">
               <div>
-                文档路径：<code className="bg-gray-100   px-2 py-1 rounded text-xs">
+                文档路径：<code className="bg-gray-100 px-2 py-1 rounded text-xs">
                   /{decodedSlug.join('/')}
                 </code>
               </div>
 
               <div className="flex items-center gap-4">
-                <button className="text-blue-600 hover:text-blue-800    ">
+                <button className="text-blue-600 hover:text-blue-800">
                   编辑此页
                 </button>
-                <button className="text-blue-600 hover:text-blue-800    ">
+                <button className="text-blue-600 hover:text-blue-800">
                   报告问题
                 </button>
               </div>

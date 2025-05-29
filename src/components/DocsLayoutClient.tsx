@@ -72,13 +72,13 @@ export default function DocsLayoutClient({ docTree, children }: DocsLayoutClient
         )}
 
         {/* Main Content Area */}
-        <div className="flex-1 flex">
-          {/* Document Content */}
-          <main className="flex-1 min-w-0 relative z-20">
+        <div className="flex-1 flex justify-center">
+          {/* Document Content - 真正居中 */}
+          <main className="w-full max-w-5xl relative z-20 xl:mr-36">
             <div className="min-h-[calc(100vh-4rem)] bg-transparent">
-              {/* 响应式容器：充分利用可用空间 */}
-              <div className="w-full px-2 sm:px-3 lg:px-4 xl:px-6 py-3 sm:py-4">
-                <div className="bg-white/92 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200/50 p-4 sm:p-6 lg:p-8 relative w-full">
+              {/* 内容容器 */}
+              <div className="px-6 py-4">
+                <div className="bg-white/92 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200/50 p-8 relative w-full">
                   {/* 内容区域的微妙网格背景 */}
                   <div className="absolute inset-0 bg-grid-docs-subtle opacity-20 rounded-xl pointer-events-none"></div>
                   <div className="relative z-10">
