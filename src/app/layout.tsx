@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import StructuredData from "@/components/StructuredData";
+import { UserProvider } from "@/components/UserManager";
+import { ImmersiveProvider } from "@/components/ImmersiveReader";
+import { ThemeProvider } from "@/components/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,6 +83,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
+      <head>
+        <script src="/theme-script.js" suppressHydrationWarning />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -89,7 +95,13 @@ export default function RootLayout({
             url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
           }}
         />
-        {children}
+        <ThemeProvider>
+          <UserProvider>
+            <ImmersiveProvider>
+              {children}
+            </ImmersiveProvider>
+          </UserProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

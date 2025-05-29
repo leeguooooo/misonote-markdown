@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Search, Menu, X, BookOpen } from 'lucide-react';
 import SearchDialog from './SearchDialog';
 import GitHubLink from './GitHubLink';
+import UserManager from './UserManager';
+import ThemeToggle from './ThemeToggle';
 import { DocFile } from '@/lib/docs';
 
 interface HeaderProps {
@@ -99,7 +101,11 @@ export default function Header({ onMenuToggle, isMobileMenuOpen }: HeaderProps) 
             {/* GitHub Link */}
             <GitHubLink variant="header" />
 
-            {/* Theme toggle could go here */}
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
+            {/* User Manager */}
+            <UserManager />
           </div>
         </div>
       </header>

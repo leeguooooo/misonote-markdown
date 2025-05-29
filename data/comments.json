@@ -1,0 +1,40 @@
+[
+  {
+    "id": "1748518060430",
+    "content": "111",
+    "author": "当前用户",
+    "timestamp": "2025-05-29T11:27:40.430Z",
+    "likes": 0,
+    "replies": [],
+    "docPath": "示例文档/architecture"
+  },
+  {
+    "id": "1748518119228",
+    "content": "你好啊",
+    "author": "当前用户",
+    "timestamp": "2025-05-29T11:28:39.228Z",
+    "likes": 1,
+    "replies": [
+      {
+        "id": "1748518520446",
+        "content": "ha",
+        "author": "leo",
+        "timestamp": "2025-05-29T11:35:20.446Z",
+        "likes": 0,
+        "replies": [],
+        "docPath": "推广文章/掘金知乎推广文章"
+      },
+      {
+        "id": "1748520892096",
+        "content": "4444444321",
+        "author": "管理员",
+        "authorRole": "admin",
+        "timestamp": "2025-05-29T12:14:52.096Z",
+        "likes": 0,
+        "replies": [],
+        "docPath": "推广文章/掘金知乎推广文章"
+      }
+    ],
+    "docPath": "推广文章/掘金知乎推广文章"
+  }
+]

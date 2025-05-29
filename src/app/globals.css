@@ -1,22 +1,15 @@
 @import "tailwindcss";
 
+/* 基础颜色变量 */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 手动深色模式控制 */
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
 }
 
 body {
@@ -126,9 +119,9 @@ body {
   font-weight: 600;
 }
 
-/* Dark mode styles */
+/* Dark mode styles - 优化深色模式颜色 */
 .dark .prose {
-  color: #d1d5db;
+  color: #e2e8f0;
 }
 
 .dark .prose h1,
@@ -137,30 +130,34 @@ body {
 .dark .prose h4,
 .dark .prose h5,
 .dark .prose h6 {
-  color: #f9fafb;
+  color: #f8fafc;
 }
 
 .dark .prose pre {
-  background-color: #1f2937;
+  background-color: #1e293b;
+  border: 1px solid #334155;
 }
 
 .dark .prose code {
-  background-color: #374151;
-  color: #e5e7eb;
+  background-color: #334155;
+  color: #f1f5f9;
 }
 
 .dark .prose blockquote {
   background-color: #1e3a8a;
-  border-left-color: #3b82f6;
+  border-left-color: #60a5fa;
+  color: #dbeafe;
 }
 
 .dark .prose th {
-  background-color: #374151;
+  background-color: #334155;
+  color: #f1f5f9;
 }
 
 .dark .prose th,
 .dark .prose td {
-  border-color: #4b5563;
+  border-color: #475569;
+  color: #e2e8f0;
 }
 
 /* Mermaid diagram styles */
@@ -300,4 +297,225 @@ mark {
 
 .dark .gradient-border::before {
   background: rgb(17, 24, 39);
+}
+
+/* 文本标注样式 */
+.annotation {
+  position: relative;
+  border-radius: 2px;
+  padding: 1px 2px;
+  margin: 0 1px;
+}
+
+.annotation:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 标注工具提示 */
+.annotation[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* 选择文本时的样式 */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.dark ::selection {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+/* 评论系统样式增强 */
+.comment-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.comment-content {
+  line-height: 1.6;
+}
+
+.comment-content p {
+  margin-bottom: 0.5rem;
+}
+
+.comment-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* 平滑滚动 */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 文档内容区域的滚动条样式 */
+.docs-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.docs-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.docs-content::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.docs-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+/* 文本截断样式 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 沉浸式阅读样式 */
+.immersive-reading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  background: white;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.dark .immersive-reading {
+  background: #0f172a;
+}
+
+.immersive-content {
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.8;
+  font-size: 18px;
+}
+
+/* 沉浸式阅读中的标注样式增强 */
+.immersive-reading .annotation {
+  padding: 2px 4px;
+  margin: 0 2px;
+  border-radius: 4px;
+}
+
+.immersive-reading .annotation:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 阅读进度条动画 */
+@keyframes progress-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.reading-progress {
+  animation: progress-pulse 2s ease-in-out infinite;
+}
+
+/* 深色模式下的滚动条优化 */
+.dark .docs-content::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark .docs-content::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.dark .docs-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.8);
+}
+
+/* 深色模式下的边框和分割线 */
+.dark .border-gray-200 {
+  border-color: #334155;
+}
+
+.dark .border-gray-300 {
+  border-color: #475569;
+}
+
+/* 深色模式下的背景色优化 */
+.dark .bg-gray-50 {
+  background-color: #1e293b;
+}
+
+.dark .bg-gray-100 {
+  background-color: #334155;
+}
+
+.dark .bg-white {
+  background-color: #0f172a;
+}
+
+/* 深色模式下的文本颜色优化 */
+.dark .text-gray-600 {
+  color: #94a3b8;
+}
+
+.dark .text-gray-700 {
+  color: #cbd5e1;
+}
+
+.dark .text-gray-800 {
+  color: #e2e8f0;
+}
+
+.dark .text-gray-900 {
+  color: #f1f5f9;
+}
+
+/* 修复 Tailwind 深色模式类 */
+.dark .dark\:bg-gray-800 {
+  background-color: #1e293b !important;
+}
+
+.dark .dark\:bg-gray-900 {
+  background-color: #0f172a !important;
+}
+
+.dark .dark\:border-gray-700 {
+  border-color: #374151 !important;
+}
+
+.dark .dark\:text-gray-100 {
+  color: #f3f4f6 !important;
+}
+
+.dark .dark\:text-gray-200 {
+  color: #e5e7eb !important;
+}
+
+.dark .dark\:text-gray-300 {
+  color: #d1d5db !important;
+}
+
+.dark .dark\:text-gray-400 {
+  color: #9ca3af !important;
 }
