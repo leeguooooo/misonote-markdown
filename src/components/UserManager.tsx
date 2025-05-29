@@ -208,7 +208,7 @@ export default function UserManager() {
       <>
         <button
           onClick={() => setShowLoginDialog(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900     transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
           <User className="w-4 h-4" />
           登录
@@ -216,15 +216,15 @@ export default function UserManager() {
 
         {/* Login Dialog */}
         {showLoginDialog && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white   rounded-lg p-6 w-96 max-w-[90vw]">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900  ">
+          <div className="fixed top-0 left-0 w-full h-screen z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw]">
+              <h3 className="text-lg font-semibold mb-4 text-gray-900">
                 选择用户身份
               </h3>
 
               {/* Predefined Users */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-gray-700   mb-3">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">
                   快速登录
                 </h4>
                 <div className="space-y-2">
@@ -232,23 +232,23 @@ export default function UserManager() {
                     <button
                       key={predefinedUser.id}
                       onClick={() => handleLogin(predefinedUser)}
-                      className="w-full flex items-center gap-3 p-3 text-left bg-gray-50   hover:bg-gray-100   rounded-lg transition-colors"
+                      className="w-full flex items-center gap-3 p-3 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
                     >
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${getUserBadgeColor(predefinedUser.role)}`}>
                         {getUserAvatar(predefinedUser)}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900  ">
+                          <span className="font-medium text-gray-900">
                             {predefinedUser.name}
                           </span>
-                          <span className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-200   text-gray-700   rounded">
+                          <span className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded">
                             {getRoleIcon(predefinedUser.role)}
                             {getRoleText(predefinedUser.role)}
                           </span>
                         </div>
                         {predefinedUser.email && (
-                          <div className="text-sm text-gray-500  ">
+                          <div className="text-sm text-gray-500">
                             {predefinedUser.email}
                           </div>
                         )}
@@ -259,14 +259,14 @@ export default function UserManager() {
               </div>
 
               {/* Admin Login */}
-              <div className="border-t border-gray-200   pt-4">
-                <h4 className="text-sm font-medium text-gray-700   mb-3">
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">
                   管理员登录
                 </h4>
                 {!showAdminLogin ? (
                   <button
                     onClick={() => setShowAdminLogin(true)}
-                    className="w-full flex items-center justify-center gap-2 p-3 bg-purple-50   border border-purple-200   text-purple-700   rounded-lg hover:bg-purple-100   transition-colors"
+                    className="w-full flex items-center justify-center gap-2 p-3 bg-purple-50 border border-purple-200 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
                   >
                     <Crown className="w-4 h-4" />
                     管理员登录
@@ -278,11 +278,11 @@ export default function UserManager() {
                       value={adminPassword}
                       onChange={(e) => setAdminPassword(e.target.value)}
                       placeholder="输入管理员密码"
-                      className="w-full p-3 border border-gray-300   rounded-lg bg-white   text-gray-900   placeholder-gray-500   focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
                     />
                     {adminLoginError && (
-                      <div className="text-red-600 text-sm bg-red-50   p-2 rounded">
+                      <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
                         {adminLoginError}
                       </div>
                     )}
@@ -293,7 +293,7 @@ export default function UserManager() {
                           setAdminPassword('');
                           setAdminLoginError('');
                         }}
-                        className="flex-1 px-3 py-2 text-gray-600   hover:text-gray-800  "
+                        className="flex-1 px-3 py-2 text-gray-600 hover:text-gray-800"
                       >
                         取消
                       </button>
@@ -310,8 +310,8 @@ export default function UserManager() {
               </div>
 
               {/* Custom User */}
-              <div className="border-t border-gray-200   pt-4">
-                <h4 className="text-sm font-medium text-gray-700   mb-3">
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">
                   自定义用户
                 </h4>
                 <div className="space-y-3">
@@ -320,12 +320,12 @@ export default function UserManager() {
                     value={loginForm.name}
                     onChange={(e) => setLoginForm(prev => ({ ...prev, name: e.target.value }))}
                     placeholder="输入用户名"
-                    className="w-full p-3 border border-gray-300   rounded-lg bg-white   text-gray-900   placeholder-gray-500   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <select
                     value={loginForm.role}
                     onChange={(e) => setLoginForm(prev => ({ ...prev, role: e.target.value as 'user' }))}
-                    className="w-full p-3 border border-gray-300   rounded-lg bg-white   text-gray-900   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="user">普通用户</option>
                   </select>
@@ -335,7 +335,7 @@ export default function UserManager() {
               <div className="flex justify-end gap-2 mt-6">
                 <button
                   onClick={() => setShowLoginDialog(false)}
-                  className="px-4 py-2 text-gray-600   hover:text-gray-800  "
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
                   取消
                 </button>
@@ -358,7 +358,7 @@ export default function UserManager() {
     <div className="relative">
       <button
         onClick={() => setShowUserMenu(!showUserMenu)}
-        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900     transition-colors"
+        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
       >
         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium ${getUserBadgeColor(user?.role)}`}>
           {user && getUserAvatar(user)}
@@ -369,10 +369,10 @@ export default function UserManager() {
 
       {/* User Menu */}
       {showUserMenu && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-white   rounded-lg shadow-lg border border-gray-200   py-2 z-50">
-          <div className="px-4 py-2 border-b border-gray-200  ">
-            <div className="font-medium text-gray-900  ">{user?.name}</div>
-            <div className="flex items-center gap-1 text-sm text-gray-500  ">
+        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+          <div className="px-4 py-2 border-b border-gray-200">
+            <div className="font-medium text-gray-900">{user?.name}</div>
+            <div className="flex items-center gap-1 text-sm text-gray-500">
               {user?.role && getRoleIcon(user.role)}
               {user?.role && getRoleText(user.role)}
             </div>
@@ -380,7 +380,7 @@ export default function UserManager() {
 
           <button
             onClick={() => setShowUserMenu(false)}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700   hover:bg-gray-100  "
+            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             <Settings className="w-4 h-4" />
             设置
@@ -388,7 +388,7 @@ export default function UserManager() {
 
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600   hover:bg-gray-100  "
+            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
           >
             <LogOut className="w-4 h-4" />
             退出登录

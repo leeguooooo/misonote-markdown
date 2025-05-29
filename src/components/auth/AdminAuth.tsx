@@ -67,7 +67,7 @@ export default function AdminAuth({ children }: AdminAuthProps) {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-    
+
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -113,30 +113,30 @@ export default function AdminAuth({ children }: AdminAuthProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50   flex items-center justify-center">
-        <div className="max-w-md w-full bg-white   rounded-lg shadow-sm border border-gray-200   p-8">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-gray-200 p-8">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100   rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-blue-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900   mb-2">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
               管理员登录
             </h1>
-            <p className="text-gray-600  ">
+            <p className="text-gray-600">
               请输入管理员密码以访问文档管理功能
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700   mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 密码
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500      "
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="请输入管理员密码"
                 required
                 disabled={isSubmitting}
@@ -144,7 +144,7 @@ export default function AdminAuth({ children }: AdminAuthProps) {
             </div>
 
             {error && (
-              <div className="text-red-600 text-sm bg-red-50   p-3 rounded-lg">
+              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
                 {error}
               </div>
             )}
@@ -159,7 +159,7 @@ export default function AdminAuth({ children }: AdminAuthProps) {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500  ">
+            <p className="text-sm text-gray-500">
               开发环境默认密码：admin123
             </p>
           </div>
@@ -172,15 +172,15 @@ export default function AdminAuth({ children }: AdminAuthProps) {
     <div>
       {/* 安全状态警告 */}
       {securityStatus && securityStatus.recommendations.length > 0 && (
-        <div className="bg-yellow-50   border-b border-yellow-200  ">
+        <div className="bg-yellow-50 border-b border-yellow-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="text-sm font-medium text-yellow-800  ">
+                <h3 className="text-sm font-medium text-yellow-800">
                   安全配置建议
                 </h3>
-                <ul className="mt-1 text-sm text-yellow-700   space-y-1">
+                <ul className="mt-1 text-sm text-yellow-700 space-y-1">
                   {securityStatus.recommendations.map((rec, index) => (
                     <li key={index}>• {rec}</li>
                   ))}
@@ -192,12 +192,12 @@ export default function AdminAuth({ children }: AdminAuthProps) {
       )}
 
       {/* 顶部导航栏 */}
-      <div className="bg-white   border-b border-gray-200  ">
+      <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
               <Shield className="w-6 h-6 text-blue-600" />
-              <h1 className="text-xl font-semibold text-gray-900  ">
+              <h1 className="text-xl font-semibold text-gray-900">
                 文档管理
               </h1>
               {securityStatus && (
@@ -217,7 +217,7 @@ export default function AdminAuth({ children }: AdminAuthProps) {
               )}
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600  ">
+              <span className="text-sm text-gray-600">
                 欢迎，{user?.username}
               </span>
               <a
@@ -228,7 +228,7 @@ export default function AdminAuth({ children }: AdminAuthProps) {
               </a>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 border border-gray-300   text-gray-700   rounded-lg hover:bg-gray-50   transition-colors"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 退出登录
               </button>
