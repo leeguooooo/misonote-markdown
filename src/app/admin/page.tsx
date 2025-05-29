@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Upload, FolderPlus, FileText, Save, Trash2, Edit3, RefreshCw, ChevronDown } from 'lucide-react';
 import { marked } from 'marked';
-import AdminAuth from '@/components/AdminAuth';
+import AdminAuth from '@/components/auth/AdminAuth';
 
 interface FileItem {
   name: string;
@@ -43,10 +43,20 @@ export default function AdminPage() {
     };
   }, [showPathDropdown]);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('admin-token');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    };
+  };
+
   const loadExistingDocs = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/admin/docs');
+      const response = await fetch('/api/admin/docs', {
+        headers: getAuthHeaders(),
+      });
       const data = await response.json();
       if (data.docs) {
         setFiles(data.docs);
@@ -159,9 +169,7 @@ export default function AdminPage() {
     try {
       const response = await fetch('/api/admin/save-doc', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           path: file.path,
           content: file.content,
@@ -189,9 +197,7 @@ export default function AdminPage() {
     try {
       const response = await fetch('/api/admin/delete-doc', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ path: file.path }),
       });
 
