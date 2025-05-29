@@ -13,7 +13,7 @@ import {
   Plus,
   Search,
   Copy,
-  Move3,
+  Move,
   FolderPlus,
   MoreHorizontal,
   Check,
