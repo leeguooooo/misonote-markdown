@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
@@ -13,25 +13,20 @@ interface DocsLayoutClientProps {
 
 export default function DocsLayoutClient({ docTree, children }: DocsLayoutClientProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentPath, setCurrentPath] = useState<string[] | undefined>(undefined);
   const pathname = usePathname();
 
-  console.log('DocsLayoutClient rendered with pathname:', pathname);
-
-  // 从 URL 路径中提取当前文档路径
-  useEffect(() => {
-    console.log('DocsLayoutClient useEffect triggered with pathname:', pathname);
+  // 直接从 pathname 计算 currentPath
+  const currentPath = useMemo(() => {
     if (pathname.startsWith('/docs/')) {
-      const pathSegments = pathname.slice(6).split('/'); // 移除 '/docs/' 前缀
+      const pathSegments = pathname.slice(6).split('/');
       const decodedSegments = pathSegments.map(segment => decodeURIComponent(segment));
       const filteredSegments = decodedSegments.filter(segment => segment.length > 0);
-      setCurrentPath(filteredSegments);
-      console.log('DocsLayoutClient - Current path set to:', filteredSegments);
-    } else {
-      setCurrentPath(undefined);
-      console.log('DocsLayoutClient - Current path set to undefined (not docs path)');
+      return filteredSegments;
     }
+    return undefined;
   }, [pathname]);
+
+
 
   const handleMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

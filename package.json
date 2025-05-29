@@ -6,7 +6,15 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pm2:start": "node pm2-start.js prod",
+    "pm2:dev": "node pm2-start.js dev",
+    "pm2:stop": "pm2 stop docs-platform",
+    "pm2:restart": "pm2 restart docs-platform",
+    "pm2:delete": "pm2 delete docs-platform",
+    "pm2:status": "pm2 status",
+    "pm2:logs": "pm2 logs docs-platform",
+    "pm2:monit": "pm2 monit"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

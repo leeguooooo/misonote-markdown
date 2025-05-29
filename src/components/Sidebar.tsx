@@ -86,10 +86,6 @@ export default function Sidebar({ docTree, currentPath }: SidebarProps) {
   const getInitialExpandedFolders = (): Set<string> => {
     const expanded = new Set<string>();
 
-    console.log('=== Smart Expansion Debug ===');
-    console.log('Current path:', currentPath);
-    console.log('Current path length:', currentPath?.length || 0);
-
     if (currentPath && currentPath.length > 0) {
       // 如果当前路径有多个部分，展开所有父级文件夹
       // 例如：['项目文档', '管理后台', '直播任务管理', 'complete-api-reference']
@@ -101,11 +97,9 @@ export default function Sidebar({ docTree, currentPath }: SidebarProps) {
       for (let i = 0; i < foldersToExpand; i++) {
         const folderPath = currentPath.slice(0, i + 1).join('/');
         expanded.add(folderPath);
-        console.log('Auto-expanding folder:', folderPath);
       }
     }
 
-    console.log('=== Final expanded folders ===', Array.from(expanded));
     return expanded;
   };
 
