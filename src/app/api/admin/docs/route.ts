@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllDocs } from '@/lib/docs';
 import { authenticateRequest } from '@/lib/auth';
 import { fileSystemManager } from '@/lib/file-operations';
 
@@ -14,23 +13,43 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const docs = getAllDocs();
+    // 获取完整的文件系统结构（包括空文件夹）
+    const fileSystemItems = fileSystemManager.getFileSystemStructure();
 
-    const formattedDocs = docs.map(doc => {
-      const docPath = doc.slug.join('/');
-      return {
-        name: `${docPath}.md`,
-        path: docPath,
-        content: doc.content,
-        title: doc.title,
-        lastModified: doc.lastModified,
-        isNew: false,
-        isHidden: fileSystemManager.isHidden(docPath),
-        metadata: fileSystemManager.getMetadata(docPath)
-      };
+    // 转换为管理界面需要的格式
+    const formattedItems = fileSystemItems.map(item => {
+      if (item.type === 'file') {
+        return {
+          name: item.name,
+          path: item.path,
+          content: item.content,
+          title: item.name.replace('.md', ''),
+          lastModified: item.lastModified,
+          isNew: false,
+          isHidden: item.isHidden,
+          metadata: item.metadata,
+          type: 'file'
+        };
+      } else {
+        return {
+          name: item.name,
+          path: item.path,
+          content: '',
+          title: item.name,
+          lastModified: item.lastModified,
+          isNew: false,
+          isHidden: item.isHidden,
+          metadata: item.metadata,
+          type: 'folder'
+        };
+      }
     });
 
-    return NextResponse.json({ docs: formattedDocs });
+    return NextResponse.json({
+      docs: formattedItems,
+      total: formattedItems.length,
+      message: '文件列表获取成功'
+    });
   } catch (error) {
     console.error('Get docs error:', error);
     return NextResponse.json(

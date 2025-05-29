@@ -96,15 +96,35 @@ export class FileSystemManager {
     }
 
     const fullPath = this.getFullPath(filePath);
+
+    if (!fs.existsSync(fullPath)) {
+      throw new Error('File does not exist');
+    }
+
     const directory = path.dirname(fullPath);
     const newPath = path.join(directory, newName);
     const relativePath = path.relative(this.basePath, newPath);
+
+    // 如果新路径和旧路径相同，直接返回
+    if (fullPath === newPath) {
+      return relativePath;
+    }
 
     if (fs.existsSync(newPath)) {
       throw new Error('File with new name already exists');
     }
 
+    // 重命名文件
     fs.renameSync(fullPath, newPath);
+
+    // 如果有元数据文件，也要重命名
+    const oldMetadataPath = fullPath + '.metadata.json';
+    const newMetadataPath = newPath + '.metadata.json';
+
+    if (fs.existsSync(oldMetadataPath)) {
+      fs.renameSync(oldMetadataPath, newMetadataPath);
+    }
+
     return relativePath;
   }
 
@@ -335,6 +355,67 @@ export class FileSystemManager {
     } catch (error) {
       return {};
     }
+  }
+
+  /**
+   * 获取完整的文件系统结构（包括空文件夹）
+   */
+  getFileSystemStructure(): any[] {
+    const result: any[] = [];
+
+    const scanDirectory = (dirPath: string, relativePath: string = ''): void => {
+      if (!fs.existsSync(dirPath)) return;
+
+      const items = fs.readdirSync(dirPath);
+
+      for (const item of items) {
+        // 跳过元数据文件
+        if (item.endsWith('.metadata.json')) continue;
+
+        const fullPath = path.join(dirPath, item);
+        const itemRelativePath = relativePath ? `${relativePath}/${item}` : item;
+        const stat = fs.statSync(fullPath);
+
+        if (stat.isDirectory()) {
+          // 添加文件夹
+          const folderInfo = {
+            name: item,
+            path: itemRelativePath,
+            type: 'folder',
+            isHidden: this.isHidden(itemRelativePath),
+            metadata: this.getMetadata(itemRelativePath),
+            lastModified: stat.mtime,
+            created: stat.birthtime
+          };
+          result.push(folderInfo);
+
+          // 递归扫描子目录
+          scanDirectory(fullPath, itemRelativePath);
+        } else if (item.endsWith('.md')) {
+          // 添加 Markdown 文件
+          const content = fs.readFileSync(fullPath, 'utf-8');
+          const fileName = item;
+          const baseName = item.replace('.md', '');
+          const fileRelativePath = relativePath ? `${relativePath}/${baseName}` : baseName;
+
+          const fileInfo = {
+            name: fileName,
+            path: fileRelativePath,
+            type: 'file',
+            content: content,
+            isHidden: this.isHidden(fileRelativePath),
+            metadata: this.getMetadata(fileRelativePath),
+            lastModified: stat.mtime,
+            created: stat.birthtime,
+            size: stat.size
+          };
+          result.push(fileInfo);
+        }
+      }
+    };
+
+    scanDirectory(this.basePath);
+    return result;
   }
 }
 

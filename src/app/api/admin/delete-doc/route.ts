@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { authenticateRequest } from '@/lib/auth';
+import { fileSystemManager } from '@/lib/file-operations';
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -23,46 +22,32 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Create the full file path
-    const fullPath = path.join(process.cwd(), 'docs', `${docPath}.md`);
+    // 使用文件系统管理器删除文件
+    try {
+      // 如果路径不以 .md 结尾，添加 .md 扩展名
+      const filePath = docPath.endsWith('.md') ? docPath : `${docPath}.md`;
+      await fileSystemManager.deleteFile(filePath);
 
-    // Check if file exists
-    if (!fs.existsSync(fullPath)) {
-      return NextResponse.json(
-        { error: 'File not found' },
-        { status: 404 }
-      );
-    }
+      return NextResponse.json({
+        success: true,
+        message: '文档删除成功'
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '删除失败';
 
-    // Delete the file
-    fs.unlinkSync(fullPath);
-
-    // Try to remove empty directories
-    let dir = path.dirname(fullPath);
-    const docsDir = path.join(process.cwd(), 'docs');
-
-    while (dir !== docsDir && dir !== path.dirname(dir)) {
-      try {
-        const files = fs.readdirSync(dir);
-        if (files.length === 0) {
-          fs.rmdirSync(dir);
-          dir = path.dirname(dir);
-        } else {
-          break;
-        }
-      } catch {
-        break;
+      if (errorMessage === 'File does not exist') {
+        return NextResponse.json(
+          { error: '文件不存在' },
+          { status: 404 }
+        );
       }
-    }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Document deleted successfully'
-    });
+      throw error;
+    }
   } catch (error) {
     console.error('Delete document error:', error);
     return NextResponse.json(
-      { error: 'Failed to delete document' },
+      { error: '删除文档失败' },
       { status: 500 }
     );
   }

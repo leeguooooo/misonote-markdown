@@ -19,7 +19,10 @@ import {
   Check,
   X,
   Eye,
-  EyeOff
+  EyeOff,
+  ArrowUpDown,
+  SortAsc,
+  SortDesc
 } from 'lucide-react';
 
 interface FileItem {
@@ -29,6 +32,8 @@ interface FileItem {
   isNew?: boolean;
   isHidden?: boolean;
   metadata?: any;
+  type?: 'file' | 'folder';
+  lastModified?: Date;
 }
 
 interface TreeNode {
@@ -74,6 +79,8 @@ export default function EnhancedFileTree({
   const [dragOverItem, setDragOverItem] = useState<string | null>(null);
   const [renamingItem, setRenamingItem] = useState<string | null>(null);
   const [newName, setNewName] = useState('');
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'type'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [contextMenu, setContextMenu] = useState<{
     x: number;
     y: number;
@@ -86,7 +93,41 @@ export default function EnhancedFileTree({
     const tree: TreeNode[] = [];
     const folderMap = new Map<string, TreeNode>();
 
-    files.forEach(file => {
+    // 首先处理所有文件夹
+    files.filter(item => item.type === 'folder').forEach(folder => {
+      const pathParts = folder.path.split('/');
+      let currentPath = '';
+
+      pathParts.forEach((part, index) => {
+        const parentPath = currentPath;
+        currentPath = currentPath ? `${currentPath}/${part}` : part;
+
+        if (!folderMap.has(currentPath)) {
+          const folderNode: TreeNode = {
+            name: part,
+            path: currentPath,
+            type: 'folder',
+            children: [],
+            file: index === pathParts.length - 1 ? folder : undefined, // 只有最后一级才关联文件夹信息
+          };
+
+          folderMap.set(currentPath, folderNode);
+
+          if (parentPath === '') {
+            tree.push(folderNode);
+          } else {
+            const parentFolder = folderMap.get(parentPath);
+            if (parentFolder) {
+              parentFolder.children = parentFolder.children || [];
+              parentFolder.children.push(folderNode);
+            }
+          }
+        }
+      });
+    });
+
+    // 然后处理所有文件
+    files.filter(item => item.type === 'file' || !item.type).forEach(file => {
       const pathParts = file.path.split('/');
       let currentPath = '';
 
@@ -113,7 +154,7 @@ export default function EnhancedFileTree({
             }
           }
         } else {
-          // 这是文件夹
+          // 这是文件路径中的文件夹，如果不存在则创建
           if (!folderMap.has(currentPath)) {
             const folderNode: TreeNode = {
               name: part,
@@ -138,13 +179,69 @@ export default function EnhancedFileTree({
       });
     });
 
-    // 排序
+    // 智能排序
     const sortNodes = (nodes: TreeNode[]): TreeNode[] => {
       return nodes.sort((a, b) => {
+        // 1. 文件夹优先
         if (a.type !== b.type) {
           return a.type === 'folder' ? -1 : 1;
         }
-        return a.name.localeCompare(b.name);
+
+        // 2. 隐藏文件排在后面
+        if (a.file?.isHidden !== b.file?.isHidden) {
+          if (a.file?.isHidden) return 1;
+          if (b.file?.isHidden) return -1;
+        }
+
+        // 3. 新建文件排在前面
+        if (a.file?.isNew !== b.file?.isNew) {
+          if (a.file?.isNew) return -1;
+          if (b.file?.isNew) return 1;
+        }
+
+        // 4. 根据排序方式进行排序
+        let result = 0;
+
+        switch (sortBy) {
+          case 'name':
+            const nameA = a.name.toLowerCase();
+            const nameB = b.name.toLowerCase();
+
+            // 数字排序（如果名称包含数字）
+            const numA = parseInt(nameA.match(/\d+/)?.[0] || '0');
+            const numB = parseInt(nameB.match(/\d+/)?.[0] || '0');
+
+            if (numA !== numB && !isNaN(numA) && !isNaN(numB)) {
+              result = numA - numB;
+            } else {
+              result = nameA.localeCompare(nameB, 'zh-CN', {
+                numeric: true,
+                sensitivity: 'base'
+              });
+            }
+            break;
+
+          case 'date':
+            const dateA = a.file?.lastModified ? new Date(a.file.lastModified).getTime() : 0;
+            const dateB = b.file?.lastModified ? new Date(b.file.lastModified).getTime() : 0;
+            result = dateB - dateA; // 新的在前
+            break;
+
+          case 'type':
+            if (a.type === b.type) {
+              // 同类型按名称排序
+              result = a.name.toLowerCase().localeCompare(b.name.toLowerCase(), 'zh-CN');
+            } else {
+              result = a.type === 'folder' ? -1 : 1;
+            }
+            break;
+
+          default:
+            result = a.name.toLowerCase().localeCompare(b.name.toLowerCase(), 'zh-CN');
+        }
+
+        // 应用排序顺序
+        return sortOrder === 'desc' ? -result : result;
       }).map(node => ({
         ...node,
         children: node.children ? sortNodes(node.children) : undefined,
@@ -466,9 +563,9 @@ export default function EnhancedFileTree({
 
   return (
     <div className="h-full flex flex-col">
-      {/* 搜索框 */}
+      {/* 搜索框和排序控制 */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="relative">
+        <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
@@ -477,6 +574,31 @@ export default function EnhancedFileTree({
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 text-sm"
           />
+        </div>
+
+        {/* 排序控制 */}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-gray-500 dark:text-gray-400">排序:</span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'type')}
+            className="px-2 py-1 border border-gray-300 rounded text-xs bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+          >
+            <option value="name">名称</option>
+            <option value="date">日期</option>
+            <option value="type">类型</option>
+          </select>
+          <button
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+            className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            title={sortOrder === 'asc' ? '升序' : '降序'}
+          >
+            {sortOrder === 'asc' ? (
+              <SortAsc className="w-3 h-3" />
+            ) : (
+              <SortDesc className="w-3 h-3" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -528,7 +650,9 @@ export default function EnhancedFileTree({
             }}
             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
           >
-            {contextMenu.node.file?.isHidden ? (
+            {(contextMenu.node.file?.isHidden ||
+              (contextMenu.node.type === 'folder' &&
+               files.find(f => f.path === contextMenu.node.path && f.type === 'folder')?.isHidden)) ? (
               <>
                 <Eye className="w-4 h-4" />
                 显示

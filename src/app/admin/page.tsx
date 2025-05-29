@@ -15,6 +15,8 @@ interface FileItem {
   isNew?: boolean;
   isHidden?: boolean;
   metadata?: any;
+  type?: 'file' | 'folder';
+  lastModified?: Date;
 }
 
 export default function AdminPage() {

@@ -45,12 +45,35 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const newPath = await fileSystemManager.renameFile(source, newName);
-        return NextResponse.json({
-          success: true,
-          message: '文件重命名成功',
-          newPath
-        });
+        try {
+          // 如果是文件重命名，需要处理 .md 扩展名
+          let sourceFilePath = source;
+          let newFileName = newName;
+
+          // 检查源文件是否存在（先尝试添加 .md）
+          if (!fileSystemManager.exists(source) && !source.endsWith('.md')) {
+            sourceFilePath = `${source}.md`;
+          }
+
+          // 如果新名称不包含扩展名且源文件是 .md 文件，添加 .md
+          if (sourceFilePath.endsWith('.md') && !newFileName.endsWith('.md')) {
+            newFileName = `${newFileName}.md`;
+          }
+
+          const newPath = await fileSystemManager.renameFile(sourceFilePath, newFileName);
+
+          return NextResponse.json({
+            success: true,
+            message: '文件重命名成功',
+            newPath: newPath.replace(/\.md$/, '') // 返回时移除 .md 扩展名
+          });
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : '重命名失败';
+          return NextResponse.json(
+            { error: errorMessage },
+            { status: 400 }
+          );
+        }
 
       case 'copy':
         if (!source || !target) {
