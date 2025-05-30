@@ -17,23 +17,7 @@ const nextConfig = {
     // ignoreBuildErrors: true,
   },
 
-  // 确保环境变量在构建时可用
-  env: {
-    ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
-    JWT_SECRET: process.env.JWT_SECRET,
-    // NODE_ENV 不能在这里设置，Next.js 会自动处理
-  },
-
-  // 或者使用 publicRuntimeConfig（运行时可用）
-  publicRuntimeConfig: {
-    // 这些变量在客户端和服务端都可用，但不要放敏感信息
-  },
-
-  // 服务端运行时配置（只在服务端可用）
-  serverRuntimeConfig: {
-    ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
-    JWT_SECRET: process.env.JWT_SECRET,
-  },
+  // Next.js 会自动加载 .env* 文件，不需要手动配置
 };
 
 module.exports = nextConfig;
