@@ -63,3 +63,6 @@ logs/
 *.backup.*
 database.ts
 mcp-client/node_modules/*
+
+# 忽略 MCP 客户端的 Git 仓库
+mcp-client/.git/
