@@ -11,20 +11,49 @@
 
 ## 🚀 解决方案
 
-### 步骤 1: 更新服务器配置
+### 方法一：使用自动化脚本（推荐）
 
 在你的服务器上 (`/srv/docs/markdown-site/`) 执行以下操作：
+
+```bash
+# 1. 上传更新的文件到服务器
+# 将以下文件上传到你的服务器：
+# - ecosystem.config.js (已更新，移除硬编码)
+# - update-security.sh (自动化脚本)
+# - generate-password-hash.js (密码生成工具)
+
+# 2. 给脚本添加执行权限
+chmod +x update-security.sh
+
+# 3. 运行自动化脚本
+./update-security.sh
+
+# 4. 按提示操作
+# - 脚本会要求你输入新的管理员密码
+# - 需要输入两次进行确认
+# - 密码至少需要6位字符
+# - 脚本会自动生成密码哈希并更新配置
+# - 自动重启 PM2 应用
+```
+
+### 方法二：手动更新
+
+如果你不想使用自动化脚本，可以手动执行以下步骤：
 
 ```bash
 # 1. 备份当前 .env 文件
 cp .env .env.backup
 
-# 2. 更新 .env 文件内容
-cat > .env << 'EOF'
-# 管理员密码哈希 (对应密码: MySecurePassword2024!)
-ADMIN_PASSWORD_HASH=$2b$12$LroxZgaVyD6EucJ1/ePJ6uw.JJvh3C7Wm/3kqJI.dUCRYBT7pIxKe
+# 2. 生成新的密码哈希
+node generate-password-hash.js
+# 按提示输入你的新密码，复制生成的哈希值
 
-# JWT 密钥 (请更改为你自己的随机字符串)
+# 3. 更新 .env 文件内容
+cat > .env << 'EOF'
+# 管理员密码哈希 (使用上一步生成的哈希值)
+ADMIN_PASSWORD_HASH=你生成的哈希值
+
+# JWT 密钥 (自动生成的随机密钥)
 JWT_SECRET=your-super-secret-jwt-key-change-in-production-min-32-chars-$(date +%s)
 
 # 环境设置
@@ -34,7 +63,7 @@ NODE_ENV=production
 PORT=3001
 EOF
 
-# 3. 验证 .env 文件内容
+# 4. 验证 .env 文件内容
 cat .env
 ```
 
@@ -86,10 +115,12 @@ pm2 status
 pm2 logs docs-platform --lines 20
 ```
 
-## 🔑 新的登录凭据
+## 🔑 登录凭据
 
 - **用户名**: `admin`
-- **密码**: `MySecurePassword2024!`
+- **密码**: 你在脚本中设置的密码
+
+> 💡 **提示**: 如果使用自动化脚本，密码就是你在运行脚本时输入的密码。如果手动更新，密码就是你在生成哈希时输入的密码。
 
 ## 🛡️ 安全建议
 
@@ -146,9 +177,9 @@ ADMIN_PASSWORD_HASH 长度: 60
 
 ### 测试登录
 
-1. 访问管理界面
-2. 使用新密码 `MySecurePassword2024!` 登录
-3. 确认登录成功
+1. 访问管理界面 (http://localhost:3001)
+2. 使用你设置的新密码登录
+3. 确认登录成功并能正常访问管理功能
 
 ## 📋 故障排除
 

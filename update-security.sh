@@ -39,29 +39,29 @@ check_root() {
 # 检查必要的命令
 check_dependencies() {
     log_info "检查依赖..."
-    
+
     if ! command -v pm2 &> /dev/null; then
         log_error "PM2 未安装，请先安装 PM2"
         exit 1
     fi
-    
+
     if ! command -v node &> /dev/null; then
         log_error "Node.js 未安装"
         exit 1
     fi
-    
+
     log_success "依赖检查通过"
 }
 
 # 备份当前配置
 backup_config() {
     log_info "备份当前配置..."
-    
+
     if [ -f ".env" ]; then
         cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
         log_success "已备份 .env 文件"
     fi
-    
+
     if [ -f "ecosystem.config.js" ]; then
         cp ecosystem.config.js ecosystem.config.js.backup.$(date +%Y%m%d_%H%M%S)
         log_success "已备份 ecosystem.config.js 文件"
@@ -77,15 +77,63 @@ generate_jwt_secret() {
     fi
 }
 
+# 获取用户输入的密码
+get_admin_password() {
+    echo ""
+    log_info "设置管理员密码"
+    echo "请输入新的管理员密码 (至少6位字符):"
+
+    # 隐藏输入的密码
+    read -s password
+    echo ""
+
+    # 验证密码长度
+    if [ ${#password} -lt 6 ]; then
+        log_error "密码长度至少需要6位字符"
+        exit 1
+    fi
+
+    echo "请再次确认密码:"
+    read -s password_confirm
+    echo ""
+
+    # 验证密码一致性
+    if [ "$password" != "$password_confirm" ]; then
+        log_error "两次输入的密码不一致"
+        exit 1
+    fi
+
+    log_success "密码设置成功"
+}
+
+# 生成密码哈希
+generate_password_hash() {
+    log_info "正在生成密码哈希..."
+
+    # 使用 Node.js 生成 bcrypt 哈希
+    password_hash=$(node -e "
+        const bcrypt = require('bcryptjs');
+        const hash = bcrypt.hashSync('$password', 12);
+        console.log(hash);
+    ")
+
+    if [ -z "$password_hash" ]; then
+        log_error "密码哈希生成失败"
+        exit 1
+    fi
+
+    log_success "密码哈希生成成功"
+}
+
 # 更新 .env 文件
 update_env_file() {
     log_info "更新 .env 文件..."
-    
+
     local jwt_secret=$(generate_jwt_secret)
-    
+
     cat > .env << EOF
-# 管理员密码哈希 (对应密码: MySecurePassword2024!)
-ADMIN_PASSWORD_HASH=\$2b\$12\$LroxZgaVyD6EucJ1/ePJ6uw.JJvh3C7Wm/3kqJI.dUCRYBT7pIxKe
+# 管理员密码哈希 (自动生成)
+ADMIN_PASSWORD_HASH=${password_hash}
 
 # JWT 密钥 (自动生成的安全密钥)
 JWT_SECRET=${jwt_secret}
@@ -99,37 +147,36 @@ EOF
 
     # 设置安全权限
     chmod 600 .env
-    
+
     log_success "已更新 .env 文件"
-    log_info "新的管理员密码: MySecurePassword2024!"
 }
 
 # 验证配置文件
 verify_config() {
     log_info "验证配置文件..."
-    
+
     if [ ! -f ".env" ]; then
         log_error ".env 文件不存在"
         exit 1
     fi
-    
+
     if ! grep -q "ADMIN_PASSWORD_HASH" .env; then
         log_error ".env 文件中缺少 ADMIN_PASSWORD_HASH"
         exit 1
     fi
-    
+
     if ! grep -q "JWT_SECRET" .env; then
         log_error ".env 文件中缺少 JWT_SECRET"
         exit 1
     fi
-    
+
     log_success "配置文件验证通过"
 }
 
 # 重启 PM2 应用
 restart_app() {
     log_info "重启 PM2 应用..."
-    
+
     # 检查应用是否存在
     if pm2 list | grep -q "docs-platform"; then
         pm2 restart docs-platform --update-env
@@ -145,7 +192,7 @@ restart_app() {
 show_status() {
     log_info "应用状态:"
     pm2 status
-    
+
     echo ""
     log_info "最近日志:"
     pm2 logs docs-platform --lines 10 || true
@@ -158,12 +205,12 @@ show_login_info() {
     echo ""
     echo "新的登录凭据:"
     echo "  用户名: admin"
-    echo "  密码: MySecurePassword2024!"
+    echo "  密码: [你刚才设置的密码]"
     echo ""
     echo "应用地址: http://localhost:3001"
     echo ""
+    log_success "密码已安全设置，请使用新密码登录"
     log_warning "请立即登录并验证配置是否正确"
-    log_warning "建议登录后立即更改为你自己的密码"
 }
 
 # 主函数
@@ -171,10 +218,12 @@ main() {
     echo "🔐 安全配置更新脚本"
     echo "===================="
     echo ""
-    
+
     check_root
     check_dependencies
     backup_config
+    get_admin_password
+    generate_password_hash
     update_env_file
     verify_config
     restart_app
