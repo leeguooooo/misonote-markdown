@@ -19,30 +19,27 @@ const axios = require('axios');
 const SERVER_URL = process.env.MCP_SERVER_URL || 'http://localhost:3000';
 const API_KEY = process.env.MCP_API_KEY;
 
-if (!API_KEY) {
-  console.error('错误: 请设置 MCP_API_KEY 环境变量');
-  console.error('');
-  console.error('使用方法:');
-  console.error('1. 独立测试:');
-  console.error('   export MCP_API_KEY="mcp_your_api_key_here"');
-  console.error('   pnpm start');
-  console.error('');
-  console.error('2. Cursor 集成:');
-  console.error('   在 Cursor 配置中设置 env.MCP_API_KEY');
-  console.error('   参考: docs/CURSOR-MCP-SETUP.md');
-  process.exit(1);
+// 检查 API 密钥的函数
+function checkApiKey() {
+  if (!API_KEY) {
+    throw new Error('MCP_API_KEY 环境变量未设置。请在 Cursor 配置中设置此变量。');
+  }
+  return API_KEY;
 }
 
-// 创建 axios 实例
-const apiClient = axios.create({
-  baseURL: SERVER_URL,
-  headers: {
-    'Authorization': `Bearer ${API_KEY}`,
-    'Content-Type': 'application/json',
-    'User-Agent': 'misonote-mcp-client/1.0.0'
-  },
-  timeout: 10000
-});
+// 创建 axios 实例的函数
+function createApiClient() {
+  const apiKey = checkApiKey();
+  return axios.create({
+    baseURL: SERVER_URL,
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'misonote-mcp-client/1.0.0'
+    },
+    timeout: 10000
+  });
+}
 
 // 创建 MCP 服务器
 const server = new Server(
@@ -215,6 +212,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 // 工具实现函数
 async function listDocuments(path) {
   try {
+    const apiClient = createApiClient();
     const response = await apiClient.get('/api/mcp/documents', {
       params: { path }
     });
@@ -239,6 +237,7 @@ async function listDocuments(path) {
 
 async function getDocument(path) {
   try {
+    const apiClient = createApiClient();
     const response = await apiClient.get(`/api/docs/${encodeURIComponent(path.replace('.md', ''))}`);
 
     return {
@@ -256,6 +255,7 @@ async function getDocument(path) {
 
 async function createDocument(path, content, title, metadata) {
   try {
+    const apiClient = createApiClient();
     const response = await apiClient.post('/api/mcp/documents', {
       path,
       content,
@@ -279,6 +279,7 @@ async function createDocument(path, content, title, metadata) {
 
 async function updateDocument(path, content, title, metadata) {
   try {
+    const apiClient = createApiClient();
     const response = await apiClient.post('/api/mcp/documents', {
       path,
       content,
@@ -302,6 +303,7 @@ async function updateDocument(path, content, title, metadata) {
 
 async function deleteDocument(path) {
   try {
+    const apiClient = createApiClient();
     const response = await apiClient.delete('/api/mcp/documents', {
       data: { path }
     });
@@ -321,6 +323,7 @@ async function deleteDocument(path) {
 
 async function getServerInfo() {
   try {
+    const apiClient = createApiClient();
     const [healthResponse, capabilitiesResponse] = await Promise.all([
       apiClient.get('/api/health'),
       apiClient.get('/api/mcp/capabilities')
