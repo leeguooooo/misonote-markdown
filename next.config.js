@@ -21,7 +21,7 @@ const nextConfig = {
   env: {
     ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
     JWT_SECRET: process.env.JWT_SECRET,
-    NODE_ENV: process.env.NODE_ENV,
+    // NODE_ENV 不能在这里设置，Next.js 会自动处理
   },
 
   // 或者使用 publicRuntimeConfig（运行时可用）
