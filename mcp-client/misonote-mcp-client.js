@@ -157,6 +157,30 @@ const TOOLS = [
       type: 'object',
       properties: {}
     }
+  },
+  {
+    name: 'search_documents',
+    description: '搜索文档内容、标题或路径',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: '搜索关键词',
+        },
+        searchType: {
+          type: 'string',
+          description: '搜索类型：content（内容）、title（标题）、path（路径）',
+          enum: ['content', 'title', 'path'],
+          default: 'content'
+        },
+        path: {
+          type: 'string',
+          description: '限制搜索范围的路径（可选）',
+        }
+      },
+      required: ['query']
+    }
   }
 ];
 
@@ -190,6 +214,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'get_server_info':
         return await getServerInfo();
+
+      case 'search_documents':
+        return await searchDocuments(args.query, args.searchType, args.path);
 
       default:
         throw new McpError(
@@ -238,13 +265,21 @@ async function listDocuments(path) {
 async function getDocument(path) {
   try {
     const apiClient = createApiClient();
-    const response = await apiClient.get(`/api/docs/${encodeURIComponent(path.replace('.md', ''))}`);
+    // 使用 MCP 文档 API 获取文档内容
+    const response = await apiClient.get('/api/mcp/documents', {
+      params: {
+        path: path.replace('.md', ''),
+        content: 'true'
+      }
+    });
+
+    const documentData = response.data.data;
 
     return {
       content: [
         {
           type: 'text',
-          text: `文档路径: ${path}\n\n${response.data.content}`
+          text: `文档路径: ${documentData.path}\n文档名称: ${documentData.name}\n文档大小: ${documentData.size} 字节\n最后修改: ${new Date(documentData.lastModified).toLocaleString()}\n\n--- 文档内容 ---\n\n${documentData.content}`
         }
       ]
     };
@@ -345,6 +380,7 @@ async function getServerInfo() {
                 `- 批量操作: ${capabilities.capabilities.supportsBatch ? '✅' : '❌'}\n` +
                 `- Webhook: ${capabilities.capabilities.supportsWebhooks ? '✅' : '❌'}\n` +
                 `- 元数据: ${capabilities.capabilities.supportsMetadata ? '✅' : '❌'}\n` +
+                `- 搜索功能: ${capabilities.capabilities.supportsSearch ? '✅' : '❌'}\n` +
                 `- 最大文档大小: ${(capabilities.capabilities.maxDocumentSize / 1024 / 1024).toFixed(1)}MB\n` +
                 `- 支持格式: ${capabilities.capabilities.supportedFormats.join(', ')}`
         }
@@ -352,6 +388,70 @@ async function getServerInfo() {
     };
   } catch (error) {
     throw new Error(`获取服务器信息失败: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+async function searchDocuments(query, searchType = 'content', path = '') {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get('/api/mcp/documents', {
+      params: {
+        search: query,
+        searchType: searchType,
+        ...(path && { path })
+      }
+    });
+
+    const searchData = response.data.data;
+    const documents = searchData.documents || [];
+
+    if (documents.length === 0) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `🔍 搜索结果\n\n关键词: "${query}"\n搜索类型: ${searchType}\n${path ? `搜索范围: ${path}\n` : ''}\n❌ 未找到相关文档`
+          }
+        ]
+      };
+    }
+
+    let resultText = `🔍 搜索结果\n\n关键词: "${query}"\n搜索类型: ${searchType}\n${path ? `搜索范围: ${path}\n` : ''}找到 ${documents.length} 个相关文档:\n\n`;
+
+    documents.forEach((doc, index) => {
+      resultText += `${index + 1}. **${doc.name}**\n`;
+      resultText += `   路径: ${doc.path}\n`;
+      resultText += `   大小: ${doc.size} 字节\n`;
+      resultText += `   修改时间: ${new Date(doc.lastModified).toLocaleString()}\n`;
+
+      if (doc.relevanceScore) {
+        resultText += `   相关性: ${doc.relevanceScore}/10\n`;
+      }
+
+      if (doc.excerpt) {
+        resultText += `   摘要: ${doc.excerpt.substring(0, 150)}${doc.excerpt.length > 150 ? '...' : ''}\n`;
+      }
+
+      if (doc.matchedSnippets && doc.matchedSnippets.length > 0) {
+        resultText += `   匹配片段:\n`;
+        doc.matchedSnippets.slice(0, 2).forEach((snippet, i) => {
+          resultText += `     ${i + 1}. "${snippet.substring(0, 100)}${snippet.length > 100 ? '...' : ''}"\n`;
+        });
+      }
+
+      resultText += '\n';
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: resultText
+        }
+      ]
+    };
+  } catch (error) {
+    throw new Error(`搜索文档失败: ${error.response?.data?.error || error.message}`);
   }
 }
 

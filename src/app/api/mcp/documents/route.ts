@@ -21,8 +21,54 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const path = searchParams.get('path') || '';
+    const getContent = searchParams.get('content') === 'true';
+    const searchQuery = searchParams.get('search');
+    const searchType = searchParams.get('searchType') || 'content'; // content, title, path
 
     try {
+      // 如果请求单个文档的内容
+      if (getContent && path) {
+        const filePath = path.endsWith('.md') ? path : `${path}.md`;
+
+        try {
+          // 检查文件是否存在
+          if (!fileSystemManager.exists(filePath)) {
+            return NextResponse.json({
+              success: false,
+              error: '文档不存在',
+              timestamp: new Date().toISOString()
+            }, { status: 404 });
+          }
+
+          // 读取文件内容
+          const fs = require('fs');
+          const pathModule = require('path');
+          const fullPath = pathModule.join(process.cwd(), 'docs', filePath);
+          const content = fs.readFileSync(fullPath, 'utf-8');
+          const fileInfo = await fileSystemManager.getFileInfo(filePath);
+
+          return NextResponse.json({
+            success: true,
+            data: {
+              path: path,
+              content: content,
+              name: filePath.split('/').pop(),
+              size: content.length,
+              lastModified: fileInfo.metadata?.lastModified || new Date().toISOString(),
+              type: 'markdown'
+            },
+            message: '文档内容获取成功',
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          return NextResponse.json({
+            success: false,
+            error: '文档不存在或无法读取',
+            timestamp: new Date().toISOString()
+          }, { status: 404 });
+        }
+      }
+
       // 获取完整的文件系统结构
       const allFiles = fileSystemManager.getFileSystemStructure();
 
@@ -38,6 +84,69 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      // 如果有搜索查询，执行搜索
+      if (searchQuery && searchQuery.trim()) {
+        const query = searchQuery.toLowerCase().trim();
+
+        markdownFiles = markdownFiles.filter(file => {
+          switch (searchType) {
+            case 'title':
+              return file.name.toLowerCase().includes(query) ||
+                     file.path.toLowerCase().includes(query);
+
+            case 'path':
+              return file.path.toLowerCase().includes(query);
+
+            case 'content':
+            default:
+              // 搜索文件名、路径和内容
+              const nameMatch = file.name.toLowerCase().includes(query);
+              const pathMatch = file.path.toLowerCase().includes(query);
+              const contentMatch = file.content && file.content.toLowerCase().includes(query);
+
+              return nameMatch || pathMatch || contentMatch;
+          }
+        });
+
+        // 为搜索结果添加相关性评分和摘要
+        markdownFiles = markdownFiles.map(file => {
+          let relevanceScore = 0;
+          let matchedSnippets: string[] = [];
+
+          if (file.name.toLowerCase().includes(query)) {
+            relevanceScore += 10;
+          }
+          if (file.path.toLowerCase().includes(query)) {
+            relevanceScore += 5;
+          }
+
+          if (file.content) {
+            const content = file.content.toLowerCase();
+            const queryIndex = content.indexOf(query);
+
+            if (queryIndex !== -1) {
+              relevanceScore += 3;
+
+              // 提取匹配的文本片段
+              const snippetStart = Math.max(0, queryIndex - 50);
+              const snippetEnd = Math.min(content.length, queryIndex + query.length + 50);
+              const snippet = file.content.substring(snippetStart, snippetEnd);
+
+              matchedSnippets.push(snippet);
+            }
+          }
+
+          return {
+            ...file,
+            relevanceScore,
+            matchedSnippets: matchedSnippets.slice(0, 3) // 最多3个片段
+          };
+        });
+
+        // 按相关性排序
+        markdownFiles.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
+      }
+
       return NextResponse.json({
         success: true,
         data: {
@@ -46,12 +155,26 @@ export async function GET(request: NextRequest) {
             name: file.name,
             size: file.size || 0,
             lastModified: file.lastModified,
-            type: 'markdown'
+            type: 'markdown',
+            // 搜索相关字段
+            ...(searchQuery && {
+              relevanceScore: file.relevanceScore || 0,
+              matchedSnippets: file.matchedSnippets || [],
+              excerpt: file.matchedSnippets && file.matchedSnippets.length > 0
+                ? file.matchedSnippets[0]
+                : (file.content ? file.content.substring(0, 200) + '...' : '')
+            })
           })),
           total: markdownFiles.length,
-          path: path
+          path: path,
+          // 搜索元信息
+          ...(searchQuery && {
+            searchQuery,
+            searchType,
+            isSearchResult: true
+          })
         },
-        message: '文档列表获取成功',
+        message: searchQuery ? `搜索到 ${markdownFiles.length} 个相关文档` : '文档列表获取成功',
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {

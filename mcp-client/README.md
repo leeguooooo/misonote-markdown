@@ -147,6 +147,22 @@ export MCP_SERVER_URL="https://your-server.com"
 请显示服务器信息
 ```
 
+### search_documents
+搜索文档内容、标题或路径
+
+**参数:**
+- `query`: 搜索关键词
+- `searchType` (可选): 搜索类型 - content（内容）、title（标题）、path（路径）
+- `path` (可选): 限制搜索范围的路径
+
+**示例:**
+```
+搜索包含 "API" 的文档
+搜索标题中包含 "配置" 的文档
+在 docs 目录下搜索 "安装"
+搜索路径中包含 "security" 的文档
+```
+
 ## 使用示例
 
 配置完成后，你可以在 Cursor 中直接与 AI 对话来管理文档：
