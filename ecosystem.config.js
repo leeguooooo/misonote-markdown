@@ -1,3 +1,6 @@
+// 加载 .env 文件
+require('dotenv').config();
+
 module.exports = {
   apps: [
     {
@@ -12,20 +15,23 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
-        // 从 .env 文件读取敏感信息，不在此处硬编码
-        // ADMIN_PASSWORD_HASH 和 JWT_SECRET 应该在 .env 文件中设置
+        // 从 .env 文件读取环境变量
+        ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
+        JWT_SECRET: process.env.JWT_SECRET,
       },
       env_development: {
         NODE_ENV: 'development',
         PORT: 3001,
-        // 从 .env 文件读取敏感信息，不在此处硬编码
-        // ADMIN_PASSWORD_HASH 和 JWT_SECRET 应该在 .env 文件中设置
+        // 从 .env 文件读取环境变量
+        ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
+        JWT_SECRET: process.env.JWT_SECRET,
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: 3001,
-        // 从 .env 文件读取敏感信息，不在此处硬编码
-        // ADMIN_PASSWORD_HASH 和 JWT_SECRET 应该在 .env 文件中设置
+        // 从 .env 文件读取环境变量
+        ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
+        JWT_SECRET: process.env.JWT_SECRET,
       },
       error_file: './logs/err.log',
       out_file: './logs/out.log',
