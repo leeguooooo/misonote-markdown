@@ -55,6 +55,9 @@ if (process.env.ADMIN_PASSWORD_HASH) {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Docker 支持配置
+  output: process.env.DOCKER_BUILD === 'true' ? 'standalone' : undefined,
+
   eslint: {
     // 在构建时忽略 ESLint 错误
     ignoreDuringBuilds: true,
@@ -62,6 +65,11 @@ const nextConfig = {
   typescript: {
     // 在构建时忽略 TypeScript 错误（如果需要）
     // ignoreBuildErrors: true,
+  },
+
+  // Docker 环境配置
+  env: {
+    DOCKER_ENV: process.env.DOCKER_ENV || 'false',
   },
 
   // Next.js 会自动加载 .env* 文件，不需要手动配置

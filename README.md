@@ -65,7 +65,20 @@
 
 ### 生产环境部署
 
-#### 🚀 一键部署（推荐）
+#### 🐳 Docker 部署（推荐，最简单）
+
+使用 Docker 一键部署，无需配置 Node.js 环境：
+
+```bash
+# 克隆项目
+git clone https://github.com/leeguooooo/markdown-site
+cd markdown-site
+
+# 一键 Docker 部署
+pnpm docker:deploy
+```
+
+#### 🚀 传统部署
 
 使用我们提供的安全构建脚本，自动检查环境变量并部署：
 
@@ -271,8 +284,18 @@ pnpm type-check
 pnpm dev                    # 启动开发服务器
 pnpm build                  # 构建生产版本
 pnpm build:safe             # 安全构建（包含环境检查）
+pnpm build:docker           # Docker 构建
 pnpm start                  # 启动生产服务器
 pnpm lint                   # 代码检查
+
+# 🐳 Docker 部署
+pnpm docker:deploy          # 一键 Docker 部署
+pnpm docker:build           # 构建 Docker 镜像
+pnpm docker:compose         # 启动 Docker Compose
+pnpm docker:logs            # 查看 Docker 日志
+pnpm docker:stop            # 停止 Docker 服务
+pnpm docker:restart         # 重启 Docker 服务
+pnpm docker:manage          # Docker 管理工具
 
 # 🔐 安全管理
 pnpm security:setup         # 设置管理员密码

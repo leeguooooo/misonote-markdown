@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  markdown-preview:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: markdown-preview
+    ports:
+      - "3001:3001"
+    volumes:
+      # 持久化文档目录
+      - ./docs:/app/docs
+      # 持久化数据目录
+      - ./data:/app/data
+      # 持久化日志目录
+      - ./logs:/app/logs
+      # 持久化环境配置
+      - ./.env:/app/.env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOSTNAME=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - markdown-network
+
+  # 可选：添加 Nginx 反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: markdown-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - markdown-preview
+    restart: unless-stopped
+    networks:
+      - markdown-network
+    profiles:
+      - nginx
+
+networks:
+  markdown-network:
+    driver: bridge
+
+volumes:
+  docs_data:
+  app_data:
+  logs_data:

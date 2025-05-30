@@ -38,11 +38,11 @@ function logError(message) {
 // 加载环境变量
 function loadEnvFile() {
   const envPath = path.join(process.cwd(), '.env');
-  
+
   if (fs.existsSync(envPath)) {
     const envContent = fs.readFileSync(envPath, 'utf8');
     const envVars = {};
-    
+
     envContent.split('\n').forEach(line => {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith('#')) {
@@ -52,20 +52,20 @@ function loadEnvFile() {
         }
       }
     });
-    
+
     return envVars;
   }
-  
+
   return {};
 }
 
 // 检查必需的环境变量
 function checkRequiredEnvVars() {
   logInfo('检查构建前环境变量...');
-  
+
   const envVars = loadEnvFile();
   const allEnvVars = { ...envVars, ...process.env };
-  
+
   const requiredVars = [
     {
       name: 'ADMIN_PASSWORD_HASH_BASE64',
@@ -86,13 +86,13 @@ function checkRequiredEnvVars() {
       validator: (value) => value && value.length >= 32
     }
   ];
-  
+
   const missing = [];
   const invalid = [];
-  
+
   for (const varConfig of requiredVars) {
     const value = allEnvVars[varConfig.name];
-    
+
     if (!value) {
       missing.push(varConfig);
     } else if (!varConfig.validator(value)) {
@@ -101,7 +101,7 @@ function checkRequiredEnvVars() {
       logSuccess(`${varConfig.name}: 已正确设置`);
     }
   }
-  
+
   return { missing, invalid, allEnvVars };
 }
 
@@ -109,14 +109,14 @@ function checkRequiredEnvVars() {
 function showEnvStatus(envVars) {
   console.log('\n📋 环境变量状态:');
   console.log('================');
-  
+
   const adminHashBase64 = envVars.ADMIN_PASSWORD_HASH_BASE64;
   const jwtSecret = envVars.JWT_SECRET;
-  
+
   console.log(`NODE_ENV: ${envVars.NODE_ENV || '未设置'}`);
   console.log(`PORT: ${envVars.PORT || '未设置'}`);
   console.log(`ADMIN_PASSWORD_HASH_BASE64: ${adminHashBase64 ? '已设置' : '未设置'}`);
-  
+
   if (adminHashBase64) {
     try {
       const decoded = Buffer.from(adminHashBase64, 'base64').toString('utf8');
@@ -128,28 +128,28 @@ function showEnvStatus(envVars) {
       console.log(`  - 解码错误: ${error.message}`);
     }
   }
-  
+
   console.log(`JWT_SECRET: ${jwtSecret ? '已设置' : '未设置'}`);
-  
+
   if (jwtSecret) {
     console.log(`  - 长度: ${jwtSecret.length}`);
     console.log(`  - 安全性: ${jwtSecret.length >= 32 ? '良好' : '不足'}`);
   }
-  
+
   console.log('');
 }
 
 // 交互式设置环境变量
 async function interactiveSetup() {
   logWarning('检测到缺失或无效的环境变量，启动交互式设置...');
-  
+
   try {
     logInfo('运行密码生成脚本...');
-    execSync('node scripts/generate-password.js', { 
+    execSync('node scripts/generate-password.js', {
       stdio: 'inherit',
       cwd: process.cwd()
     });
-    
+
     logSuccess('密码配置完成');
     return true;
   } catch (error) {
@@ -160,35 +160,42 @@ async function interactiveSetup() {
 
 // 主函数
 async function main() {
+  // 在 Docker 构建环境中跳过检查
+  if (process.env.DOCKER_BUILD === 'true' || process.env.SKIP_PREBUILD === 'true') {
+    logInfo('Docker 构建环境，跳过环境变量检查');
+    logSuccess('✅ Docker 构建前检查通过');
+    process.exit(0);
+  }
+
   console.log('🔍 构建前环境变量检查');
   console.log('======================');
   console.log('');
-  
+
   try {
     const { missing, invalid, allEnvVars } = checkRequiredEnvVars();
-    
+
     showEnvStatus(allEnvVars);
-    
+
     if (missing.length > 0) {
       logError('缺失的环境变量:');
       missing.forEach(varConfig => {
         console.log(`  - ${varConfig.name}: ${varConfig.description}`);
       });
     }
-    
+
     if (invalid.length > 0) {
       logError('无效的环境变量:');
       invalid.forEach(varConfig => {
         console.log(`  - ${varConfig.name}: ${varConfig.description} (当前值无效)`);
       });
     }
-    
+
     if (missing.length > 0 || invalid.length > 0) {
       console.log('');
       logWarning('构建前需要设置环境变量，否则构建后的应用将无法正常工作');
-      
+
       const setupSuccess = await interactiveSetup();
-      
+
       if (setupSuccess) {
         const { missing: newMissing, invalid: newInvalid } = checkRequiredEnvVars();
         if (newMissing.length === 0 && newInvalid.length === 0) {
@@ -206,7 +213,7 @@ async function main() {
       logSuccess('✅ 所有环境变量已正确设置，可以开始构建');
       process.exit(0);
     }
-    
+
   } catch (error) {
     logError('检查过程出错: ' + error.message);
     process.exit(1);

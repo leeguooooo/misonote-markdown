@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "node scripts/pre-build-check.js",
+    "prebuild:docker": "node scripts/docker-prebuild.js",
     "build": "next build",
     "build:safe": "bash scripts/safe-build.sh",
+    "build:docker": "DOCKER_BUILD=true SKIP_PREBUILD=true next build",
     "start": "next start",
     "lint": "next lint",
 
@@ -16,6 +18,15 @@
     "pm2:delete": "pm2 delete docs-platform",
     "pm2:logs": "pm2 logs docs-platform --lines 50",
     "pm2:status": "pm2 status",
+
+    "docker:build": "docker build -t markdown-preview .",
+    "docker:run": "docker run -p 3001:3001 markdown-preview",
+    "docker:compose": "docker-compose up -d",
+    "docker:deploy": "bash scripts/docker-deploy.sh",
+    "docker:manage": "bash scripts/docker-manage.sh",
+    "docker:logs": "docker-compose logs -f",
+    "docker:stop": "docker-compose down",
+    "docker:restart": "docker-compose restart",
 
     "security:setup": "node scripts/generate-password.js",
     "security:verify": "node scripts/verify-password.js",

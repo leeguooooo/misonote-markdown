@@ -4,10 +4,26 @@
 
 在 4 分钟内完成 Markdown 文档系统的部署并开始使用。
 
-## 📋 前置要求
+## 🚀 选择部署方式
 
-- Node.js 18+ 
-- pnpm (推荐) 或 npm
+### 🐳 方式一：Docker 部署（推荐，最简单）
+
+**前置要求**: Docker + Docker Compose
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/leeguooooo/markdown-site.git
+cd markdown-site
+
+# 2. 一键 Docker 部署
+pnpm docker:deploy
+```
+
+就这么简单！🎉
+
+### 🖥️ 方式二：传统部署
+
+**前置要求**: Node.js 18+ + pnpm
 
 ## 🚀 第一步：克隆和安装 (1分钟)
 
@@ -50,6 +66,30 @@ pnpm pm2:start
 使用刚才设置的管理员密码登录后台。
 
 ## 🔧 常用命令
+
+### 🐳 Docker 命令
+
+```bash
+# 查看状态
+pnpm docker:manage status
+
+# 查看日志
+pnpm docker:logs
+
+# 重启服务
+pnpm docker:restart
+
+# 设置密码
+pnpm docker:manage password
+
+# 进入容器
+pnpm docker:manage shell
+
+# 备份数据
+pnpm docker:manage backup
+```
+
+### 🖥️ 传统部署命令
 
 ```bash
 # 查看服务状态
