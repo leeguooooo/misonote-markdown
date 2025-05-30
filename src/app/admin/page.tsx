@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Plus, FolderPlus } from 'lucide-react';
+import { Upload, Plus, FolderPlus, Server, Send } from 'lucide-react';
 import AdminAuth from '@/components/auth/AdminAuth';
 import EnhancedFileTree from '@/components/admin/EnhancedFileTree';
 import MarkdownEditor from '@/components/admin/MarkdownEditor';
 import CreateFileDialog from '@/components/admin/CreateFileDialog';
 import DragDropUpload from '@/components/admin/DragDropUpload';
+import MCPServerManager from '@/components/admin/MCPServerManager';
+import MCPDocumentPusher from '@/components/admin/MCPDocumentPusher';
 
 interface FileItem {
   name: string;
@@ -28,6 +30,8 @@ export default function AdminPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [createDialogPath, setCreateDialogPath] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showMCPManager, setShowMCPManager] = useState(false);
+  const [showMCPPusher, setShowMCPPusher] = useState(false);
 
   // Load existing documents on component mount
   useEffect(() => {
@@ -350,6 +354,20 @@ export default function AdminPage() {
               </h2>
               <div className="flex items-center gap-2">
                 <button
+                  onClick={() => setShowMCPManager(true)}
+                  className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
+                  title="MCP 服务器管理"
+                >
+                  <Server className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setShowMCPPusher(true)}
+                  className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
+                  title="推送到 MCP 服务器"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+                <button
                   onClick={() => {
                     const dirName = prompt('请输入文件夹名称:');
                     if (dirName && dirName.trim()) {
@@ -434,6 +452,34 @@ export default function AdminPage() {
           initialPath={createDialogPath}
           availablePaths={availablePaths}
         />
+
+        {/* MCP 服务器管理对话框 */}
+        {showMCPManager && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <MCPServerManager onClose={() => setShowMCPManager(false)} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MCP 文档推送对话框 */}
+        {showMCPPusher && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <MCPDocumentPusher
+                  documents={files.map(file => ({
+                    ...file,
+                    type: file.type || 'file' as 'file' | 'folder'
+                  }))}
+                  onClose={() => setShowMCPPusher(false)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AdminAuth>
   );

@@ -11,14 +11,12 @@
     "build:docker": "DOCKER_BUILD=true SKIP_PREBUILD=true next build",
     "start": "next start",
     "lint": "next lint",
-
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:stop": "pm2 stop docs-platform",
     "pm2:restart": "pm2 restart docs-platform",
     "pm2:delete": "pm2 delete docs-platform",
     "pm2:logs": "pm2 logs docs-platform --lines 50",
     "pm2:status": "pm2 status",
-
     "docker:build": "docker build -t misonote-markdown .",
     "docker:run": "docker run -p 3001:3001 misonote-markdown",
     "docker:compose": "docker-compose up -d",
@@ -30,10 +28,8 @@
     "docker:publish": "bash scripts/docker-publish.sh",
     "docker:publish:check": "bash scripts/docker-publish-check.sh",
     "docker:publish:prepare": "bash scripts/docker-publish-check.sh && echo 'Ready to publish! Run: pnpm docker:publish'",
-
     "security:setup": "node scripts/generate-password.js",
     "security:verify": "node scripts/verify-password.js",
-
     "clean": "rm -rf .next && rm -rf logs/*.log"
   },
   "dependencies": {
@@ -41,6 +37,7 @@
     "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-separator": "^1.1.7",
     "autoprefixer": "^10.4.21",
+    "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
     "fs": "0.0.1-security",
