@@ -50,6 +50,11 @@ check_dependencies() {
         exit 1
     fi
 
+    if ! command -v pnpm &> /dev/null; then
+        log_error "pnpm 未安装，请先安装 pnpm"
+        exit 1
+    fi
+
     log_success "依赖检查通过"
 }
 

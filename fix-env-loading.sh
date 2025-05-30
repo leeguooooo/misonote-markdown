@@ -98,7 +98,7 @@ module.exports = {
   apps: [
     {
       name: 'docs-platform',
-      script: 'npm',
+      script: 'pnpm',
       args: 'start',
       cwd: './',
       instances: 1,
