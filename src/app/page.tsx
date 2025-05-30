@@ -1,5 +1,10 @@
 import Link from 'next/link';
-import { BookOpen, Search, FileText, Zap, Star, Users, Shield, Rocket, Code, Palette, Globe, Heart } from 'lucide-react';
+import {
+  BookOpen, Search, FileText, Zap, Star, Users, Shield, Rocket, Code, Palette, Globe, Heart,
+  MessageSquare, Highlighter, MousePointer2, FolderTree,
+  Upload, Settings, Layers, Target,
+  ArrowRight, CheckCircle, PlayCircle, Lightbulb
+} from 'lucide-react';
 import GitHubLink from '@/components/GitHubLink';
 
 export default function Home() {
@@ -77,12 +82,13 @@ export default function Home() {
           </div>
 
           {/* 副标题 */}
-          <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-            支持 <span className="text-blue-600 font-semibold">Mermaid 图表</span>、
-            <span className="text-green-600 font-semibold">全局搜索</span>、
-            <span className="text-purple-600 font-semibold">拖拽管理</span> 的强大文档预览工具
+          <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-5xl mx-auto leading-relaxed">
+            集成 <span className="text-blue-600 font-semibold">协作评论</span>、
+            <span className="text-green-600 font-semibold">文本标注</span>、
+            <span className="text-purple-600 font-semibold">多视图编辑</span>、
+            <span className="text-orange-600 font-semibold">拖拽管理</span> 的企业级文档系统
             <br />
-            <span className="text-lg text-gray-500">让你的文档更加生动和易于管理</span>
+            <span className="text-lg text-gray-500">让团队协作和知识管理变得简单高效</span>
           </p>
 
           {/* CTA 按钮 */}
@@ -139,40 +145,147 @@ export default function Home() {
           {/* Features */}
           <div className="mb-16">
             <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-              核心特性
+              强大功能特性
             </h2>
             <p className="text-center text-gray-600 mb-16 text-lg">
-              为现代开发者打造的完整文档解决方案
+              企业级文档管理系统，集成协作、编辑、管理于一体
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-20">
-            {/* Markdown 支持 */}
+          {/* 功能亮点展示 */}
+          <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-3xl p-8 mb-16 border border-gray-200/50">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">🚀 功能亮点</h3>
+              <p className="text-gray-600">体验企业级文档管理系统的强大功能</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <MessageSquare className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">协作评论</h4>
+                <p className="text-sm text-gray-600">选择文本即可添加评论，支持多人讨论和回复</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <Highlighter className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">智能标注</h4>
+                <p className="text-sm text-gray-600">高亮重要内容，添加笔记和书签，提升阅读效率</p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                  <MousePointer2 className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-gray-900 mb-2">拖拽管理</h4>
+                <p className="text-sm text-gray-600">拖拽移动文件，双击重命名，右键菜单操作</p>
+              </div>
+            </div>
+          </div>
+
+          {/* 主要功能特性 - 6个核心功能 */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {/* 协作评论系统 */}
             <div className="group relative bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <FileText className="w-8 h-8 text-white" />
+                  <MessageSquare className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
-                  Markdown 支持
+                  协作评论
                 </h3>
                 <p className="text-gray-600 text-center leading-relaxed">
-                  完整支持 GitHub Flavored Markdown，包括表格、代码高亮、任务列表、数学公式等现代化功能。
+                  支持文本选择评论、多人协作讨论、回复和点赞功能，让团队协作更加高效。
                 </p>
-                <div className="mt-6 flex justify-center">
+                <div className="mt-6 flex justify-center gap-2">
                   <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                    GFM 兼容
+                    实时协作
+                  </span>
+                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                    多人讨论
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* 全局搜索 */}
+            {/* 文本标注功能 */}
             <div className="group relative bg-gradient-to-br from-white to-green-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
               <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Highlighter className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                  文本标注
+                </h3>
+                <p className="text-gray-600 text-center leading-relaxed">
+                  支持高亮标记、添加笔记、创建书签，让重要内容一目了然，提升阅读效率。
+                </p>
+                <div className="mt-6 flex justify-center gap-2">
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                    高亮标记
+                  </span>
+                  <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                    智能书签
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 多视图编辑器 */}
+            <div className="group relative bg-gradient-to-br from-white to-purple-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Layers className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                  多视图编辑
+                </h3>
+                <p className="text-gray-600 text-center leading-relaxed">
+                  支持编辑、预览、分屏、全屏四种模式，丰富的工具栏和快捷键，提升编辑体验。
+                </p>
+                <div className="mt-6 flex justify-center gap-2">
+                  <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                    实时预览
+                  </span>
+                  <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-medium">
+                    快捷键
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 拖拽文件管理 */}
+            <div className="group relative bg-gradient-to-br from-white to-orange-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <MousePointer2 className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                  拖拽管理
+                </h3>
+                <p className="text-gray-600 text-center leading-relaxed">
+                  支持拖拽移动文件、双击重命名、右键菜单操作，让文件管理变得直观简单。
+                </p>
+                <div className="mt-6 flex justify-center gap-2">
+                  <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                    拖拽移动
+                  </span>
+                  <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                    快速重命名
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 智能搜索 */}
+            <div className="group relative bg-gradient-to-br from-white to-cyan-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <Search className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
@@ -181,19 +294,22 @@ export default function Home() {
                 <p className="text-gray-600 text-center leading-relaxed">
                   基于 Fuse.js 的模糊搜索引擎，支持标题和内容全文检索，实时高亮显示搜索结果。
                 </p>
-                <div className="mt-6 flex justify-center">
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-                    实时搜索
+                <div className="mt-6 flex justify-center gap-2">
+                  <span className="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm font-medium">
+                    全文搜索
+                  </span>
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                    实时过滤
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Mermaid 图表 */}
-            <div className="group relative bg-gradient-to-br from-white to-purple-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="group relative bg-gradient-to-br from-white to-indigo-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <Zap className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
@@ -202,36 +318,178 @@ export default function Home() {
                 <p className="text-gray-600 text-center leading-relaxed">
                   内置 Mermaid 图表引擎，支持流程图、时序图、甘特图、类图等多种图表类型。
                 </p>
-                <div className="mt-6 flex justify-center">
+                <div className="mt-6 flex justify-center gap-2">
+                  <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                    可视化图表
+                  </span>
                   <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                    可视化
+                    实时渲染
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* 更多特性 */}
+          {/* 高级功能特性 */}
+          <div className="mb-16">
+            <h3 className="text-3xl font-bold text-center mb-4 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+              高级功能
+            </h3>
+            <p className="text-center text-gray-600 mb-12 text-lg">
+              更多强大功能，提升文档管理效率
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <FolderTree className="w-8 h-8 text-green-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
+              <h4 className="font-semibold text-gray-900 mb-2">树形导航</h4>
+              <p className="text-sm text-gray-600">层级文件结构、折叠展开、路径导航</p>
+            </div>
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <Upload className="w-8 h-8 text-blue-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
+              <h4 className="font-semibold text-gray-900 mb-2">拖拽上传</h4>
+              <p className="text-sm text-gray-600">支持文件拖拽上传、批量处理</p>
+            </div>
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <FileText className="w-8 h-8 text-purple-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
+              <h4 className="font-semibold text-gray-900 mb-2">文档模板</h4>
+              <p className="text-sm text-gray-600">预设模板、快速创建、标准化文档</p>
+            </div>
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <Settings className="w-8 h-8 text-orange-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
+              <h4 className="font-semibold text-gray-900 mb-2">权限管理</h4>
+              <p className="text-sm text-gray-600">文件隐藏、访问控制、安全管理</p>
+            </div>
+          </div>
+
+          {/* 技术特性 */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
-            <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300">
-              <Shield className="w-8 h-8 text-orange-500 mx-auto mb-3" />
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <Shield className="w-8 h-8 text-red-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
               <h4 className="font-semibold text-gray-900 mb-2">生产级安全</h4>
               <p className="text-sm text-gray-600">JWT 认证、路径验证、速率限制</p>
             </div>
-            <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300">
-              <Palette className="w-8 h-8 text-pink-500 mx-auto mb-3" />
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <Palette className="w-8 h-8 text-pink-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
               <h4 className="font-semibold text-gray-900 mb-2">现代化 UI</h4>
-              <p className="text-sm text-gray-600">响应式设计、优雅界面</p>
+              <p className="text-sm text-gray-600">响应式设计、优雅界面、流畅动画</p>
             </div>
-            <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300">
-              <Users className="w-8 h-8 text-indigo-500 mx-auto mb-3" />
-              <h4 className="font-semibold text-gray-900 mb-2">团队协作</h4>
-              <p className="text-sm text-gray-600">多用户管理、权限控制</p>
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <Rocket className="w-8 h-8 text-indigo-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
+              <h4 className="font-semibold text-gray-900 mb-2">高性能</h4>
+              <p className="text-sm text-gray-600">虚拟滚动、懒加载、缓存优化</p>
             </div>
-            <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300">
-              <Globe className="w-8 h-8 text-cyan-500 mx-auto mb-3" />
+            <div className="group bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 text-center hover:bg-white/80 transition-all duration-300 hover:-translate-y-1">
+              <Globe className="w-8 h-8 text-cyan-500 mx-auto mb-3 group-hover:scale-110 transition-transform duration-300" />
               <h4 className="font-semibold text-gray-900 mb-2">SEO 优化</h4>
               <p className="text-sm text-gray-600">完整的 SEO 支持、社交分享</p>
+            </div>
+          </div>
+
+          {/* 使用场景展示 */}
+          <div className="mb-20">
+            <div className="text-center mb-12">
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">🎯 适用场景</h3>
+              <p className="text-gray-600 text-lg">满足不同团队和个人的文档管理需求</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl border border-blue-200/50">
+                <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">团队协作</h4>
+                <ul className="text-gray-600 space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>技术文档管理</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>项目知识库</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>API 文档维护</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>培训材料整理</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-200/50">
+                <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
+                  <Target className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">企业应用</h4>
+                <ul className="text-gray-600 space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>产品文档</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>操作手册</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>流程规范</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>技术标准</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-2xl border border-purple-200/50">
+                <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
+                  <Lightbulb className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">个人使用</h4>
+                <ul className="text-gray-600 space-y-2">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>学习笔记</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>技术博客</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>项目文档</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span>知识整理</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 快速开始指引 */}
+          <div className="bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 rounded-3xl p-8 text-white text-center">
+            <h3 className="text-3xl font-bold mb-4">🚀 立即开始使用</h3>
+            <p className="text-xl text-gray-300 mb-8">只需几分钟，即可搭建专业的文档管理系统</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/docs"
+                className="group px-8 py-4 bg-white text-gray-900 rounded-xl hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold flex items-center gap-2"
+              >
+                <PlayCircle className="w-5 h-5" />
+                体验演示
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
+              <Link
+                href="/admin"
+                className="group px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl hover:bg-white hover:text-gray-900 transition-all duration-300 font-semibold flex items-center gap-2"
+              >
+                <Settings className="w-5 h-5" />
+                管理后台
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+              </Link>
             </div>
           </div>
         </div>
