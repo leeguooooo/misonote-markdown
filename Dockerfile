@@ -34,8 +34,6 @@ RUN if [ ! -f .env ]; then \
     echo "# 管理员密码将在首次启动时设置" >> .env; \
     fi
 
-# 安装 MCP 客户端依赖
-RUN cd mcp-client && npm install
 
 # Docker 环境下使用简化的构建流程
 ENV DOCKER_BUILD=true
@@ -65,8 +63,7 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/ecosystem.config.js ./ecosystem.config.js
 
-# 复制 MCP 客户端
-COPY --from=builder /app/mcp-client ./mcp-client
+# MCP 客户端不包含在镜像中，用户需要本地安装
 
 # 设置启动脚本权限
 RUN chmod +x scripts/docker-entrypoint.sh

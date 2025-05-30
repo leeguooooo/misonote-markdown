@@ -34,7 +34,7 @@ title: "Misonote Markdown 2.0 - AI 原生文档系统革命性升级"
 AI: "我来为您创建 API 文档，让我先了解一下您的偏好..."
     [自动获取您的技术偏好记录]
     "基于您之前记录的偏好，您喜欢使用 TypeScript，我来创建一个 TypeScript 风格的 API 文档..."
-    
+
     文档创建成功！
     在线地址: http://localhost:3000/docs/react-api-guide
     📖 点击即可查看完整文档
@@ -96,18 +96,18 @@ memories/
 你: "搜索所有关于 Docker 部署的经验"
 
 AI: 🔍 搜索结果
-    
+
     关键词: "Docker 部署"
     找到 8 个相关文档:
-    
+
     1. **docker-deployment-guide.md** (相关性: 9/10)
        在线地址: http://localhost:3000/docs/docker-deployment-guide
        摘要: Docker 容器化部署完整指南，包含最佳实践...
-       
+
     2. **retrospectives.md** (相关性: 8/10)
        在线地址: http://localhost:3000/docs/memories/backend/retrospectives
        匹配片段: "Docker 部署时遇到的网络配置问题..."
-       
+
     3. **preferences.md** (相关性: 6/10)
        匹配片段: "我更喜欢使用 Docker Compose 进行本地开发..."
 ```
@@ -118,15 +118,15 @@ AI: 🔍 搜索结果
 你: "我之前是怎么解决数据库连接问题的？"
 
 AI: 🧠 记忆搜索结果
-    
+
     在您的复盘记录中找到 3 个相关经验:
-    
+
     1. **2024-03-15 数据库连接池配置**
        项目: backend-project
        解决方案: 调整连接池大小和超时时间
-       
+
     2. **2024-02-20 Docker 网络问题**
-       项目: microservice-project  
+       项目: microservice-project
        解决方案: 使用 docker-compose 网络配置
 ```
 
@@ -138,12 +138,12 @@ AI: 🧠 记忆搜索结果
 你: "创建一个团队开发规范文档"
 
 AI: 文档创建成功！
-    
+
     📄 文档信息:
     - 路径: team-dev-standards.md
     - 大小: 2.5KB
     - 在线地址: http://localhost:3000/docs/team-dev-standards
-    
+
     📖 点击地址即可在浏览器中查看
     🔗 可直接分享给团队成员
 ```
@@ -165,7 +165,7 @@ AI: "让我帮您记录这次学习..."
     [自动创建学习笔记]
     [记录到 insights 中]
     [关联相关的 React 文档]
-    
+
     "基于您之前的 React 学习记录，我发现您对性能优化很感兴趣，
      Server Components 正好解决了客户端渲染的性能问题..."
 ```
@@ -184,7 +184,7 @@ AI: "让我帮您记录这次学习..."
 AI: "让我查看一下您之前的部署经验..."
     [搜索相关复盘记录]
     [找到类似问题的解决方案]
-    
+
     "我找到了您在 2024-02-15 遇到的类似问题，
      当时的解决方案是检查环境变量配置..."
 ```
@@ -204,7 +204,7 @@ AI: "基于团队的技术偏好记录..."
     [分析团队成员的技术偏好]
     [查找相关项目经验]
     [生成技术选型建议]
-    
+
     "根据团队记录，你们在以下技术栈上有丰富经验：
      - 前端：React + TypeScript (团队偏好度: 9/10)
      - 后端：Node.js + Express (成功项目: 5个)
@@ -229,10 +229,11 @@ pnpm dev
 
 ### 第二步：配置 Cursor MCP 集成
 
-#### 1. 安装 MCP 客户端
+#### 1. 克隆 MCP 客户端
 ```bash
-# 进入 MCP 客户端目录
-cd mcp-client
+# 克隆 MCP 客户端到本地
+git clone https://github.com/your-repo/misonote-mcp-client.git
+cd misonote-mcp-client
 
 # 安装依赖
 npm install
@@ -246,15 +247,20 @@ npm install
   "mcpServers": {
     "misonote-markdown": {
       "command": "node",
-      "args": ["/path/to/mcp-client/misonote-mcp-client.js"],
+      "args": ["/path/to/misonote-mcp-client/misonote-mcp-client.js"],
       "env": {
-        "MCP_SERVER_URL": "http://localhost:3000",
+        "MCP_SERVER_URL": "http://localhost:3001",
         "MCP_API_KEY": "your-api-key"
       }
     }
   }
 }
 ```
+
+**注意**:
+- 请将 `/path/to/` 替换为实际的绝对路径
+- Docker 部署时服务器地址为 `http://localhost:3001`
+- 开发模式时服务器地址为 `http://localhost:3000`
 
 #### 3. 配置 AI 行为
 在 Cursor 的 "Rules for AI" 中添加：
@@ -264,7 +270,7 @@ npm install
 
 🧠 记忆管理：
 - 用户表达偏好时 → 自动记录到 preferences
-- 用户分享经验时 → 自动记录到 retrospectives  
+- 用户分享经验时 → 自动记录到 retrospectives
 - 用户提到习惯时 → 自动记录到 habits
 - 用户有洞察时 → 自动记录到 insights
 

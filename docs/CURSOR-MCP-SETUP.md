@@ -28,40 +28,28 @@
 
 ## 🚀 快速配置
 
-### 方法 1: 使用 npx（推荐）
+### 方法 1: 克隆 MCP 客户端（推荐）
 
-在 Cursor 设置中添加以下配置：
-
-```json
-{
-  "mcpServers": {
-    "misonote-markdown": {
-      "command": "npx",
-      "args": ["--yes", "misonote-mcp-client"],
-      "env": {
-        "MCP_SERVER_URL": "http://localhost:3000",
-        "MCP_API_KEY": "mcp_your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-### 方法 2: 本地安装
-
-1. **安装 MCP 客户端**
+1. **克隆 MCP 客户端到本地**
    ```bash
-   npm install -g misonote-mcp-client
+   # 克隆 MCP 客户端项目
+   git clone https://github.com/your-repo/misonote-mcp-client.git
+   cd misonote-mcp-client
+
+   # 安装依赖
+   npm install
    ```
 
 2. **配置 Cursor**
+   在 Cursor 设置中添加以下配置：
    ```json
    {
      "mcpServers": {
        "misonote-markdown": {
-         "command": "misonote-mcp",
+         "command": "node",
+         "args": ["/path/to/misonote-mcp-client/misonote-mcp-client.js"],
          "env": {
-           "MCP_SERVER_URL": "http://localhost:3000",
+           "MCP_SERVER_URL": "http://localhost:3001",
            "MCP_API_KEY": "mcp_your_api_key_here"
          }
        }
@@ -69,24 +57,29 @@
    }
    ```
 
-### 方法 3: 本地开发版本
+### 方法 2: 使用项目内置版本
 
-如果你想使用项目中的开发版本：
+如果你已经克隆了 misonote-markdown 项目：
 
 ```json
 {
   "mcpServers": {
     "misonote-markdown": {
       "command": "node",
-      "args": ["/path/to/markdown-preview/mcp-client/misonote-mcp-client.js"],
+      "args": ["/path/to/misonote-markdown/mcp-client/misonote-mcp-client.js"],
       "env": {
-        "MCP_SERVER_URL": "http://localhost:3000",
+        "MCP_SERVER_URL": "http://localhost:3001",
         "MCP_API_KEY": "mcp_your_api_key_here"
       }
     }
   }
 }
 ```
+
+**重要说明**:
+- 请将 `/path/to/` 替换为实际的绝对路径
+- 如果使用 Docker 部署，服务器地址通常是 `http://localhost:3001`
+- 如果使用开发模式，服务器地址通常是 `http://localhost:3000`
 
 ## ⚙️ 详细配置步骤
 
@@ -176,10 +169,10 @@
 {
   "mcpServers": {
     "misonote-markdown": {
-      "command": "npx",
-      "args": ["--yes", "misonote-mcp-client"],
+      "command": "node",
+      "args": ["/path/to/misonote-mcp-client/misonote-mcp-client.js"],
       "env": {
-        "MCP_SERVER_URL": "http://localhost:3000",
+        "MCP_SERVER_URL": "http://localhost:3001",
         "MCP_API_KEY": "mcp_your_api_key_here",
         "DEBUG": "1",
         "TIMEOUT": "15000"
@@ -197,18 +190,18 @@
 {
   "mcpServers": {
     "misonote-dev": {
-      "command": "npx",
-      "args": ["--yes", "misonote-mcp-client"],
+      "command": "node",
+      "args": ["/path/to/misonote-mcp-client/misonote-mcp-client.js"],
       "env": {
         "MCP_SERVER_URL": "http://localhost:3000",
         "MCP_API_KEY": "mcp_dev_key_here"
       }
     },
     "misonote-prod": {
-      "command": "npx",
-      "args": ["--yes", "misonote-mcp-client"],
+      "command": "node",
+      "args": ["/path/to/misonote-mcp-client/misonote-mcp-client.js"],
       "env": {
-        "MCP_SERVER_URL": "https://docs.yourcompany.com",
+        "MCP_SERVER_URL": "https://docs.yourcompany.com:3001",
         "MCP_API_KEY": "mcp_prod_key_here"
       }
     }
