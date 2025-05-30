@@ -21,6 +21,15 @@ const API_KEY = process.env.MCP_API_KEY;
 
 if (!API_KEY) {
   console.error('错误: 请设置 MCP_API_KEY 环境变量');
+  console.error('');
+  console.error('使用方法:');
+  console.error('1. 独立测试:');
+  console.error('   export MCP_API_KEY="mcp_your_api_key_here"');
+  console.error('   pnpm start');
+  console.error('');
+  console.error('2. Cursor 集成:');
+  console.error('   在 Cursor 配置中设置 env.MCP_API_KEY');
+  console.error('   参考: docs/CURSOR-MCP-SETUP.md');
   process.exit(1);
 }
 
@@ -195,7 +204,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (error instanceof McpError) {
       throw error;
     }
-    
+
     throw new McpError(
       ErrorCode.InternalError,
       `工具执行失败: ${error.message}`
@@ -211,13 +220,13 @@ async function listDocuments(path) {
     });
 
     const documents = response.data.data.documents || [];
-    
+
     return {
       content: [
         {
           type: 'text',
           text: `找到 ${documents.length} 个文档:\n\n` +
-                documents.map(doc => 
+                documents.map(doc =>
                   `- ${doc.name} (${doc.path})\n  大小: ${doc.size} 字节\n  修改时间: ${new Date(doc.lastModified).toLocaleString()}`
                 ).join('\n\n')
         }
@@ -231,7 +240,7 @@ async function listDocuments(path) {
 async function getDocument(path) {
   try {
     const response = await apiClient.get(`/api/docs/${encodeURIComponent(path.replace('.md', ''))}`);
-    
+
     return {
       content: [
         {
