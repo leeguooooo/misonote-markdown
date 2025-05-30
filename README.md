@@ -48,61 +48,93 @@
 
 ### 生产环境部署
 
+#### 快速部署
+
+使用我们提供的脚本快速部署：
+
+```bash
+# 1. 快速启动脚本
+bash scripts/quick-start.sh
+
+# 2. 或者使用安全配置脚本
+bash scripts/security/update-security.sh
+```
+
+#### 手动部署
+
 1. **环境变量配置**
 
-   复制 `.env.example` 为 `.env.local` 并配置以下变量：
+   复制 `.env.example` 为 `.env` 并配置变量，或使用脚本生成：
 
    ```bash
-   # JWT 密钥 - 必须设置为强随机字符串
-   JWT_SECRET=your-super-secret-jwt-key-change-in-production
-
-   # 管理员密码哈希 - 使用 bcrypt 生成
-   ADMIN_PASSWORD_HASH=$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/RK.s5uO.6
-
-   # 环境设置
-   NODE_ENV=production
+   # 使用脚本生成密码哈希
+   node scripts/security/generate-password-hash.js
    ```
 
-2. **生成密码哈希**
-
-   使用以下命令生成安全的密码哈希：
-   ```bash
-   node -e "console.log(require('bcryptjs').hashSync('your-secure-password', 12))"
-   ```
-
-3. **构建应用**
+2. **构建应用**
    ```bash
    pnpm build
    ```
 
-4. **启动生产服务器**
+3. **启动生产服务器**
    ```bash
+   # 使用 PM2 启动
+   node scripts/deployment/pm2-start.js
+
+   # 或直接启动
    pnpm start
    ```
+
+#### 部署故障排除
+
+如果遇到环境变量问题：
+
+```bash
+# 修复环境变量加载问题
+bash scripts/security/fix-env-loading.sh
+
+# 验证密码设置
+node scripts/security/verify-password.js
+```
 
 ## 📁 项目结构
 
 ```
-src/
-├── app/                    # Next.js App Router
-│   ├── admin/             # 管理界面
-│   ├── api/               # API 路由
-│   │   ├── auth/          # 认证相关 API
-│   │   ├── admin/         # 管理功能 API
-│   │   └── search/        # 搜索 API
-│   ├── docs/              # 文档预览页面
-│   └── globals.css        # 全局样式
-├── components/            # React 组件
-│   ├── auth/              # 认证组件
-│   ├── admin/             # 管理界面组件
-│   ├── Header.tsx         # 顶部导航
-│   ├── Sidebar.tsx        # 侧边栏
-│   ├── MarkdownRenderer.tsx # Markdown 渲染器
-│   └── ...
-├── lib/                   # 工具库
-│   ├── auth.ts            # 认证逻辑
-│   └── docs.ts            # 文档处理
-docs/                      # Markdown 文档存储目录
+├── src/                   # 源代码目录
+│   ├── app/              # Next.js App Router
+│   │   ├── admin/        # 管理界面
+│   │   ├── api/          # API 路由
+│   │   └── docs/         # 文档预览页面
+│   ├── components/       # React 组件
+│   │   ├── auth/         # 认证组件
+│   │   ├── admin/        # 管理界面组件
+│   │   └── ...           # 其他组件
+│   └── lib/              # 工具库
+│       ├── auth.ts       # 认证逻辑
+│       └── docs.ts       # 文档处理
+├── scripts/              # 脚本工具目录
+│   ├── deployment/       # 部署相关脚本
+│   │   ├── pm2-start.js  # PM2 启动脚本
+│   │   └── start-pm2.sh  # Shell 启动脚本
+│   ├── security/         # 安全相关脚本
+│   │   ├── update-security.sh      # 安全配置脚本
+│   │   ├── generate-password-hash.js # 密码生成工具
+│   │   ├── verify-password.js      # 密码验证工具
+│   │   └── fix-env-loading.sh      # 环境变量修复
+│   ├── development/      # 开发相关脚本
+│   │   ├── debug-env.js  # 环境变量调试
+│   │   └── test-login.sh # 登录测试
+│   ├── quick-start.sh    # 快速启动脚本
+│   └── README.md         # 脚本说明文档
+├── docs/                 # 文档目录
+│   ├── security/         # 安全相关文档
+│   ├── deployment/       # 部署相关文档
+│   ├── development/      # 开发相关文档
+│   ├── 示例文档/         # 示例和演示文档
+│   └── README.md         # 文档说明
+├── public/               # 静态资源
+├── ecosystem.config.js   # PM2 配置文件
+└── package.json          # 项目配置
 ```
 
 ## 🔧 配置说明
@@ -184,6 +216,33 @@ pnpm lint
 # 类型检查
 pnpm type-check
 ```
+
+### 脚本工具
+
+项目提供了丰富的脚本工具来简化部署和管理：
+
+```bash
+# 🚀 快速启动（推荐）
+bash scripts/quick-start.sh
+
+# 🔐 安全配置
+bash scripts/security/update-security.sh          # 交互式设置管理员密码
+node scripts/security/generate-password-hash.js   # 生成密码哈希
+node scripts/security/verify-password.js          # 验证密码
+
+# 🚀 部署相关
+node scripts/deployment/pm2-start.js              # PM2 启动脚本
+bash scripts/deployment/start-pm2.sh              # Shell 启动脚本
+
+# 🔧 故障排除
+bash scripts/security/fix-env-loading.sh          # 修复环境变量问题
+node scripts/development/debug-env.js             # 调试环境变量
+bash scripts/development/test-login.sh            # 测试登录功能
+```
+
+详细说明请查看：
+- [脚本说明文档](./scripts/README.md)
+- [安全配置指南](./docs/security/README-SECURITY.md)
 
 ## 📄 许可证
 

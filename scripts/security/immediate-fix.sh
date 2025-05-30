@@ -64,7 +64,7 @@ if [ -f ".env" ]; then
     set -a  # 自动导出所有变量
     source .env
     set +a  # 停止自动导出
-    
+
     log_success "环境变量已加载"
     echo "ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:0:20}..."
     echo "JWT_SECRET: ${JWT_SECRET:0:20}..."
@@ -72,6 +72,10 @@ fi
 
 # 6. 创建新的 ecosystem.config.js
 log_info "创建新的 PM2 配置..."
+
+# 转义特殊字符，防止截断
+ESCAPED_HASH=$(echo "$ADMIN_PASSWORD_HASH" | sed 's/\$/\\$/g')
+ESCAPED_JWT=$(echo "$JWT_SECRET" | sed 's/\$/\\$/g')
 
 cat > ecosystem.config.js << EOF
 // 加载 .env 文件
@@ -91,14 +95,14 @@ module.exports = {
       env: {
         NODE_ENV: '${NODE_ENV:-production}',
         PORT: '${PORT:-3001}',
-        ADMIN_PASSWORD_HASH: '${ADMIN_PASSWORD_HASH}',
-        JWT_SECRET: '${JWT_SECRET}',
+        ADMIN_PASSWORD_HASH: '${ESCAPED_HASH}',
+        JWT_SECRET: '${ESCAPED_JWT}',
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: '${PORT:-3001}',
-        ADMIN_PASSWORD_HASH: '${ADMIN_PASSWORD_HASH}',
-        JWT_SECRET: '${JWT_SECRET}',
+        ADMIN_PASSWORD_HASH: '${ESCAPED_HASH}',
+        JWT_SECRET: '${ESCAPED_JWT}',
       },
       error_file: './logs/err.log',
       out_file: './logs/out.log',

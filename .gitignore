@@ -43,3 +43,22 @@ logs
 docs/
 data/
 
+
+# 临时脚本和文件
+*.tmp
+*.temp
+cleanup-project.sh
+
+# PM2 日志
+logs/
+*.log
+
+# 环境变量文件
+.env
+.env.local
+.env.production
+.env.staging
+
+# 备份文件
+*.backup
+*.backup.*

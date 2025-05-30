@@ -136,19 +136,20 @@ update_env_file() {
 
     local jwt_secret=$(generate_jwt_secret)
 
-    cat > .env << EOF
-# 管理员密码哈希 (自动生成)
-ADMIN_PASSWORD_HASH=${password_hash}
-
-# JWT 密钥 (自动生成的安全密钥)
-JWT_SECRET=${jwt_secret}
-
-# 环境设置
-NODE_ENV=production
-
-# 服务端口
-PORT=3001
-EOF
+    # 使用 printf 而不是 cat << EOF 来避免变量展开问题
+    {
+        echo "# 管理员密码哈希 (自动生成)"
+        printf "ADMIN_PASSWORD_HASH=%s\n" "$password_hash"
+        echo ""
+        echo "# JWT 密钥 (自动生成的安全密钥)"
+        printf "JWT_SECRET=%s\n" "$jwt_secret"
+        echo ""
+        echo "# 环境设置"
+        echo "NODE_ENV=production"
+        echo ""
+        echo "# 服务端口"
+        echo "PORT=3001"
+    } > .env
 
     # 设置安全权限
     chmod 600 .env
