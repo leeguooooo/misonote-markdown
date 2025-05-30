@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Plus, 
-  Key, 
-  Trash2, 
+import {
+  Plus,
+  Key,
+  Trash2,
   Edit,
   Eye,
   EyeOff,
@@ -53,10 +53,10 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
     try {
       const response = await fetch('/api/admin/api-keys', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setApiKeys(data.data || []);
@@ -74,7 +74,7 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
         body: JSON.stringify(keyData),
       });
@@ -101,7 +101,7 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
         body: JSON.stringify(updates),
       });
@@ -128,7 +128,7 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
       const response = await fetch(`/api/admin/api-keys/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
       });
 
@@ -153,11 +153,11 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
     if (!apiKey.isActive) {
       return <XCircle className="w-4 h-4 text-red-500" />;
     }
-    
+
     if (apiKey.expiresAt && new Date(apiKey.expiresAt) <= new Date()) {
       return <Clock className="w-4 h-4 text-yellow-500" />;
     }
-    
+
     return <CheckCircle className="w-4 h-4 text-green-500" />;
   };
 
@@ -326,12 +326,12 @@ function ApiKeyForm({ apiKey, onSubmit, onCancel }: ApiKeyFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const submitData = {
       ...formData,
       expiresAt: formData.expiresAt ? new Date(formData.expiresAt).toISOString() : undefined,
     };
-    
+
     onSubmit(submitData);
   };
 
@@ -354,7 +354,7 @@ function ApiKeyForm({ apiKey, onSubmit, onCancel }: ApiKeyFormProps) {
   return (
     <form onSubmit={handleSubmit} className="border rounded-lg p-4 bg-gray-50 space-y-4">
       <h3 className="font-semibold">{apiKey ? '编辑 API 密钥' : '创建新 API 密钥'}</h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">名称</label>
@@ -366,7 +366,7 @@ function ApiKeyForm({ apiKey, onSubmit, onCancel }: ApiKeyFormProps) {
             required
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium mb-1">速率限制（每小时）</label>
           <input

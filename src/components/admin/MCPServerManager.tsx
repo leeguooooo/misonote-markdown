@@ -36,7 +36,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
     try {
       const response = await fetch('/api/mcp/servers', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
       });
 
@@ -57,7 +57,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
         body: JSON.stringify(serverData),
       });
@@ -81,7 +81,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
         body: JSON.stringify(updates),
       });
@@ -108,7 +108,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
       const response = await fetch(`/api/mcp/servers/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
       });
 
@@ -131,7 +131,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
       const response = await fetch(`/api/mcp/servers/${id}/test`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
       });
 

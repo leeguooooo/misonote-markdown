@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Send, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Send,
+  CheckCircle,
+  XCircle,
   Clock,
   AlertTriangle,
   FileText,
@@ -45,15 +45,15 @@ export default function MCPDocumentPusher({ documents, onClose }: MCPDocumentPus
     try {
       const response = await fetch('/api/mcp/servers', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         const activeServers = (data.data || []).filter((server: MCPServerConfig) => server.isActive);
         setServers(activeServers);
-        
+
         if (activeServers.length > 0) {
           setSelectedServer(activeServers[0].id);
         }
@@ -110,7 +110,7 @@ export default function MCPDocumentPusher({ documents, onClose }: MCPDocumentPus
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
         },
         body: JSON.stringify({
           serverId: selectedServer,

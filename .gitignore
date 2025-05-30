@@ -62,3 +62,5 @@ logs/
 # 备份文件
 *.backup
 *.backup.*
+database.ts
+mcp-client/node_modules/*
