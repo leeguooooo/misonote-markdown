@@ -12,20 +12,20 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3001,
-        ADMIN_PASSWORD_HASH: '$2b$12$0ev5NT6tVv2exHGft217YOCzowqFlw4b1hRQCZx3VBfBL4NXHygAW',
-        JWT_SECRET: 'nihaome'
+        // 从 .env 文件读取敏感信息，不在此处硬编码
+        // ADMIN_PASSWORD_HASH 和 JWT_SECRET 应该在 .env 文件中设置
       },
       env_development: {
         NODE_ENV: 'development',
         PORT: 3001,
-        ADMIN_PASSWORD_HASH: '$2b$12$0ev5NT6tVv2exHGft217YOCzowqFlw4b1hRQCZx3VBfBL4NXHygAW',
-        JWT_SECRET: 'nihaome'
+        // 从 .env 文件读取敏感信息，不在此处硬编码
+        // ADMIN_PASSWORD_HASH 和 JWT_SECRET 应该在 .env 文件中设置
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: 3001,
-        ADMIN_PASSWORD_HASH: '$2b$12$0ev5NT6tVv2exHGft217YOCzowqFlw4b1hRQCZx3VBfBL4NXHygAW',
-        JWT_SECRET: 'nihaome'
+        // 从 .env 文件读取敏感信息，不在此处硬编码
+        // ADMIN_PASSWORD_HASH 和 JWT_SECRET 应该在 .env 文件中设置
       },
       error_file: './logs/err.log',
       out_file: './logs/out.log',
