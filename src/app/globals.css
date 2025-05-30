@@ -436,6 +436,47 @@ html {
   scroll-behavior: smooth;
 }
 
+/* 锚点链接样式 */
+.anchor-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.anchor-link:hover {
+  transform: scale(1.1);
+}
+
+/* 标题悬停时显示锚点链接 */
+.group:hover .anchor-link {
+  opacity: 1 !important;
+}
+
+/* 锚点目标高亮效果 */
+:target {
+  animation: highlight-target 2s ease-in-out;
+}
+
+@keyframes highlight-target {
+  0% {
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: scale(1.02);
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.05);
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+/* 确保锚点有足够的滚动偏移 */
+h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
+  scroll-margin-top: 100px; /* 为固定头部留出空间 */
+}
+
 /* 文档内容区域的滚动条样式 */
 .docs-content::-webkit-scrollbar {
   width: 6px;

@@ -135,20 +135,44 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
       return;
     }
 
-    // 只有登录用户才能创建标注
-    if (!isLoggedIn) {
-      setShowAnnotationMenu(false);
-      return;
-    }
-
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
+
+    // 计算菜单位置，使用 absolute 定位（相对于容器）
+    // 获取容器的位置信息
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    if (!containerRect) return;
+
+    // 计算相对于容器的位置
+    const relativeX = rect.left - containerRect.left + rect.width / 2;
+    const relativeY = rect.top - containerRect.top;
+
+    // 菜单的基本位置
+    let menuX = relativeX;
+    let menuY = relativeY - 60; // 菜单显示在选中文本上方
+
+    // 确保菜单不会超出视窗边界
+    const menuWidth = 200; // 估算菜单宽度
+    const menuHeight = 50; // 估算菜单高度
+
+    // 水平边界检查（相对于视窗）
+    const absoluteMenuX = rect.left + rect.width / 2;
+    if (absoluteMenuX - menuWidth / 2 < 10) {
+      menuX = 10 - containerRect.left + menuWidth / 2;
+    } else if (absoluteMenuX + menuWidth / 2 > window.innerWidth - 10) {
+      menuX = window.innerWidth - 10 - containerRect.left - menuWidth / 2;
+    }
+
+    // 垂直边界检查 - 如果上方空间不够，显示在下方
+    if (rect.top < menuHeight + 10) {
+      menuY = relativeY + rect.height + 10; // 显示在选中文本下方
+    }
 
     setSelectedText(selectedText);
     setSelectionRange(range);
     setMenuPosition({
-      x: rect.left + rect.width / 2,
-      y: rect.top - 10
+      x: menuX,
+      y: menuY
     });
     setShowAnnotationMenu(true);
   };
@@ -319,18 +343,25 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
       container.removeEventListener('mouseup', handleTextSelection);
       container.removeEventListener('click', handleAnnotationClick);
     };
-  }, [annotations]);
+  }, []); // 移除 annotations 依赖，避免重复绑定事件
 
   // 点击外部关闭菜单
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showAnnotationMenu && !event.target) {
-        setShowAnnotationMenu(false);
+      if (showAnnotationMenu && event.target) {
+        const target = event.target as Element;
+        const menu = document.querySelector('.annotation-menu');
+        // 如果点击的不是菜单内部，则关闭菜单
+        if (menu && !menu.contains(target)) {
+          setShowAnnotationMenu(false);
+        }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    if (showAnnotationMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
   }, [showAnnotationMenu]);
 
   return (
@@ -340,45 +371,58 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
       {/* 标注菜单 */}
       {showAnnotationMenu && (
         <div
-          className="fixed z-50 bg-white   rounded-lg shadow-lg border border-gray-200   p-2"
+          className="annotation-menu absolute z-50 bg-white   rounded-lg shadow-lg border border-gray-200   p-2"
           style={{
             left: menuPosition.x - 100,
-            top: menuPosition.y - 60,
+            top: menuPosition.y,
           }}
         >
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => createAnnotation('highlight')}
-              className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
-              title="高亮"
-            >
-              <Highlighter className="w-4 h-4 text-yellow-600" />
-            </button>
-            <button
-              onClick={() => {
-                setAnnotationType('note');
-                setShowCommentDialog(true);
-              }}
-              className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
-              title="添加笔记"
-            >
-              <MessageSquare className="w-4 h-4 text-blue-600" />
-            </button>
-            <button
-              onClick={() => createAnnotation('bookmark')}
-              className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
-              title="书签"
-            >
-              <Bookmark className="w-4 h-4 text-green-600" />
-            </button>
-            <button
-              onClick={() => setShowAnnotationMenu(false)}
-              className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
-              title="关闭"
-            >
-              <X className="w-4 h-4 text-gray-600" />
-            </button>
-          </div>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => createAnnotation('highlight')}
+                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                title="高亮"
+              >
+                <Highlighter className="w-4 h-4 text-yellow-600" />
+              </button>
+              <button
+                onClick={() => {
+                  setAnnotationType('note');
+                  setShowCommentDialog(true);
+                }}
+                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                title="添加笔记"
+              >
+                <MessageSquare className="w-4 h-4 text-blue-600" />
+              </button>
+              <button
+                onClick={() => createAnnotation('bookmark')}
+                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                title="书签"
+              >
+                <Bookmark className="w-4 h-4 text-green-600" />
+              </button>
+              <button
+                onClick={() => setShowAnnotationMenu(false)}
+                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                title="关闭"
+              >
+                <X className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-2">
+              <span className="text-sm text-gray-600">请先登录以使用标注功能</span>
+              <button
+                onClick={() => setShowAnnotationMenu(false)}
+                className="p-1 hover:bg-gray-100   rounded transition-colors"
+                title="关闭"
+              >
+                <X className="w-3 h-3 text-gray-600" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
