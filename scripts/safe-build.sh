@@ -51,7 +51,7 @@ log_success "依赖检查通过"
 
 # 3. 运行构建前检查
 log_info "运行构建前环境变量检查..."
-if ! node scripts/deployment/pre-build-check.js; then
+if ! node scripts/pre-build-check.js; then
     log_error "构建前检查失败"
     exit 1
 fi
@@ -70,7 +70,7 @@ log_success "依赖安装完成"
 
 # 6. 执行构建
 log_info "开始构建应用..."
-pnpm build:force
+pnpm build
 
 if [ $? -eq 0 ]; then
     log_success "应用构建成功"
@@ -109,7 +109,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     pnpm pm2:delete 2>/dev/null || true
     
     # 启动新应用
-    pnpm pm2:verbose
+    pnpm pm2:start
     
     # 显示状态
     sleep 3
@@ -117,8 +117,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     
     echo ""
     log_success "应用已启动"
-    log_info "查看日志: pnpm pm2:logs:follow"
-    log_info "测试登录: pnpm test:api"
+    log_info "查看日志: pnpm pm2:logs"
+    log_info "验证密码: pnpm security:verify"
 else
     log_info "构建完成，可以手动启动应用"
 fi
