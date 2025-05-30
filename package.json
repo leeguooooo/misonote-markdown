@@ -24,6 +24,7 @@
     "@radix-ui/react-separator": "^1.1.7",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
+    "dotenv": "^16.5.0",
     "fs": "0.0.1-security",
     "fuse.js": "^7.1.0",
     "gray-matter": "^4.0.3",
