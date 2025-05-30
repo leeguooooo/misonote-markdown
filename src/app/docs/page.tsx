@@ -3,6 +3,10 @@ import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
+// 强制动态渲染，确保每次请求都重新读取文件系统
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: '文档中心',
   description: '浏览所有可用的文档，包括教程、API 文档、指南等。支持 Markdown 格式和 Mermaid 图表。',

@@ -1,15 +1,16 @@
-import { getDocBySlug, getAllDocs } from '@/lib/docs';
+import { getDocBySlug } from '@/lib/docs';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { notFound } from 'next/navigation';
 import { Clock, Calendar } from 'lucide-react';
 import EditButton from '@/components/EditButton';
 import DocPageClient from '@/components/DocPageClient';
 import TextAnnotation from '@/components/TextAnnotation';
-import DebugPanel from '@/components/DebugPanel';
-import AdminControls from '@/components/AdminControls';
-import ImmersiveReader from '@/components/ImmersiveReader';
 import ImmersiveWrapper from '@/components/ImmersiveWrapper';
 import { Metadata } from 'next';
+
+// 使用智能缓存的动态渲染
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface DocPageProps {
   params: Promise<{
@@ -17,12 +18,13 @@ interface DocPageProps {
   }>;
 }
 
-export async function generateStaticParams() {
-  const docs = getAllDocs();
-  return docs.map((doc) => ({
-    slug: doc.slug,
-  }));
-}
+// 注释掉静态生成，改为服务端渲染以支持实时文档更新
+// export async function generateStaticParams() {
+//   const docs = getAllDocs();
+//   return docs.map((doc) => ({
+//     slug: doc.slug,
+//   }));
+// }
 
 export async function generateMetadata({ params }: DocPageProps): Promise<Metadata> {
   const { slug } = await params;

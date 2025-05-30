@@ -43,5 +43,92 @@
     "timestamp": "2025-05-29T11:40:19.139Z",
     "author": "leo",
     "docPath": "推广文章/掘金知乎推广文章"
+  },
+  {
+    "id": "1748574463060",
+    "text": "SimuLive",
+    "comment": "?",
+    "type": "note",
+    "position": {
+      "start": 7,
+      "end": 15,
+      "startContainer": "本文档描述了 SimuLive 自动化直播推流系统的完整 API 接口。",
+      "endContainer": "本文档描述了 SimuLive 自动化直播推流系统的完整 API 接口。"
+    },
+    "timestamp": "2025-05-30T03:07:43.060Z",
+    "author": "管理员",
+    "docPath": "项目文档/管理后台/直播任务管理/complete-api-reference"
+  },
+  {
+    "id": "1748574500574",
+    "text": "SimuLive",
+    "comment": "!",
+    "type": "note",
+    "position": {
+      "start": 0,
+      "end": 8,
+      "startContainer": "SimuLive",
+      "endContainer": "SimuLive"
+    },
+    "timestamp": "2025-05-30T03:08:20.574Z",
+    "author": "张三",
+    "docPath": "项目文档/管理后台/直播任务管理/complete-api-reference"
+  },
+  {
+    "id": "1748575083040",
+    "text": "认证",
+    "comment": "",
+    "type": "highlight",
+    "position": {
+      "start": 0,
+      "end": 2,
+      "startContainer": "认证",
+      "endContainer": "认证",
+      "xpath": "div[1]/h2[2]",
+      "textOffset": 154,
+      "contextBefore": "WT Bearer Token\n内容类型: application/json\n版本: 1.0.0\n\n",
+      "contextAfter": "\n所有API请求都需要在请求头中包含有效的JWT token：\nAuthorization: Bea"
+    },
+    "timestamp": "2025-05-30T03:18:03.040Z",
+    "author": "李四",
+    "docPath": "项目文档/管理后台/直播任务管理/complete-api-reference"
+  },
+  {
+    "id": "1748575110071",
+    "text": "响应",
+    "comment": "a",
+    "type": "note",
+    "position": {
+      "start": 2,
+      "end": 4,
+      "startContainer": "成功响应",
+      "endContainer": "成功响应",
+      "xpath": "div[1]/h3[1]",
+      "textOffset": 237,
+      "contextBefore": "\nAuthorization: Bearer <your-jwt-token>\n\n通用响应格式\n成功",
+      "contextAfter": "\n{\n  \"success\": true,\n  \"code\": \"OK\",\n  \"message\":"
+    },
+    "timestamp": "2025-05-30T03:18:30.071Z",
+    "author": "李四",
+    "docPath": "项目文档/管理后台/直播任务管理/complete-api-reference"
+  },
+  {
+    "id": "1748575131624",
+    "text": "基础",
+    "comment": "1",
+    "type": "note",
+    "position": {
+      "start": 0,
+      "end": 2,
+      "startContainer": "基础URL",
+      "endContainer": "基础URL",
+      "xpath": "div[1]/ul[1]/li[1]/strong[1]",
+      "textOffset": 61,
+      "contextBefore": "I 接口文档\n本文档描述了 SimuLive 自动化直播推流系统的完整 API 接口。\n基础信息\n\n",
+      "contextAfter": "URL: http://localhost:7007 (开发环境)\n认证方式: JWT Bearer"
+    },
+    "timestamp": "2025-05-30T03:18:51.624Z",
+    "author": "李四",
+    "docPath": "项目文档/管理后台/直播任务管理/complete-api-reference"
   }
 ]

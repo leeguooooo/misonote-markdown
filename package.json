@@ -14,7 +14,9 @@
     "pm2:delete": "pm2 delete docs-platform",
     "pm2:status": "pm2 status",
     "pm2:logs": "pm2 logs docs-platform",
-    "pm2:monit": "pm2 monit"
+    "pm2:monit": "pm2 monit",
+    "watch:docs": "node watch-docs.js",
+    "prod:watch": "pnpm build && pnpm pm2:start && pnpm watch:docs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",

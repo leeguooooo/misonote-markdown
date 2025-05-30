@@ -4,6 +4,16 @@ import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Bookmark, Highlighter, X } from 'lucide-react';
 import { useUser } from './UserManager';
 
+interface Reply {
+  id: string;
+  content: string;
+  author: string;
+  authorRole?: string;
+  timestamp: Date;
+  likes: number;
+  isLiked?: boolean;
+}
+
 interface Annotation {
   id: string;
   text: string;
@@ -14,9 +24,19 @@ interface Annotation {
     end: number;
     startContainer: string;
     endContainer: string;
+    // 添加更精确的位置信息
+    xpath?: string; // XPath路径
+    textOffset?: number; // 在整个文档中的文本偏移量
+    contextBefore?: string; // 前文上下文
+    contextAfter?: string; // 后文上下文
   };
   timestamp: Date;
   author: string;
+  authorRole?: string;
+  likes: number;
+  isLiked?: boolean;
+  replies: Reply[];
+  isResolved?: boolean; // 是否已解决（用于问题类型的标注）
 }
 
 interface TextAnnotationProps {
@@ -38,6 +58,106 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
   const [showAnnotationDetail, setShowAnnotationDetail] = useState(false);
   const [selectedAnnotation, setSelectedAnnotation] = useState<Annotation | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 生成元素的XPath
+  const getXPath = (element: Node): string => {
+    if (element.nodeType === Node.TEXT_NODE) {
+      element = element.parentNode!;
+    }
+
+    const parts: string[] = [];
+    let current = element as Element;
+
+    while (current && current !== containerRef.current) {
+      let index = 1;
+      let sibling = current.previousElementSibling;
+
+      while (sibling) {
+        if (sibling.tagName === current.tagName) {
+          index++;
+        }
+        sibling = sibling.previousElementSibling;
+      }
+
+      parts.unshift(`${current.tagName.toLowerCase()}[${index}]`);
+      current = current.parentElement!;
+    }
+
+    return parts.join('/');
+  };
+
+  // 根据XPath查找元素
+  const findElementByXPath = (xpath: string): Element | null => {
+    if (!containerRef.current) return null;
+
+    const parts = xpath.split('/');
+    let current: Element = containerRef.current;
+
+    for (const part of parts) {
+      const match = part.match(/^(\w+)\[(\d+)\]$/);
+      if (!match) continue;
+
+      const [, tagName, indexStr] = match;
+      const index = parseInt(indexStr, 10);
+
+      const children = Array.from(current.children).filter(
+        child => child.tagName.toLowerCase() === tagName
+      );
+
+      if (children.length < index) return null;
+      current = children[index - 1];
+    }
+
+    return current;
+  };
+
+  // 获取文本在整个容器中的偏移量
+  const getTextOffset = (container: Element, targetNode: Node, targetOffset: number): number => {
+    const walker = document.createTreeWalker(
+      container,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+
+    let offset = 0;
+    let node;
+
+    while (node = walker.nextNode()) {
+      if (node === targetNode) {
+        return offset + targetOffset;
+      }
+      offset += node.textContent?.length || 0;
+    }
+
+    return offset;
+  };
+
+  // 根据文本偏移量查找位置
+  const findPositionByOffset = (container: Element, targetOffset: number): { node: Node; offset: number } | null => {
+    const walker = document.createTreeWalker(
+      container,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+
+    let currentOffset = 0;
+    let node;
+
+    while (node = walker.nextNode()) {
+      const nodeLength = node.textContent?.length || 0;
+
+      if (currentOffset + nodeLength >= targetOffset) {
+        return {
+          node,
+          offset: targetOffset - currentOffset
+        };
+      }
+
+      currentOffset += nodeLength;
+    }
+
+    return null;
+  };
 
   // 加载标注数据
   useEffect(() => {
@@ -62,6 +182,18 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
     loadAnnotations();
   }, [docPath]);
 
+  // 当标注数据加载完成且内容已渲染时，重新应用标注样式
+  useEffect(() => {
+    if (annotations.length > 0 && containerRef.current) {
+      // 延迟一点时间确保内容已完全渲染
+      const timer = setTimeout(() => {
+        reapplyAnnotations(annotations);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [annotations.length > 0 && containerRef.current?.textContent]);
+
   // 重新应用所有标注样式
   const reapplyAnnotations = (annotationsToApply: Annotation[]) => {
     if (!containerRef.current) return;
@@ -78,44 +210,88 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
     // 重新应用标注
     annotationsToApply.forEach(annotation => {
-      applyAnnotationByText(annotation);
+      applyAnnotationByPosition(annotation);
     });
   };
 
-  // 根据文本内容查找并应用标注
-  const applyAnnotationByText = (annotation: Annotation) => {
+  // 根据精确位置信息查找并应用标注
+  const applyAnnotationByPosition = (annotation: Annotation) => {
     if (!containerRef.current) return;
 
+    // 优先使用文本偏移量进行精确定位
+    if (annotation.position.textOffset !== undefined) {
+      const startPos = findPositionByOffset(containerRef.current, annotation.position.textOffset);
+      const endPos = findPositionByOffset(containerRef.current, annotation.position.textOffset + annotation.text.length);
+
+      if (startPos && endPos) {
+        try {
+          const range = document.createRange();
+          range.setStart(startPos.node, startPos.offset);
+          range.setEnd(endPos.node, endPos.offset);
+
+          // 验证选中的文本是否匹配
+          if (range.toString() === annotation.text) {
+            applyAnnotationStyle(range, annotation);
+            return;
+          }
+        } catch (error) {
+          console.error('Error applying annotation by offset:', error);
+        }
+      }
+    }
+
+    // 备用方案：使用上下文匹配
+    if (annotation.position.contextBefore && annotation.position.contextAfter) {
+      const fullText = containerRef.current.textContent || '';
+      const contextPattern = annotation.position.contextBefore + annotation.text + annotation.position.contextAfter;
+      const contextIndex = fullText.indexOf(contextPattern);
+
+      if (contextIndex !== -1) {
+        const targetOffset = contextIndex + annotation.position.contextBefore.length;
+        const startPos = findPositionByOffset(containerRef.current, targetOffset);
+        const endPos = findPositionByOffset(containerRef.current, targetOffset + annotation.text.length);
+
+        if (startPos && endPos) {
+          try {
+            const range = document.createRange();
+            range.setStart(startPos.node, startPos.offset);
+            range.setEnd(endPos.node, endPos.offset);
+
+            if (range.toString() === annotation.text) {
+              applyAnnotationStyle(range, annotation);
+              return;
+            }
+          } catch (error) {
+            console.error('Error applying annotation by context:', error);
+          }
+        }
+      }
+    }
+
+    // 最后备用方案：使用原来的文本匹配（但只匹配第一个）
     const walker = document.createTreeWalker(
       containerRef.current,
       NodeFilter.SHOW_TEXT,
       null
     );
 
-    const textNodes: Text[] = [];
     let node;
     while (node = walker.nextNode()) {
-      textNodes.push(node as Text);
-    }
-
-    // 查找包含标注文本的节点
-    for (const textNode of textNodes) {
-      const text = textNode.textContent || '';
+      const text = node.textContent || '';
       const index = text.indexOf(annotation.text);
 
       if (index !== -1) {
         try {
           const range = document.createRange();
-          range.setStart(textNode, index);
-          range.setEnd(textNode, index + annotation.text.length);
+          range.setStart(node, index);
+          range.setEnd(node, index + annotation.text.length);
 
-          // 检查选中的文本是否匹配
           if (range.toString() === annotation.text) {
             applyAnnotationStyle(range, annotation);
             break; // 只应用第一个匹配的
           }
         } catch (error) {
-          console.error('Error applying annotation:', error);
+          console.error('Error applying annotation by text:', error);
         }
       }
     }
@@ -179,7 +355,18 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
   // 创建标注
   const createAnnotation = async (type: 'highlight' | 'note' | 'bookmark') => {
-    if (!selectionRange || !selectedText) return;
+    if (!selectionRange || !selectedText || !containerRef.current) return;
+
+    // 获取更精确的位置信息
+    const startXPath = getXPath(selectionRange.startContainer);
+    const startTextOffset = getTextOffset(containerRef.current, selectionRange.startContainer, selectionRange.startOffset);
+    const endTextOffset = getTextOffset(containerRef.current, selectionRange.endContainer, selectionRange.endOffset);
+
+    // 获取上下文信息
+    const fullText = containerRef.current.textContent || '';
+    const contextLength = 50;
+    const contextBefore = fullText.substring(Math.max(0, startTextOffset - contextLength), startTextOffset);
+    const contextAfter = fullText.substring(endTextOffset, Math.min(fullText.length, endTextOffset + contextLength));
 
     const annotation: Annotation = {
       id: Date.now().toString(),
@@ -190,10 +377,19 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
         start: selectionRange.startOffset,
         end: selectionRange.endOffset,
         startContainer: selectionRange.startContainer.textContent || '',
-        endContainer: selectionRange.endContainer.textContent || ''
+        endContainer: selectionRange.endContainer.textContent || '',
+        xpath: startXPath,
+        textOffset: startTextOffset,
+        contextBefore,
+        contextAfter
       },
       timestamp: new Date(),
-      author: user?.name || '匿名用户'
+      author: user?.name || '匿名用户',
+      authorRole: user?.role,
+      likes: 0,
+      isLiked: false,
+      replies: [],
+      isResolved: false
     };
 
     try {
@@ -236,38 +432,91 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
   // 应用标注样式
   const applyAnnotationStyle = (range: Range, annotation: Annotation) => {
-    const span = document.createElement('span');
-    span.className = getAnnotationClass(annotation.type);
-    span.setAttribute('data-annotation-id', annotation.id);
-
-    // 创建更详细的 title
-    const typeText = annotation.type === 'highlight' ? '高亮' :
-                    annotation.type === 'note' ? '笔记' : '书签';
-    const title = annotation.comment ?
-      `${typeText}: ${annotation.comment} (作者: ${annotation.author})` :
-      `${typeText} (作者: ${annotation.author})`;
-    span.title = title;
-
     try {
-      range.surroundContents(span);
+      // 检查range是否有效
+      if (!range || range.collapsed) {
+        console.warn('Invalid range for annotation:', annotation.id);
+        return;
+      }
+
+      // 检查是否与现有标注重叠
+      const existingAnnotations = containerRef.current?.querySelectorAll('[data-annotation-id]');
+      let isNested = false;
+
+      if (existingAnnotations) {
+        for (const existing of existingAnnotations) {
+          const existingRange = document.createRange();
+          try {
+            existingRange.selectNodeContents(existing);
+            // 检查是否有重叠
+            if (range.compareBoundaryPoints(Range.START_TO_END, existingRange) > 0 &&
+                range.compareBoundaryPoints(Range.END_TO_START, existingRange) < 0) {
+              isNested = true;
+              break;
+            }
+          } catch (e) {
+            // 忽略错误，继续检查下一个
+          }
+        }
+      }
+
+      const span = document.createElement('span');
+      span.className = getAnnotationClass(annotation.type, isNested);
+      span.setAttribute('data-annotation-id', annotation.id);
+      span.setAttribute('data-annotation-type', annotation.type);
+      span.setAttribute('data-annotation-author', annotation.author);
+
+      // 为重叠标注添加特殊样式
+      if (isNested) {
+        span.style.boxShadow = '0 0 0 1px rgba(0,0,0,0.2)';
+        span.style.borderRadius = '2px';
+        span.style.margin = '0 1px';
+      }
+
+      // 创建更详细的 title
+      const typeText = annotation.type === 'highlight' ? '高亮' :
+                      annotation.type === 'note' ? '笔记' : '书签';
+      const title = annotation.comment ?
+        `${typeText}: ${annotation.comment} (作者: ${annotation.author})` :
+        `${typeText} (作者: ${annotation.author})`;
+      span.title = title;
+
+      // 检查是否可以直接包围内容
+      const canSurround = range.startContainer === range.endContainer &&
+                         range.startContainer.nodeType === Node.TEXT_NODE;
+
+      if (canSurround) {
+        try {
+          range.surroundContents(span);
+        } catch (error) {
+          console.warn('Cannot surround contents, using extract method:', error);
+          const contents = range.extractContents();
+          span.appendChild(contents);
+          range.insertNode(span);
+        }
+      } else {
+        // 对于跨节点的选择，使用提取和插入的方法
+        const contents = range.extractContents();
+        span.appendChild(contents);
+        range.insertNode(span);
+      }
     } catch (error) {
-      // 如果无法直接包围，使用提取和插入的方法
-      const contents = range.extractContents();
-      span.appendChild(contents);
-      range.insertNode(span);
+      console.error('Error applying annotation style:', error, annotation);
     }
   };
 
   // 获取标注样式类
-  const getAnnotationClass = (type: 'highlight' | 'note' | 'bookmark') => {
-    const baseClass = 'annotation cursor-pointer transition-all duration-200';
+  const getAnnotationClass = (type: 'highlight' | 'note' | 'bookmark', isNested = false) => {
+    const baseClass = 'annotation cursor-pointer transition-all duration-200 relative';
+    const nestedClass = isNested ? 'nested-annotation' : '';
+
     switch (type) {
       case 'highlight':
-        return `${baseClass} bg-yellow-200   hover:bg-yellow-300  `;
+        return `${baseClass} ${nestedClass} bg-yellow-200 hover:bg-yellow-300 border-b border-yellow-400`;
       case 'note':
-        return `${baseClass} bg-blue-200   hover:bg-blue-300   border-b-2 border-blue-400  `;
+        return `${baseClass} ${nestedClass} bg-blue-200 hover:bg-blue-300 border-b-2 border-blue-400`;
       case 'bookmark':
-        return `${baseClass} bg-green-200   hover:bg-green-300   border-l-2 border-green-500   pl-1`;
+        return `${baseClass} ${nestedClass} bg-green-200 hover:bg-green-300 border-l-2 border-green-500 pl-1`;
       default:
         return baseClass;
     }
@@ -428,8 +677,19 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
       {/* 评论对话框 */}
       {showCommentDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white   rounded-lg p-6 w-96 max-w-[90vw]">
+        <div
+          className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999
+          }}
+        >
+          <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] max-h-[80vh] overflow-y-auto"
+               style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
             <h3 className="text-lg font-semibold mb-4 text-gray-900  ">
               添加笔记
             </h3>
@@ -471,8 +731,19 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
       {/* 标注详情对话框 */}
       {showAnnotationDetail && selectedAnnotation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white   rounded-lg p-6 w-96 max-w-[90vw]">
+        <div
+          className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 9999
+          }}
+        >
+          <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] max-h-[80vh] overflow-y-auto"
+               style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 {selectedAnnotation.type === 'highlight' && <Highlighter className="w-5 h-5 text-yellow-600" />}

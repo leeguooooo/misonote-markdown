@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { docsCache } from './docs-cache';
 
 // This module should only be used on the server side
 
@@ -25,47 +26,13 @@ export interface DocTree {
 const DOCS_DIR = path.join(process.cwd(), 'docs');
 
 export function getAllDocs(): DocFile[] {
-  const docs: DocFile[] = [];
-
-  function scanDirectory(dir: string, basePath: string[] = []): void {
-    const items = fs.readdirSync(dir);
-
-    for (const item of items) {
-      const fullPath = path.join(dir, item);
-      const stat = fs.statSync(fullPath);
-
-      if (stat.isDirectory()) {
-        scanDirectory(fullPath, [...basePath, item]);
-      } else if (item.endsWith('.md')) {
-        const content = fs.readFileSync(fullPath, 'utf-8');
-        const { data: frontmatter, content: markdownContent } = matter(content);
-
-        const slug = [...basePath, item.replace('.md', '')];
-        const id = slug.join('/');
-
-        docs.push({
-          id,
-          title: frontmatter.title || extractTitleFromContent(markdownContent) || item.replace('.md', ''),
-          content: markdownContent,
-          path: fullPath,
-          slug,
-          lastModified: stat.mtime,
-          frontmatter,
-        });
-      }
-    }
-  }
-
-  if (fs.existsSync(DOCS_DIR)) {
-    scanDirectory(DOCS_DIR);
-  }
-
-  return docs;
+  // 使用智能缓存获取所有文档
+  return docsCache.getAllDocs();
 }
 
 export function getDocBySlug(slug: string[]): DocFile | null {
-  const docs = getAllDocs();
-  return docs.find(doc => doc.slug.join('/') === slug.join('/')) || null;
+  // 直接使用缓存获取单个文档，避免扫描所有文档
+  return docsCache.getDocBySlug(slug);
 }
 
 export function getDocTree(): DocTree {

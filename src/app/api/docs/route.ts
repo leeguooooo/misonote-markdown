@@ -2,11 +2,15 @@ import { NextResponse } from 'next/server';
 import { getAllDocs } from '@/lib/docs';
 import { fileSystemManager } from '@/lib/file-operations';
 
+// 强制动态渲染，确保每次请求都重新读取文件系统
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     // 获取所有文档
     const docs = await getAllDocs();
-    
+
     // 过滤隐藏文档（公共API不显示隐藏文档）
     const visibleDocs = docs.filter(doc => {
       const docPath = doc.slug.join('/');
