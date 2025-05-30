@@ -161,7 +161,7 @@ export async function GET() {
 
 ```toml
 # wrangler.toml
-name = "markdown-preview"
+name = "misonote-markdown"
 compatibility_date = "2024-01-01"
 
 [env.production]

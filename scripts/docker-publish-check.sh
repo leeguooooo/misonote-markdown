@@ -32,37 +32,47 @@ log_error() {
 # 检查 Docker 环境
 check_docker() {
     log_info "检查 Docker 环境..."
-    
+
     if ! command -v docker &> /dev/null; then
         log_error "Docker 未安装"
         return 1
     fi
-    
+
     if ! docker info &> /dev/null; then
         log_error "Docker 守护进程未运行"
         return 1
     fi
-    
+
     if ! docker buildx version &> /dev/null; then
         log_error "Docker Buildx 未安装"
         return 1
     fi
-    
+
     log_success "Docker 环境检查通过"
 }
 
 # 检查 Docker Hub 登录状态
 check_docker_login() {
     log_info "检查 Docker Hub 登录状态..."
-    
-    if ! docker info | grep -q "Username"; then
-        log_error "未登录 Docker Hub，请运行: docker login"
-        return 1
+
+    # 尝试获取 Docker 登录信息
+    local docker_info=$(docker info 2>/dev/null)
+    local username=""
+
+    if echo "$docker_info" | grep -q "Username:"; then
+        username=$(echo "$docker_info" | grep "Username:" | awk '{print $2}')
+        log_success "已登录 Docker Hub，用户名: $username"
+    else
+        # 尝试通过 docker system info 获取
+        if docker system info 2>/dev/null | grep -q "Username:"; then
+            username=$(docker system info 2>/dev/null | grep "Username:" | awk '{print $2}')
+            log_success "已登录 Docker Hub，用户名: $username"
+        else
+            log_error "未登录 Docker Hub，请运行: docker login"
+            return 1
+        fi
     fi
-    
-    local username=$(docker info | grep "Username:" | awk '{print $2}')
-    log_success "已登录 Docker Hub，用户名: $username"
-    
+
     # 检查环境变量
     if [ -z "$DOCKER_USERNAME" ]; then
         log_warning "DOCKER_USERNAME 环境变量未设置，将使用登录用户名: $username"
@@ -73,73 +83,73 @@ check_docker_login() {
 # 检查项目状态
 check_project() {
     log_info "检查项目状态..."
-    
+
     # 检查是否在项目根目录
     if [ ! -f "package.json" ]; then
         log_error "未找到 package.json，请在项目根目录运行此脚本"
         return 1
     fi
-    
+
     # 检查 Dockerfile
     if [ ! -f "Dockerfile" ]; then
         log_error "未找到 Dockerfile"
         return 1
     fi
-    
+
     # 检查 docker-compose.yml
     if [ ! -f "docker-compose.yml" ]; then
         log_warning "未找到 docker-compose.yml"
     fi
-    
+
     log_success "项目文件检查通过"
 }
 
 # 检查 Git 状态
 check_git() {
     log_info "检查 Git 状态..."
-    
+
     if ! git rev-parse --git-dir > /dev/null 2>&1; then
         log_warning "不在 Git 仓库中"
         return 0
     fi
-    
+
     # 检查是否有未提交的更改
     if ! git diff-index --quiet HEAD --; then
         log_warning "有未提交的更改，建议先提交"
     fi
-    
+
     # 获取当前分支
     local branch=$(git rev-parse --abbrev-ref HEAD)
     log_info "当前分支: $branch"
-    
+
     # 获取最新标签
     local latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "无标签")
     log_info "最新标签: $latest_tag"
-    
+
     log_success "Git 状态检查完成"
 }
 
 # 检查依赖
 check_dependencies() {
     log_info "检查项目依赖..."
-    
+
     if [ ! -d "node_modules" ]; then
         log_warning "node_modules 目录不存在，建议运行: pnpm install"
     fi
-    
+
     if [ ! -f "pnpm-lock.yaml" ]; then
         log_warning "未找到 pnpm-lock.yaml"
     fi
-    
+
     log_success "依赖检查完成"
 }
 
 # 测试本地构建
 test_local_build() {
     log_info "测试本地 Docker 构建..."
-    
-    local test_tag="markdown-preview:test-$(date +%s)"
-    
+
+    local test_tag="misonote-markdown:test-$(date +%s)"
+
     if docker build -t "$test_tag" . > /dev/null 2>&1; then
         log_success "本地构建测试通过"
         docker rmi "$test_tag" > /dev/null 2>&1
@@ -152,22 +162,22 @@ test_local_build() {
 # 检查网络连接
 check_network() {
     log_info "检查网络连接..."
-    
+
     if ! curl -s --connect-timeout 5 https://hub.docker.com > /dev/null; then
         log_error "无法连接到 Docker Hub"
         return 1
     fi
-    
+
     log_success "网络连接正常"
 }
 
 # 显示发布信息
 show_publish_info() {
     log_info "发布信息预览..."
-    
+
     local version=$(node -p "require('./package.json').version")
-    local image_name="$DOCKER_USERNAME/markdown-preview"
-    
+    local image_name="$DOCKER_USERNAME/misonote-markdown"
+
     echo ""
     echo "📦 镜像信息:"
     echo "  名称: $image_name"
@@ -188,9 +198,9 @@ main() {
     echo "🔍 Docker 发布前检查"
     echo "===================="
     echo ""
-    
+
     local errors=0
-    
+
     check_docker || ((errors++))
     check_docker_login || ((errors++))
     check_project || ((errors++))
@@ -198,9 +208,9 @@ main() {
     check_dependencies
     test_local_build || ((errors++))
     check_network || ((errors++))
-    
+
     echo ""
-    
+
     if [ $errors -eq 0 ]; then
         log_success "✅ 所有检查通过，可以开始发布！"
         show_publish_info

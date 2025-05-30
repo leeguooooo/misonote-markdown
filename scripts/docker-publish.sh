@@ -32,17 +32,17 @@ log_error() {
 # 检查必要的工具
 check_requirements() {
     log_info "检查必要的工具..."
-    
+
     if ! command -v docker &> /dev/null; then
         log_error "Docker 未安装或不在 PATH 中"
         exit 1
     fi
-    
+
     if ! docker buildx version &> /dev/null; then
         log_error "Docker Buildx 未安装"
         exit 1
     fi
-    
+
     log_success "所有必要工具已安装"
 }
 
@@ -50,7 +50,7 @@ check_requirements() {
 get_version() {
     # 从 package.json 获取版本
     VERSION=$(node -p "require('./package.json').version")
-    
+
     # 获取 Git 提交哈希（如果在 Git 仓库中）
     if git rev-parse --git-dir > /dev/null 2>&1; then
         GIT_HASH=$(git rev-parse --short HEAD)
@@ -59,7 +59,7 @@ get_version() {
         GIT_HASH=""
         GIT_TAG=""
     fi
-    
+
     log_info "版本信息:"
     log_info "  Package 版本: $VERSION"
     log_info "  Git 哈希: ${GIT_HASH:-'N/A'}"
@@ -69,22 +69,22 @@ get_version() {
 # 设置镜像名称和标签
 setup_image_tags() {
     # 默认镜像名称（用户需要修改为自己的 Docker Hub 用户名）
-    DOCKER_USERNAME=${DOCKER_USERNAME:-"your-username"}
-    IMAGE_NAME="$DOCKER_USERNAME/markdown-preview"
-    
+    DOCKER_USERNAME=${DOCKER_USERNAME:-"leeguo"}
+    IMAGE_NAME="$DOCKER_USERNAME/misonote-markdown"
+
     # 构建标签列表
     TAGS=()
     TAGS+=("$IMAGE_NAME:latest")
     TAGS+=("$IMAGE_NAME:v$VERSION")
-    
+
     if [ -n "$GIT_HASH" ]; then
         TAGS+=("$IMAGE_NAME:$GIT_HASH")
     fi
-    
+
     if [ -n "$GIT_TAG" ]; then
         TAGS+=("$IMAGE_NAME:$GIT_TAG")
     fi
-    
+
     log_info "将构建以下标签:"
     for tag in "${TAGS[@]}"; do
         log_info "  - $tag"
@@ -94,49 +94,49 @@ setup_image_tags() {
 # 创建 buildx builder
 setup_buildx() {
     log_info "设置 Docker Buildx..."
-    
+
     # 创建新的 builder 实例（如果不存在）
-    if ! docker buildx inspect markdown-builder &> /dev/null; then
+    if ! docker buildx inspect misonote-builder &> /dev/null; then
         log_info "创建新的 buildx builder..."
-        docker buildx create --name markdown-builder --driver docker-container --bootstrap
+        docker buildx create --name misonote-builder --driver docker-container --bootstrap
     fi
-    
+
     # 使用 builder
-    docker buildx use markdown-builder
-    
+    docker buildx use misonote-builder
+
     log_success "Buildx 设置完成"
 }
 
 # 构建多架构镜像
 build_multiarch() {
     log_info "开始构建多架构镜像..."
-    
+
     # 构建标签参数
     TAG_ARGS=""
     for tag in "${TAGS[@]}"; do
         TAG_ARGS="$TAG_ARGS -t $tag"
     done
-    
+
     # 构建命令
     BUILD_CMD="docker buildx build \
         --platform linux/amd64,linux/arm64 \
         $TAG_ARGS \
         --push \
         ."
-    
+
     log_info "执行构建命令:"
     log_info "$BUILD_CMD"
-    
+
     # 执行构建
     eval $BUILD_CMD
-    
+
     log_success "多架构镜像构建完成"
 }
 
 # 验证镜像
 verify_images() {
     log_info "验证发布的镜像..."
-    
+
     for tag in "${TAGS[@]}"; do
         log_info "检查镜像: $tag"
         if docker manifest inspect "$tag" &> /dev/null; then
@@ -150,7 +150,7 @@ verify_images() {
 # 生成使用说明
 generate_usage_info() {
     log_info "生成使用说明..."
-    
+
     cat > DOCKER-USAGE.md << EOF
 # 🐳 Docker 镜像使用说明
 
@@ -167,10 +167,10 @@ generate_usage_info() {
 
 \`\`\`bash
 # 使用最新版本
-docker run -d -p 3001:3001 --name markdown-preview $IMAGE_NAME:latest
+docker run -d -p 3001:3001 --name misonote-markdown $IMAGE_NAME:latest
 
 # 使用特定版本
-docker run -d -p 3001:3001 --name markdown-preview $IMAGE_NAME:v$VERSION
+docker run -d -p 3001:3001 --name misonote-markdown $IMAGE_NAME:v$VERSION
 \`\`\`
 
 ### 2. 使用 Docker Compose
@@ -179,9 +179,9 @@ docker run -d -p 3001:3001 --name markdown-preview $IMAGE_NAME:v$VERSION
 
 \`\`\`yaml
 services:
-  markdown-preview:
+  misonote-markdown:
     image: $IMAGE_NAME:latest
-    container_name: markdown-preview
+    container_name: misonote-markdown
     ports:
       - "3001:3001"
     volumes:
@@ -247,25 +247,25 @@ $(if [ -n "$GIT_TAG" ]; then echo "- \`$GIT_TAG\` - Git 标签版本"; fi)
 ### 查看日志
 
 \`\`\`bash
-docker logs markdown-preview
+docker logs misonote-markdown
 \`\`\`
 
 ### 进入容器
 
 \`\`\`bash
-docker exec -it markdown-preview sh
+docker exec -it misonote-markdown sh
 \`\`\`
 
 ### 重启服务
 
 \`\`\`bash
-docker restart markdown-preview
+docker restart misonote-markdown
 \`\`\`
 
 ## 📚 更多信息
 
-- [项目主页](https://github.com/your-username/markdown-preview)
-- [Docker Hub](https://hub.docker.com/r/$DOCKER_USERNAME/markdown-preview)
+- [项目主页](https://github.com/your-username/misonote-markdown)
+- [Docker Hub](https://hub.docker.com/r/$DOCKER_USERNAME/misonote-markdown)
 - [使用文档](./README.md)
 EOF
 
@@ -274,23 +274,23 @@ EOF
 
 # 主函数
 main() {
-    echo "🐳 Markdown Preview Docker 镜像发布工具"
-    echo "========================================"
+    echo "🐳 Misonote Markdown Docker 镜像发布工具"
+    echo "========================================="
     echo ""
-    
+
     # 检查 Docker Hub 用户名
     if [ "$DOCKER_USERNAME" = "your-username" ]; then
         log_error "请设置 DOCKER_USERNAME 环境变量为您的 Docker Hub 用户名"
-        log_info "示例: export DOCKER_USERNAME=your-dockerhub-username"
+        log_info "示例: export DOCKER_USERNAME=leeguo"
         exit 1
     fi
-    
+
     # 检查是否已登录 Docker Hub
-    if ! docker info | grep -q "Username"; then
+    if ! docker info 2>/dev/null | grep -q "Username" && ! docker system info 2>/dev/null | grep -q "Username"; then
         log_warning "请先登录 Docker Hub: docker login"
         exit 1
     fi
-    
+
     check_requirements
     get_version
     setup_image_tags
@@ -298,7 +298,7 @@ main() {
     build_multiarch
     verify_images
     generate_usage_info
-    
+
     echo ""
     log_success "🎉 镜像发布完成！"
     log_info "您现在可以使用以下命令运行应用："

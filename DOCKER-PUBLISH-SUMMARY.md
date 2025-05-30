@@ -2,7 +2,7 @@
 
 ## 📋 发布方案概述
 
-我们为 Markdown Preview 应用创建了完整的 Docker 镜像发布方案，让用户可以直接使用预构建的镜像，无需本地构建。
+我们为 Misonote Markdown 应用创建了完整的 Docker 镜像发布方案，让用户可以直接使用预构建的镜像，无需本地构建。
 
 ## 🎯 发布目标
 
@@ -36,7 +36,7 @@
    ```bash
    # 设置 Docker Hub 用户名
    export DOCKER_USERNAME=your-dockerhub-username
-   
+
    # 登录 Docker Hub
    docker login
    ```
@@ -62,7 +62,7 @@
    # 创建版本标签
    git tag v0.1.0
    git push origin v0.1.0
-   
+
    # 或推送到主分支
    git push origin main
    ```
@@ -96,14 +96,14 @@ pnpm docker:compose           # Docker Compose
 
 ### 1. 直接运行
 ```bash
-docker run -d -p 3001:3001 your-username/markdown-preview:latest
+docker run -d -p 3001:3001 your-username/misonote-markdown:latest
 ```
 
 ### 2. Docker Compose
 ```yaml
 services:
-  markdown-preview:
-    image: your-username/markdown-preview:latest
+  misonote-markdown:
+    image: your-username/misonote-markdown:latest
     ports:
       - "3001:3001"
     volumes:
@@ -117,7 +117,7 @@ docker run -d \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
   -e ADMIN_PASSWORD_HASH_BASE64=your_hash \
-  your-username/markdown-preview:latest
+  your-username/misonote-markdown:latest
 ```
 
 ## 🔧 技术特性
@@ -172,10 +172,10 @@ docker run -d \
 ```bash
 # 用户只需要这一条命令就能运行应用
 docker run -d \
-  --name markdown-preview \
+  --name misonote-markdown \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
-  your-username/markdown-preview:latest
+  your-username/misonote-markdown:latest
 
 # 访问应用
 open http://localhost:3001
@@ -185,9 +185,9 @@ open http://localhost:3001
 ```yaml
 # docker-compose.yml
 services:
-  markdown-preview:
-    image: your-username/markdown-preview:v0.1.0
-    container_name: markdown-preview
+  misonote-markdown:
+    image: your-username/misonote-markdown:v0.1.0
+    container_name: misonote-markdown
     ports:
       - "3001:3001"
     volumes:

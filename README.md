@@ -1,4 +1,4 @@
-# 现代化 Markdown 文档预览系统
+# Misonote Markdown - 现代化文档预览系统
 
 [![GitHub stars](https://img.shields.io/github/stars/leeguooooo/markdown-site?style=social)](https://github.com/leeguooooo/markdown-site)
 [![GitHub forks](https://img.shields.io/github/forks/leeguooooo/markdown-site?style=social)](https://github.com/leeguooooo/markdown-site)
@@ -74,11 +74,11 @@
 ```bash
 # 直接运行最新版本
 docker run -d \
-  --name markdown-preview \
+  --name misonote-markdown \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
-  your-username/markdown-preview:latest
+  leeguo/misonote-markdown:latest
 
 # 或使用 Docker Compose
 curl -O https://raw.githubusercontent.com/leeguooooo/markdown-site/main/docker-compose.yml

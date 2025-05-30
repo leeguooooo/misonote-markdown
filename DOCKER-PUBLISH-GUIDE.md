@@ -1,6 +1,6 @@
 # 🐳 Docker 镜像发布指南
 
-本指南将帮助您将 Markdown Preview 应用发布到 Docker Hub，让用户可以直接使用预构建的镜像。
+本指南将帮助您将 Misonote Markdown 应用发布到 Docker Hub，让用户可以直接使用预构建的镜像。
 
 ## 📋 发布前准备
 
@@ -72,10 +72,10 @@ pnpm docker:publish
 
 ```bash
 # 创建新的构建器
-docker buildx create --name markdown-builder --driver docker-container --bootstrap
+docker buildx create --name misonote-builder --driver docker-container --bootstrap
 
 # 使用构建器
-docker buildx use markdown-builder
+docker buildx use misonote-builder
 ```
 
 #### 2. 构建并推送
@@ -84,8 +84,8 @@ docker buildx use markdown-builder
 # 构建多架构镜像并推送
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
-  -t your-username/markdown-preview:latest \
-  -t your-username/markdown-preview:v0.1.0 \
+  -t your-username/misonote-markdown:latest \
+  -t your-username/misonote-markdown:v0.1.0 \
   --push \
   .
 ```
@@ -130,26 +130,26 @@ git push origin v0.1.0
 
 ### 1. 检查 Docker Hub
 
-访问 `https://hub.docker.com/r/your-username/markdown-preview` 确认镜像已发布。
+访问 `https://hub.docker.com/r/your-username/misonote-markdown` 确认镜像已发布。
 
 ### 2. 测试镜像
 
 ```bash
 # 拉取并测试镜像
-docker run -d -p 3001:3001 --name test-preview your-username/markdown-preview:latest
+docker run -d -p 3001:3001 --name test-misonote your-username/misonote-markdown:latest
 
 # 检查健康状态
 curl http://localhost:3001/api/health
 
 # 清理测试容器
-docker stop test-preview && docker rm test-preview
+docker stop test-misonote && docker rm test-misonote
 ```
 
 ### 3. 验证多架构支持
 
 ```bash
 # 检查镜像清单
-docker manifest inspect your-username/markdown-preview:latest
+docker manifest inspect your-username/misonote-markdown:latest
 ```
 
 ## 📚 用户使用指南
@@ -160,10 +160,10 @@ docker manifest inspect your-username/markdown-preview:latest
 
 ```bash
 # 直接运行
-docker run -d -p 3001:3001 your-username/markdown-preview:latest
+docker run -d -p 3001:3001 your-username/misonote-markdown:latest
 
 # 使用 Docker Compose
-curl -O https://raw.githubusercontent.com/your-username/markdown-preview/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/your-username/misonote-markdown/main/docker-compose.yml
 docker-compose up -d
 ```
 
@@ -175,7 +175,7 @@ docker run -d \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
-  your-username/markdown-preview:latest
+  your-username/misonote-markdown:latest
 ```
 
 ## 🔧 故障排除
@@ -189,8 +189,8 @@ docker run -d \
 docker buildx prune -f
 
 # 重新创建构建器
-docker buildx rm markdown-builder
-docker buildx create --name markdown-builder --driver docker-container --bootstrap
+docker buildx rm misonote-builder
+docker buildx create --name misonote-builder --driver docker-container --bootstrap
 ```
 
 #### 2. 推送失败

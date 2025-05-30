@@ -76,7 +76,7 @@ NODE_ENV=production
 PORT=3001
 
 # 管理员密码将在首次启动时设置
-# 请在容器启动后运行: docker exec -it markdown-preview node scripts/generate-password.js
+# 请在容器启动后运行: docker exec -it misonote-markdown node scripts/generate-password.js
 EOF
     log_success "默认 .env 文件已创建"
 else
@@ -136,7 +136,7 @@ echo "  停止服务: docker-compose down"
 echo "  重启服务: docker-compose restart"
 echo ""
 echo "🔐 设置管理员密码:"
-echo "  docker exec -it markdown-preview node scripts/generate-password.js"
+echo "  docker exec -it misonote-markdown node scripts/generate-password.js"
 echo ""
 
 # 11. 询问是否设置密码
@@ -145,8 +145,8 @@ echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     log_info "设置管理员密码..."
-    docker exec -it markdown-preview node scripts/generate-password.js
-    
+    docker exec -it misonote-markdown node scripts/generate-password.js
+
     if [ $? -eq 0 ]; then
         log_success "密码设置完成"
         log_info "重启容器以应用配置..."

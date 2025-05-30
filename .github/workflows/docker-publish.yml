@@ -15,7 +15,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: markdown-preview
+  IMAGE_NAME: misonote-markdown
 
 jobs:
   build-and-push:
@@ -83,10 +83,10 @@ jobs:
 
         ```bash
         # 使用最新版本
-        docker run -d -p 3001:3001 --name markdown-preview ${{ secrets.DOCKER_USERNAME }}/markdown-preview:latest
+        docker run -d -p 3001:3001 --name misonote-markdown ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:latest
 
         # 使用特定版本
-        docker run -d -p 3001:3001 --name markdown-preview ${{ secrets.DOCKER_USERNAME }}/markdown-preview:v1.0.0
+        docker run -d -p 3001:3001 --name misonote-markdown ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:v1.0.0
         ```
 
         ### 2. 使用 Docker Compose
@@ -95,9 +95,9 @@ jobs:
 
         ```yaml
         services:
-          markdown-preview:
-            image: ${{ secrets.DOCKER_USERNAME }}/markdown-preview:latest
-            container_name: markdown-preview
+          misonote-markdown:
+            image: ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:latest
+            container_name: misonote-markdown
             ports:
               - "3001:3001"
             volumes:
@@ -132,7 +132,7 @@ jobs:
 
         ## 🔗 链接
 
-        - [Docker Hub](https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/markdown-preview)
+        - [Docker Hub](https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/misonote-markdown)
         - [GitHub Repository](https://github.com/${{ github.repository }})
         EOF
 

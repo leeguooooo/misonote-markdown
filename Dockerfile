@@ -1,4 +1,4 @@
-# 多阶段构建 Dockerfile for Markdown Preview System
+# 多阶段构建 Dockerfile for Misonote Markdown System
 FROM node:18-alpine AS base
 
 # 安装必要的系统依赖

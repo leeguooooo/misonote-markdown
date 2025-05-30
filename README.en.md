@@ -26,7 +26,7 @@ A modern Markdown documentation management and preview system with support for M
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd markdown-preview
+   cd misonote-markdown
    ```
 
 2. **Install dependencies**

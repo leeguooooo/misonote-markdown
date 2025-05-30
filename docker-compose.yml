@@ -1,9 +1,9 @@
 services:
-  markdown-preview:
+  misonote-markdown:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: markdown-preview
+    container_name: misonote-markdown
     ports:
       - "3001:3001"
     volumes:
@@ -32,7 +32,7 @@ services:
   # 可选：添加 Nginx 反向代理
   nginx:
     image: nginx:alpine
-    container_name: markdown-nginx
+    container_name: misonote-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -40,7 +40,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
     depends_on:
-      - markdown-preview
+      - misonote-markdown
     restart: unless-stopped
     networks:
       - markdown-network

@@ -62,19 +62,19 @@ case "${1:-help}" in
         docker-compose up -d
         log_success "容器已启动"
         ;;
-        
+
     "stop")
         log_info "停止容器..."
         docker-compose down
         log_success "容器已停止"
         ;;
-        
+
     "restart")
         log_info "重启容器..."
         docker-compose restart
         log_success "容器已重启"
         ;;
-        
+
     "status")
         log_info "容器状态:"
         docker-compose ps
@@ -82,17 +82,17 @@ case "${1:-help}" in
         log_info "服务健康状态:"
         curl -s http://localhost:3001/api/health | jq . 2>/dev/null || echo "服务未响应"
         ;;
-        
+
     "logs")
         log_info "查看日志 (Ctrl+C 退出):"
         docker-compose logs -f
         ;;
-        
+
     "shell")
         log_info "进入容器..."
-        docker exec -it markdown-preview /bin/bash
+        docker exec -it misonote-markdown /bin/bash
         ;;
-        
+
     "update")
         log_info "更新并重新部署..."
         git pull
@@ -101,7 +101,7 @@ case "${1:-help}" in
         docker-compose up -d
         log_success "更新完成"
         ;;
-        
+
     "clean")
         log_warning "这将删除所有容器和镜像"
         read -p "确认继续? (y/N): " -n 1 -r
@@ -114,7 +114,7 @@ case "${1:-help}" in
             log_info "取消清理"
         fi
         ;;
-        
+
     "backup")
         log_info "备份数据..."
         BACKUP_DIR="backup/$(date +%Y%m%d_%H%M%S)"
@@ -124,7 +124,7 @@ case "${1:-help}" in
         rm -rf "$BACKUP_DIR"
         log_success "备份完成: ${BACKUP_DIR}.tar.gz"
         ;;
-        
+
     "restore")
         if [ -z "$2" ]; then
             log_error "请指定备份文件: $0 restore backup.tar.gz"
@@ -138,14 +138,14 @@ case "${1:-help}" in
         docker-compose restart
         log_success "数据恢复完成"
         ;;
-        
+
     "password")
         log_info "设置管理员密码..."
-        docker exec -it markdown-preview node scripts/generate-password.js
+        docker exec -it misonote-markdown node scripts/generate-password.js
         docker-compose restart
         log_success "密码设置完成"
         ;;
-        
+
     "help"|*)
         show_help
         ;;

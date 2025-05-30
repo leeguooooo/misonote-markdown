@@ -1,4 +1,4 @@
-# Markdown Preview - Docker Image
+# Misonote Markdown - Docker Image
 
 一个功能强大的 Markdown 文档预览和管理系统，支持实时预览、文档搜索、用户认证等功能。
 
@@ -9,11 +9,11 @@
 ```bash
 # 拉取并运行最新版本
 docker run -d \
-  --name markdown-preview \
+  --name misonote-markdown \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
-  your-username/markdown-preview:latest
+  your-username/misonote-markdown:latest
 ```
 
 ### 使用 Docker Compose
@@ -24,9 +24,9 @@ docker run -d \
 version: '3.8'
 
 services:
-  markdown-preview:
-    image: your-username/markdown-preview:latest
-    container_name: markdown-preview
+  misonote-markdown:
+    image: your-username/misonote-markdown:latest
+    container_name: misonote-markdown
     ports:
       - "3001:3001"
     volumes:
@@ -135,10 +135,10 @@ console.log('ADMIN_PASSWORD_HASH_BASE64=' + base64Hash);
 
 ```bash
 docker run -d \
-  --name markdown-preview \
+  --name misonote-markdown \
   -p 3001:3001 \
   -e ADMIN_PASSWORD_HASH_BASE64=your_base64_hash \
-  your-username/markdown-preview:latest
+  your-username/misonote-markdown:latest
 ```
 
 ## 🏗️ 支持的架构
@@ -154,14 +154,14 @@ docker run -d \
 
 ## 🔗 相关链接
 
-- **GitHub 仓库**: [https://github.com/your-username/markdown-preview](https://github.com/your-username/markdown-preview)
-- **问题反馈**: [GitHub Issues](https://github.com/your-username/markdown-preview/issues)
-- **文档**: [项目文档](https://github.com/your-username/markdown-preview#readme)
+- **GitHub 仓库**: [https://github.com/your-username/misonote-markdown](https://github.com/your-username/misonote-markdown)
+- **问题反馈**: [GitHub Issues](https://github.com/your-username/misonote-markdown/issues)
+- **文档**: [项目文档](https://github.com/your-username/misonote-markdown#readme)
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](https://github.com/your-username/markdown-preview/blob/main/LICENSE) 文件了解详情。
+本项目采用 MIT 许可证 - 查看 [LICENSE](https://github.com/your-username/misonote-markdown/blob/main/LICENSE) 文件了解详情。
 
 ## 🤝 贡献
 
-欢迎提交 Pull Request 和 Issue！请查看 [贡献指南](https://github.com/your-username/markdown-preview/blob/main/CONTRIBUTING.md) 了解详情。
+欢迎提交 Pull Request 和 Issue！请查看 [贡献指南](https://github.com/your-username/misonote-markdown/blob/main/CONTRIBUTING.md) 了解详情。

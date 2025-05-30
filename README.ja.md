@@ -26,7 +26,7 @@ Mermaid図表、グローバル検索、ディレクトリナビゲーション�
 1. **リポジトリのクローン**
    ```bash
    git clone <repository-url>
-   cd markdown-preview
+   cd misonote-markdown
    ```
 
 2. **依存関係のインストール**

@@ -44,7 +44,7 @@ CMD ["npm", "start"]
 # docker-compose.yml
 version: '3.8'
 services:
-  markdown-preview:
+  misonote-markdown:
     build: .
     ports:
       - "3001:3001"
@@ -73,7 +73,7 @@ fi
 
 # 构建镜像
 echo "📦 构建 Docker 镜像..."
-docker build -t markdown-preview .
+docker build -t misonote-markdown .
 
 # 启动容器
 echo "🚀 启动容器..."
@@ -88,8 +88,8 @@ echo "📱 访问: http://localhost:3001"
 ```json
 {
   "scripts": {
-    "docker:build": "docker build -t markdown-preview .",
-    "docker:run": "docker run -p 3001:3001 markdown-preview",
+    "docker:build": "docker build -t misonote-markdown .",
+    "docker:run": "docker run -p 3001:3001 misonote-markdown",
     "docker:compose": "docker-compose up -d",
     "docker:deploy": "bash scripts/docker-deploy.sh"
   }
