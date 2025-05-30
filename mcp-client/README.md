@@ -221,6 +221,19 @@ export MCP_SERVER_URL="https://your-server.com"
 列出我记录过的项目
 ```
 
+### get_document_url
+获取文档的在线观看地址
+
+**参数:**
+- `path`: 文档路径
+
+**示例:**
+```
+获取 README.md 的在线地址
+生成 docs/api-guide 的访问链接
+获取 memories/misonote/habits 的查看地址
+```
+
 ## 使用示例
 
 配置完成后，你可以在 Cursor 中直接与 AI 对话来管理文档：
