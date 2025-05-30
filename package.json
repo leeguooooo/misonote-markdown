@@ -12,7 +12,6 @@
     "start:debug": "NODE_OPTIONS='--trace-warnings --trace-deprecation' DEBUG=* next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-
     "pm2:start": "node scripts/deployment/pm2-start.js prod",
     "pm2:dev": "node scripts/deployment/pm2-start.js dev",
     "pm2:verbose": "pm2 start ecosystem.config.js --env development --log-type json",
@@ -26,22 +25,17 @@
     "pm2:monit": "pm2 monit",
     "pm2:flush": "pm2 flush docs-platform",
     "pm2:reload": "pm2 reload docs-platform",
-
     "debug:env": "node scripts/development/debug-env.js",
     "debug:auth": "node scripts/security/verify-password.js",
     "debug:logs": "bash scripts/development/view-logs.sh",
-
     "security:setup": "bash scripts/security/update-security.sh",
     "security:verify": "node scripts/security/verify-password.js",
     "security:hash": "node scripts/security/generate-password-hash.js",
-
     "quick-start": "bash scripts/quick-start.sh",
     "watch:docs": "node scripts/development/watch-docs.js",
     "prod:watch": "pnpm build && pnpm pm2:start && pnpm watch:docs",
-
     "test:login": "bash scripts/development/test-login.sh",
     "test:api": "curl -X POST http://localhost:3001/api/auth/login -H 'Content-Type: application/json' -d '{\"password\":\"test\"}'",
-
     "clean": "rm -rf .next && rm -rf logs/*.log",
     "clean:pm2": "pm2 delete all && pm2 flush",
     "reset": "pnpm clean && pnpm clean:pm2 && pnpm install"
@@ -66,7 +60,8 @@
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "rehype-highlight": "^7.0.2",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
