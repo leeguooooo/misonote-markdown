@@ -1,0 +1,209 @@
+# Misonote Markdown MCP Client
+
+这是一个 MCP (Model Context Protocol) 客户端，用于连接 misonote-markdown 服务器，为 AI 编辑器（如 Cursor）提供文档管理功能。
+
+## 功能特性
+
+- 📄 文档列表查询
+- 📝 创建和更新文档
+- 🗑️ 删除文档
+- 📊 服务器状态查询
+- 🔍 文档内容获取
+
+## 安装
+
+```bash
+npm install misonote-mcp-client
+```
+
+## 配置
+
+### 环境变量
+
+```bash
+# 必需：API 密钥
+export MCP_API_KEY="mcp_your_api_key_here"
+
+# 可选：服务器地址（默认 http://localhost:3000）
+export MCP_SERVER_URL="https://your-server.com"
+```
+
+### Cursor 配置
+
+在 Cursor 的设置中添加 MCP 服务器配置：
+
+1. 打开 Cursor 设置
+2. 找到 "MCP Servers" 部分
+3. 添加新的服务器配置：
+
+```json
+{
+  "mcpServers": {
+    "misonote-markdown": {
+      "command": "npx",
+      "args": ["misonote-mcp-client"],
+      "env": {
+        "MCP_SERVER_URL": "http://localhost:3000",
+        "MCP_API_KEY": "mcp_your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+或者如果你全局安装了：
+
+```json
+{
+  "mcpServers": {
+    "misonote-markdown": {
+      "command": "misonote-mcp",
+      "env": {
+        "MCP_SERVER_URL": "http://localhost:3000",
+        "MCP_API_KEY": "mcp_your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+## 获取 API 密钥
+
+1. 访问你的 misonote-markdown 管理后台：`http://localhost:3000/admin`
+2. 登录管理员账户
+3. 点击蓝色钥匙图标 (🔑) 打开 API 密钥管理
+4. 点击"创建 API 密钥"
+5. 配置权限（至少需要 `read`, `write`, `mcp` 权限）
+6. 保存并复制生成的密钥
+
+## 可用工具
+
+### list_documents
+获取文档列表
+
+**参数:**
+- `path` (可选): 指定路径下的文档
+
+**示例:**
+```
+请列出所有文档
+```
+
+### get_document
+获取文档内容
+
+**参数:**
+- `path`: 文档路径
+
+**示例:**
+```
+请获取 docs/README.md 的内容
+```
+
+### create_document
+创建新文档
+
+**参数:**
+- `path`: 文档路径
+- `content`: 文档内容
+- `title` (可选): 文档标题
+- `metadata` (可选): 元数据
+
+**示例:**
+```
+请创建一个新文档 docs/example.md，内容是 "# Hello World"
+```
+
+### update_document
+更新现有文档
+
+**参数:**
+- `path`: 文档路径
+- `content`: 新的文档内容
+- `title` (可选): 文档标题
+- `metadata` (可选): 元数据
+
+**示例:**
+```
+请更新 docs/example.md 的内容
+```
+
+### delete_document
+删除文档
+
+**参数:**
+- `path`: 文档路径
+
+**示例:**
+```
+请删除 docs/example.md
+```
+
+### get_server_info
+获取服务器信息和能力
+
+**示例:**
+```
+请显示服务器信息
+```
+
+## 使用示例
+
+配置完成后，你可以在 Cursor 中直接与 AI 对话来管理文档：
+
+```
+用户: 请列出所有文档
+AI: 我来为你获取文档列表...
+
+用户: 创建一个新的 API 文档，路径是 docs/api.md
+AI: 我来为你创建这个文档...
+
+用户: 请获取 docs/README.md 的内容并帮我优化
+AI: 我先获取文档内容，然后为你提供优化建议...
+```
+
+## 故障排除
+
+### 常见问题
+
+**Q: 连接失败**
+A: 检查以下项目：
+- 服务器是否正在运行
+- API 密钥是否正确
+- 网络连接是否正常
+- 服务器地址是否正确
+
+**Q: 权限不足**
+A: 确保 API 密钥具有必要的权限：
+- `read`: 读取文档
+- `write`: 创建/更新/删除文档
+- `mcp`: MCP 协议访问
+
+**Q: Cursor 无法识别 MCP 服务器**
+A: 检查配置格式是否正确，重启 Cursor
+
+### 调试
+
+启用调试模式：
+
+```bash
+DEBUG=1 npx misonote-mcp-client
+```
+
+## 开发
+
+```bash
+# 克隆项目
+git clone https://github.com/misonote/markdown-preview
+cd markdown-preview/mcp-client
+
+# 安装依赖
+npm install
+
+# 运行
+npm start
+```
+
+## 许可证
+
+MIT License
