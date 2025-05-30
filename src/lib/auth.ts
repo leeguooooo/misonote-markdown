@@ -5,18 +5,25 @@ import { log } from './logger';
 
 // 从环境变量获取配置
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+
+// 支持 Base64 编码的密码哈希，避免特殊字符问题
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH_BASE64
+  ? Buffer.from(process.env.ADMIN_PASSWORD_HASH_BASE64, 'base64').toString('utf8')
+  : process.env.ADMIN_PASSWORD_HASH; // 向后兼容
+
 const DEFAULT_ADMIN_PASSWORD = 'admin123'; // 仅用于开发环境
 
 // 启动时的环境变量调试信息
 log.startup('认证模块初始化');
 log.env('NODE_ENV: ' + process.env.NODE_ENV);
 log.env('JWT_SECRET: ' + (JWT_SECRET ? '已设置' : '未设置'));
-log.env('ADMIN_PASSWORD_HASH: ' + (ADMIN_PASSWORD_HASH ? '已设置' : '未设置'));
+log.env('ADMIN_PASSWORD_HASH_BASE64: ' + (process.env.ADMIN_PASSWORD_HASH_BASE64 ? '已设置' : '未设置'));
+log.env('ADMIN_PASSWORD_HASH (解码后): ' + (ADMIN_PASSWORD_HASH ? '已设置' : '未设置'));
 
 if (ADMIN_PASSWORD_HASH) {
   log.env('ADMIN_PASSWORD_HASH 长度: ' + ADMIN_PASSWORD_HASH.length);
   log.env('ADMIN_PASSWORD_HASH 前缀: ' + ADMIN_PASSWORD_HASH.substring(0, 10));
+  log.env('使用 Base64 编码: ' + (process.env.ADMIN_PASSWORD_HASH_BASE64 ? '是' : '否'));
 } else {
   log.warn('ADMIN_PASSWORD_HASH 未设置，将使用默认密码');
 }

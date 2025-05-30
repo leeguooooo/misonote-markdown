@@ -38,11 +38,11 @@ function logError(message) {
 // 加载环境变量
 function loadEnvFile() {
   const envPath = path.join(process.cwd(), '.env');
-  
+
   if (fs.existsSync(envPath)) {
     const envContent = fs.readFileSync(envPath, 'utf8');
     const envVars = {};
-    
+
     envContent.split('\n').forEach(line => {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith('#')) {
@@ -52,28 +52,38 @@ function loadEnvFile() {
         }
       }
     });
-    
+
     return envVars;
   }
-  
+
   return {};
 }
 
 // 检查必需的环境变量
 function checkRequiredEnvVars() {
   logInfo('检查构建前环境变量...');
-  
+
   // 加载 .env 文件
   const envVars = loadEnvFile();
-  
+
   // 合并 process.env 和 .env 文件的变量
   const allEnvVars = { ...envVars, ...process.env };
-  
+
   const requiredVars = [
     {
-      name: 'ADMIN_PASSWORD_HASH',
-      description: '管理员密码哈希',
-      validator: (value) => value && value.length === 60 && value.startsWith('$2b$12$')
+      name: 'ADMIN_PASSWORD_HASH_BASE64',
+      description: '管理员密码哈希 (Base64 编码)',
+      validator: (value) => {
+        if (!value) return false;
+        try {
+          // 尝试解码 Base64
+          const decoded = Buffer.from(value, 'base64').toString('utf8');
+          // 检查解码后是否是有效的 bcrypt 哈希
+          return decoded.length === 60 && decoded.startsWith('$2b$12$');
+        } catch {
+          return false;
+        }
+      }
     },
     {
       name: 'JWT_SECRET',
@@ -81,13 +91,13 @@ function checkRequiredEnvVars() {
       validator: (value) => value && value.length >= 32
     }
   ];
-  
+
   const missing = [];
   const invalid = [];
-  
+
   for (const varConfig of requiredVars) {
     const value = allEnvVars[varConfig.name];
-    
+
     if (!value) {
       missing.push(varConfig);
     } else if (!varConfig.validator(value)) {
@@ -96,22 +106,22 @@ function checkRequiredEnvVars() {
       logSuccess(`${varConfig.name}: 已正确设置`);
     }
   }
-  
+
   return { missing, invalid, allEnvVars };
 }
 
 // 交互式设置环境变量
 async function interactiveSetup() {
   logWarning('检测到缺失或无效的环境变量，启动交互式设置...');
-  
+
   try {
     // 运行安全设置脚本
     logInfo('运行安全配置脚本...');
-    execSync('bash scripts/security/update-security.sh', { 
+    execSync('bash scripts/security/update-security.sh', {
       stdio: 'inherit',
       cwd: process.cwd()
     });
-    
+
     logSuccess('安全配置完成');
     return true;
   } catch (error) {
@@ -123,9 +133,9 @@ async function interactiveSetup() {
 // 验证设置结果
 function validateSetup() {
   logInfo('验证环境变量设置...');
-  
+
   const { missing, invalid } = checkRequiredEnvVars();
-  
+
   if (missing.length === 0 && invalid.length === 0) {
     logSuccess('所有环境变量已正确设置');
     return true;
@@ -139,27 +149,33 @@ function validateSetup() {
 function showEnvStatus(envVars) {
   console.log('\n📋 环境变量状态:');
   console.log('================');
-  
-  const adminHash = envVars.ADMIN_PASSWORD_HASH;
+
+  const adminHashBase64 = envVars.ADMIN_PASSWORD_HASH_BASE64;
   const jwtSecret = envVars.JWT_SECRET;
-  
+
   console.log(`NODE_ENV: ${envVars.NODE_ENV || '未设置'}`);
   console.log(`PORT: ${envVars.PORT || '未设置'}`);
-  console.log(`ADMIN_PASSWORD_HASH: ${adminHash ? '已设置' : '未设置'}`);
-  
-  if (adminHash) {
-    console.log(`  - 长度: ${adminHash.length}`);
-    console.log(`  - 格式: ${adminHash.startsWith('$2b$12$') ? '正确' : '错误'}`);
-    console.log(`  - 前缀: ${adminHash.substring(0, 10)}`);
+  console.log(`ADMIN_PASSWORD_HASH_BASE64: ${adminHashBase64 ? '已设置' : '未设置'}`);
+
+  if (adminHashBase64) {
+    try {
+      const decoded = Buffer.from(adminHashBase64, 'base64').toString('utf8');
+      console.log(`  - Base64 长度: ${adminHashBase64.length}`);
+      console.log(`  - 解码后长度: ${decoded.length}`);
+      console.log(`  - 格式: ${decoded.startsWith('$2b$12$') ? '正确' : '错误'}`);
+      console.log(`  - 前缀: ${decoded.substring(0, 10)}`);
+    } catch (error) {
+      console.log(`  - 解码错误: ${error.message}`);
+    }
   }
-  
+
   console.log(`JWT_SECRET: ${jwtSecret ? '已设置' : '未设置'}`);
-  
+
   if (jwtSecret) {
     console.log(`  - 长度: ${jwtSecret.length}`);
     console.log(`  - 安全性: ${jwtSecret.length >= 32 ? '良好' : '不足'}`);
   }
-  
+
   console.log('');
 }
 
@@ -168,33 +184,33 @@ async function main() {
   console.log('🔍 构建前环境变量检查');
   console.log('======================');
   console.log('');
-  
+
   try {
     const { missing, invalid, allEnvVars } = checkRequiredEnvVars();
-    
+
     showEnvStatus(allEnvVars);
-    
+
     if (missing.length > 0) {
       logError('缺失的环境变量:');
       missing.forEach(varConfig => {
         console.log(`  - ${varConfig.name}: ${varConfig.description}`);
       });
     }
-    
+
     if (invalid.length > 0) {
       logError('无效的环境变量:');
       invalid.forEach(varConfig => {
         console.log(`  - ${varConfig.name}: ${varConfig.description} (当前值无效)`);
       });
     }
-    
+
     if (missing.length > 0 || invalid.length > 0) {
       console.log('');
       logWarning('构建前需要设置环境变量，否则构建后的应用将无法正常工作');
-      
+
       // 交互式设置
       const setupSuccess = await interactiveSetup();
-      
+
       if (setupSuccess) {
         // 重新验证
         if (validateSetup()) {
@@ -212,7 +228,7 @@ async function main() {
       logSuccess('✅ 所有环境变量已正确设置，可以开始构建');
       process.exit(0);
     }
-    
+
   } catch (error) {
     logError('检查过程出错: ' + error.message);
     process.exit(1);
