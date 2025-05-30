@@ -28,9 +28,18 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-echo "🔧 环境变量加载修复脚本"
-echo "========================"
+echo "🔧 环境变量加载修复脚本 (PNPM 版本)"
+echo "=================================="
 echo ""
+
+# 检查 pnpm 是否安装
+if ! command -v pnpm &> /dev/null; then
+    log_error "pnpm 未安装，请先安装 pnpm"
+    echo "安装方法: npm install -g pnpm"
+    exit 1
+fi
+
+log_success "pnpm 已安装: $(pnpm --version)"
 
 # 检查 .env 文件
 if [ ! -f ".env" ]; then
