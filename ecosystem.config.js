@@ -13,8 +13,10 @@ module.exports = {
       watch: false,
       max_memory_restart: '1G',
       env: {
-        NODE_ENV: 'production',
+        NODE_ENV: 'development',  // 使用开发模式获得更多日志
         PORT: 3001,
+        LOG_LEVEL: 'debug',       // 设置日志级别
+        VERBOSE: 'true',          // 启用详细模式
         // 从 .env 文件读取环境变量
         ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
         JWT_SECRET: process.env.JWT_SECRET,

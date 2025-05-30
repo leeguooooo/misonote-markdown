@@ -1,20 +1,24 @@
 import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { log } from './logger';
 
 // 从环境变量获取配置
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 const DEFAULT_ADMIN_PASSWORD = 'admin123'; // 仅用于开发环境
 
-// 调试信息
-console.log('🔍 环境变量调试信息:');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('JWT_SECRET:', JWT_SECRET ? '已设置' : '未设置');
-console.log('ADMIN_PASSWORD_HASH:', ADMIN_PASSWORD_HASH ? '已设置' : '未设置');
+// 启动时的环境变量调试信息
+log.startup('认证模块初始化');
+log.env('NODE_ENV: ' + process.env.NODE_ENV);
+log.env('JWT_SECRET: ' + (JWT_SECRET ? '已设置' : '未设置'));
+log.env('ADMIN_PASSWORD_HASH: ' + (ADMIN_PASSWORD_HASH ? '已设置' : '未设置'));
+
 if (ADMIN_PASSWORD_HASH) {
-  console.log('ADMIN_PASSWORD_HASH 长度:', ADMIN_PASSWORD_HASH.length);
-  console.log('ADMIN_PASSWORD_HASH 前缀:', ADMIN_PASSWORD_HASH.substring(0, 10));
+  log.env('ADMIN_PASSWORD_HASH 长度: ' + ADMIN_PASSWORD_HASH.length);
+  log.env('ADMIN_PASSWORD_HASH 前缀: ' + ADMIN_PASSWORD_HASH.substring(0, 10));
+} else {
+  log.warn('ADMIN_PASSWORD_HASH 未设置，将使用默认密码');
 }
 
 export interface AuthUser {
@@ -27,30 +31,34 @@ export interface AuthUser {
  * 验证管理员密码
  */
 export async function verifyAdminPassword(password: string): Promise<boolean> {
-  console.log('🔐 开始验证管理员密码...');
-  console.log('密码长度:', password?.length || 0);
-  console.log('ADMIN_PASSWORD_HASH 存在:', !!ADMIN_PASSWORD_HASH);
+  log.auth('开始验证管理员密码');
+  log.debug('密码长度: ' + (password?.length || 0));
+  log.debug('ADMIN_PASSWORD_HASH 存在: ' + !!ADMIN_PASSWORD_HASH);
 
   try {
     if (ADMIN_PASSWORD_HASH) {
       // 生产环境：使用哈希密码验证
-      console.log('使用哈希密码验证模式');
-      console.log('哈希值长度:', ADMIN_PASSWORD_HASH.length);
-      console.log('哈希值前缀:', ADMIN_PASSWORD_HASH.substring(0, 10));
+      log.auth('使用哈希密码验证模式');
+      log.debug('哈希值长度: ' + ADMIN_PASSWORD_HASH.length);
+      log.debug('哈希值前缀: ' + ADMIN_PASSWORD_HASH.substring(0, 10));
 
       const result = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
-      console.log('密码验证结果:', result ? '✅ 成功' : '❌ 失败');
+      log.auth('密码验证结果: ' + (result ? '✅ 成功' : '❌ 失败'));
+
+      if (!result) {
+        log.warn('密码验证失败，可能的原因：密码错误或哈希值问题');
+      }
+
       return result;
     } else {
       // 开发环境：使用默认密码
-      console.warn('⚠️  使用默认密码，请在生产环境中设置 ADMIN_PASSWORD_HASH 环境变量');
+      log.warn('使用默认密码，请在生产环境中设置 ADMIN_PASSWORD_HASH 环境变量');
       const result = password === DEFAULT_ADMIN_PASSWORD;
-      console.log('默认密码验证结果:', result ? '✅ 成功' : '❌ 失败');
+      log.auth('默认密码验证结果: ' + (result ? '✅ 成功' : '❌ 失败'));
       return result;
     }
   } catch (error) {
-    console.error('❌ 密码验证失败:', error);
-    console.error('错误详情:', {
+    log.error('密码验证失败', {
       message: error instanceof Error ? error.message : '未知错误',
       stack: error instanceof Error ? error.stack : undefined
     });
@@ -62,9 +70,9 @@ export async function verifyAdminPassword(password: string): Promise<boolean> {
  * 生成 JWT Token
  */
 export function generateToken(user: AuthUser): string {
-  console.log('🎫 生成 JWT Token...');
-  console.log('用户信息:', { id: user.id, username: user.username, role: user.role });
-  console.log('JWT_SECRET 长度:', JWT_SECRET.length);
+  log.auth('生成 JWT Token');
+  log.debug('用户信息', { id: user.id, username: user.username, role: user.role });
+  log.debug('JWT_SECRET 长度: ' + JWT_SECRET.length);
 
   try {
     const token = jwt.sign(
@@ -78,11 +86,11 @@ export function generateToken(user: AuthUser): string {
         expiresIn: '24h', // 24小时过期
       }
     );
-    console.log('✅ JWT Token 生成成功');
-    console.log('Token 长度:', token.length);
+    log.auth('JWT Token 生成成功');
+    log.debug('Token 长度: ' + token.length);
     return token;
   } catch (error) {
-    console.error('❌ JWT Token 生成失败:', error);
+    log.error('JWT Token 生成失败', error);
     throw error;
   }
 }
@@ -91,14 +99,14 @@ export function generateToken(user: AuthUser): string {
  * 验证 JWT Token
  */
 export function verifyToken(token: string): AuthUser | null {
-  console.log('🔍 验证 JWT Token...');
-  console.log('Token 长度:', token?.length || 0);
-  console.log('Token 前缀:', token?.substring(0, 20) || 'undefined');
+  log.auth('验证 JWT Token');
+  log.debug('Token 长度: ' + (token?.length || 0));
+  log.debug('Token 前缀: ' + (token?.substring(0, 20) || 'undefined'));
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    console.log('✅ JWT Token 验证成功');
-    console.log('解码用户信息:', { id: decoded.id, username: decoded.username, role: decoded.role });
+    log.auth('JWT Token 验证成功');
+    log.debug('解码用户信息', { id: decoded.id, username: decoded.username, role: decoded.role });
 
     return {
       id: decoded.id,
@@ -106,7 +114,7 @@ export function verifyToken(token: string): AuthUser | null {
       role: decoded.role,
     };
   } catch (error) {
-    console.error('❌ JWT Token 验证失败:', error instanceof Error ? error.message : '未知错误');
+    log.warn('JWT Token 验证失败: ' + (error instanceof Error ? error.message : '未知错误'));
     return null;
   }
 }

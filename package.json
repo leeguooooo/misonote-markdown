@@ -15,7 +15,7 @@
 
     "pm2:start": "node scripts/deployment/pm2-start.js prod",
     "pm2:dev": "node scripts/deployment/pm2-start.js dev",
-    "pm2:verbose": "pm2 start ecosystem.config.js --env development",
+    "pm2:verbose": "pm2 start ecosystem.config.js --env development --log-type json",
     "pm2:stop": "pm2 stop docs-platform",
     "pm2:restart": "pm2 restart docs-platform",
     "pm2:delete": "pm2 delete docs-platform",
