@@ -67,6 +67,26 @@
 
 #### 🐳 Docker 部署（推荐，最简单）
 
+##### 方法一：使用预构建镜像（最快）
+
+直接使用我们发布的 Docker 镜像，无需构建：
+
+```bash
+# 直接运行最新版本
+docker run -d \
+  --name markdown-preview \
+  -p 3001:3001 \
+  -v $(pwd)/docs:/app/docs \
+  -v $(pwd)/data:/app/data \
+  your-username/markdown-preview:latest
+
+# 或使用 Docker Compose
+curl -O https://raw.githubusercontent.com/leeguooooo/markdown-site/main/docker-compose.yml
+docker-compose up -d
+```
+
+##### 方法二：本地构建部署
+
 使用 Docker 一键部署，无需配置 Node.js 环境：
 
 ```bash
@@ -296,6 +316,11 @@ pnpm docker:logs            # 查看 Docker 日志
 pnpm docker:stop            # 停止 Docker 服务
 pnpm docker:restart         # 重启 Docker 服务
 pnpm docker:manage          # Docker 管理工具
+
+# 📦 Docker 镜像发布
+pnpm docker:publish:check   # 发布前检查
+pnpm docker:publish:prepare # 发布准备
+pnpm docker:publish         # 发布镜像到 Docker Hub
 
 # 🔐 安全管理
 pnpm security:setup         # 设置管理员密码

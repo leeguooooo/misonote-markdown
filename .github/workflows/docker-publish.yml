@@ -1,0 +1,144 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: markdown-preview
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Docker Hub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=sha,prefix={{branch}}-
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Generate usage documentation
+      if: github.event_name != 'pull_request'
+      run: |
+        cat > DOCKER-USAGE.md << 'EOF'
+        # 🐳 Docker 镜像使用说明
+
+        ## 📦 预构建镜像
+
+        我们提供了预构建的 Docker 镜像，支持多种架构：
+
+        - **AMD64** (x86_64) - 适用于大多数服务器和桌面环境
+        - **ARM64** (aarch64) - 适用于 Apple Silicon Mac、树莓派等
+
+        ## 🚀 快速开始
+
+        ### 1. 直接运行
+
+        ```bash
+        # 使用最新版本
+        docker run -d -p 3001:3001 --name markdown-preview ${{ secrets.DOCKER_USERNAME }}/markdown-preview:latest
+
+        # 使用特定版本
+        docker run -d -p 3001:3001 --name markdown-preview ${{ secrets.DOCKER_USERNAME }}/markdown-preview:v1.0.0
+        ```
+
+        ### 2. 使用 Docker Compose
+
+        创建 `docker-compose.yml` 文件：
+
+        ```yaml
+        services:
+          markdown-preview:
+            image: ${{ secrets.DOCKER_USERNAME }}/markdown-preview:latest
+            container_name: markdown-preview
+            ports:
+              - "3001:3001"
+            volumes:
+              - ./docs:/app/docs
+              - ./data:/app/data
+              - ./logs:/app/logs
+            environment:
+              - NODE_ENV=production
+            restart: unless-stopped
+        ```
+
+        ### 3. 环境变量配置
+
+        | 变量名 | 描述 | 默认值 |
+        |--------|------|--------|
+        | `NODE_ENV` | 运行环境 | `production` |
+        | `PORT` | 服务端口 | `3001` |
+        | `ADMIN_PASSWORD_HASH_BASE64` | 管理员密码哈希 | 自动生成 |
+        | `JWT_SECRET` | JWT 密钥 | 自动生成 |
+
+        ### 4. 健康检查
+
+        ```bash
+        curl http://localhost:3001/api/health
+        ```
+
+        ## 📋 可用标签
+
+        - `latest` - 最新稳定版本
+        - `v1.0.0` - 特定版本
+        - `main` - 主分支最新版本
+
+        ## 🔗 链接
+
+        - [Docker Hub](https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/markdown-preview)
+        - [GitHub Repository](https://github.com/${{ github.repository }})
+        EOF
+
+    - name: Upload usage documentation
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-usage-docs
+        path: DOCKER-USAGE.md

@@ -27,6 +27,9 @@
     "docker:logs": "docker-compose logs -f",
     "docker:stop": "docker-compose down",
     "docker:restart": "docker-compose restart",
+    "docker:publish": "bash scripts/docker-publish.sh",
+    "docker:publish:check": "bash scripts/docker-publish-check.sh",
+    "docker:publish:prepare": "bash scripts/docker-publish-check.sh && echo 'Ready to publish! Run: pnpm docker:publish'",
 
     "security:setup": "node scripts/generate-password.js",
     "security:verify": "node scripts/verify-password.js",
