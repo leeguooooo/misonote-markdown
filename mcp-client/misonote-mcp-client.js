@@ -181,6 +181,84 @@ const TOOLS = [
       },
       required: ['query']
     }
+  },
+  {
+    name: 'add_memory',
+    description: '添加记忆条目（用户习惯、偏好、复盘等）',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        project: {
+          type: 'string',
+          description: '项目名称（可选，默认为 default）',
+          default: 'default'
+        },
+        type: {
+          type: 'string',
+          description: '记忆类型',
+          enum: ['habits', 'preferences', 'retrospectives', 'insights'],
+        },
+        content: {
+          type: 'string',
+          description: '记忆内容',
+        },
+        tags: {
+          type: 'string',
+          description: '标签（可选，用逗号分隔）',
+        }
+      },
+      required: ['type', 'content']
+    }
+  },
+  {
+    name: 'get_memories',
+    description: '获取记忆内容',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        project: {
+          type: 'string',
+          description: '项目名称（可选，默认为 default）',
+          default: 'default'
+        },
+        type: {
+          type: 'string',
+          description: '记忆类型（可选，不指定则获取所有类型）',
+          enum: ['habits', 'preferences', 'retrospectives', 'insights'],
+        }
+      }
+    }
+  },
+  {
+    name: 'search_memories',
+    description: '搜索记忆内容',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: '搜索关键词',
+        },
+        project: {
+          type: 'string',
+          description: '项目名称（可选，默认搜索所有项目）',
+        },
+        type: {
+          type: 'string',
+          description: '记忆类型（可选，默认搜索所有类型）',
+          enum: ['habits', 'preferences', 'retrospectives', 'insights'],
+        }
+      },
+      required: ['query']
+    }
+  },
+  {
+    name: 'list_memory_projects',
+    description: '列出所有记忆项目',
+    inputSchema: {
+      type: 'object',
+      properties: {}
+    }
   }
 ];
 
@@ -217,6 +295,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'search_documents':
         return await searchDocuments(args.query, args.searchType, args.path);
+
+      case 'add_memory':
+        return await addMemory(args.project || 'default', args.type, args.content, args.tags);
+
+      case 'get_memories':
+        return await getMemories(args.project || 'default', args.type);
+
+      case 'search_memories':
+        return await searchMemories(args.query, args.project, args.type);
+
+      case 'list_memory_projects':
+        return await listMemoryProjects();
 
       default:
         throw new McpError(
@@ -452,6 +542,285 @@ async function searchDocuments(query, searchType = 'content', path = '') {
     };
   } catch (error) {
     throw new Error(`搜索文档失败: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+// 记忆系统函数
+async function addMemory(project, type, content, tags) {
+  try {
+    const timestamp = new Date().toISOString();
+    const memoryPath = `memories/${project}/${type}`;
+
+    // 构建记忆条目
+    const tagsText = tags ? ` #${tags.split(',').map(t => t.trim()).join(' #')}` : '';
+    const memoryEntry = `\n## ${timestamp}\n\n${content}${tagsText}\n\n---\n`;
+
+    // 尝试获取现有记忆文档
+    const apiClient = createApiClient();
+    let existingContent = '';
+
+    try {
+      const response = await apiClient.get('/api/mcp/documents', {
+        params: {
+          path: memoryPath,
+          content: 'true'
+        }
+      });
+      existingContent = response.data.data.content;
+    } catch (error) {
+      // 文档不存在，创建新的
+      const typeNames = {
+        habits: '用户习惯',
+        preferences: '用户偏好',
+        retrospectives: '复盘记录',
+        insights: '洞察学习'
+      };
+
+      existingContent = `# ${typeNames[type]} - ${project}\n\n> 这是 ${project} 项目的${typeNames[type]}记录\n\n---\n`;
+    }
+
+    // 添加新记忆条目
+    const newContent = existingContent + memoryEntry;
+
+    // 更新或创建文档
+    const operation = existingContent.includes('# ') ? 'update' : 'create';
+    const response = await apiClient.post('/api/mcp/documents', {
+      path: memoryPath,
+      content: newContent,
+      operation: operation
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `🧠 记忆已添加!\n\n项目: ${project}\n类型: ${type}\n内容: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}\n${tags ? `标签: ${tags}\n` : ''}时间: ${new Date(timestamp).toLocaleString()}\n\n访问链接: ${SERVER_URL}${response.data.data.url}`
+        }
+      ]
+    };
+  } catch (error) {
+    throw new Error(`添加记忆失败: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+async function getMemories(project, type) {
+  try {
+    const apiClient = createApiClient();
+
+    if (type) {
+      // 获取特定类型的记忆
+      const memoryPath = `memories/${project}/${type}`;
+      try {
+        const response = await apiClient.get('/api/mcp/documents', {
+          params: {
+            path: memoryPath,
+            content: 'true'
+          }
+        });
+
+        const typeNames = {
+          habits: '用户习惯',
+          preferences: '用户偏好',
+          retrospectives: '复盘记录',
+          insights: '洞察学习'
+        };
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `🧠 ${typeNames[type]} - ${project}\n\n${response.data.data.content}`
+            }
+          ]
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `🧠 ${project} 项目的 ${type} 记忆\n\n暂无记录。`
+            }
+          ]
+        };
+      }
+    } else {
+      // 获取项目的所有记忆
+      const memoryTypes = ['habits', 'preferences', 'retrospectives', 'insights'];
+      const typeNames = {
+        habits: '用户习惯',
+        preferences: '用户偏好',
+        retrospectives: '复盘记录',
+        insights: '洞察学习'
+      };
+
+      let resultText = `🧠 ${project} 项目的所有记忆\n\n`;
+
+      for (const memoryType of memoryTypes) {
+        const memoryPath = `memories/${project}/${memoryType}`;
+        try {
+          const response = await apiClient.get('/api/mcp/documents', {
+            params: {
+              path: memoryPath,
+              content: 'true'
+            }
+          });
+
+          resultText += `## ${typeNames[memoryType]}\n\n${response.data.data.content}\n\n`;
+        } catch (error) {
+          resultText += `## ${typeNames[memoryType]}\n\n暂无记录。\n\n`;
+        }
+      }
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: resultText
+          }
+        ]
+      };
+    }
+  } catch (error) {
+    throw new Error(`获取记忆失败: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+async function searchMemories(query, project, type) {
+  try {
+    const apiClient = createApiClient();
+    let searchPath = 'memories';
+
+    if (project) {
+      searchPath += `/${project}`;
+      if (type) {
+        searchPath += `/${type}`;
+      }
+    }
+
+    const response = await apiClient.get('/api/mcp/documents', {
+      params: {
+        search: query,
+        searchType: 'content',
+        path: searchPath
+      }
+    });
+
+    const searchData = response.data.data;
+    const documents = searchData.documents || [];
+
+    if (documents.length === 0) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `🧠 记忆搜索结果\n\n关键词: "${query}"\n${project ? `项目: ${project}\n` : ''}${type ? `类型: ${type}\n` : ''}\n❌ 未找到相关记忆`
+          }
+        ]
+      };
+    }
+
+    let resultText = `🧠 记忆搜索结果\n\n关键词: "${query}"\n${project ? `项目: ${project}\n` : ''}${type ? `类型: ${type}\n` : ''}找到 ${documents.length} 个相关记忆:\n\n`;
+
+    documents.forEach((doc, index) => {
+      const pathParts = doc.path.split('/');
+      const projectName = pathParts[1] || 'unknown';
+      const memoryType = pathParts[2] || 'unknown';
+
+      resultText += `${index + 1}. **${doc.name}**\n`;
+      resultText += `   项目: ${projectName}\n`;
+      resultText += `   类型: ${memoryType}\n`;
+      resultText += `   修改时间: ${new Date(doc.lastModified).toLocaleString()}\n`;
+
+      if (doc.excerpt) {
+        resultText += `   摘要: ${doc.excerpt.substring(0, 200)}${doc.excerpt.length > 200 ? '...' : ''}\n`;
+      }
+
+      if (doc.matchedSnippets && doc.matchedSnippets.length > 0) {
+        resultText += `   匹配片段:\n`;
+        doc.matchedSnippets.slice(0, 2).forEach((snippet, i) => {
+          resultText += `     ${i + 1}. "${snippet.substring(0, 150)}${snippet.length > 150 ? '...' : ''}"\n`;
+        });
+      }
+
+      resultText += '\n';
+    });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: resultText
+        }
+      ]
+    };
+  } catch (error) {
+    throw new Error(`搜索记忆失败: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+async function listMemoryProjects() {
+  try {
+    const apiClient = createApiClient();
+    const response = await apiClient.get('/api/mcp/documents', {
+      params: { path: 'memories' }
+    });
+
+    const documents = response.data.data.documents || [];
+    const projects = new Set();
+
+    documents.forEach(doc => {
+      const pathParts = doc.path.split('/');
+      if (pathParts.length >= 2 && pathParts[0] === 'memories') {
+        projects.add(pathParts[1]);
+      }
+    });
+
+    const projectList = Array.from(projects);
+
+    if (projectList.length === 0) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `🧠 记忆项目列表\n\n暂无记忆项目。\n\n💡 提示: 使用 add_memory 命令开始记录第一个项目的记忆。`
+          }
+        ]
+      };
+    }
+
+    let resultText = `🧠 记忆项目列表\n\n找到 ${projectList.length} 个项目:\n\n`;
+
+    for (const project of projectList) {
+      resultText += `📁 **${project}**\n`;
+
+      // 统计每个项目的记忆类型
+      const projectDocs = documents.filter(doc => doc.path.startsWith(`memories/${project}/`));
+      const types = new Set();
+      projectDocs.forEach(doc => {
+        const pathParts = doc.path.split('/');
+        if (pathParts.length >= 3) {
+          types.add(pathParts[2]);
+        }
+      });
+
+      if (types.size > 0) {
+        resultText += `   记忆类型: ${Array.from(types).join(', ')}\n`;
+        resultText += `   文档数量: ${projectDocs.length}\n`;
+      }
+
+      resultText += '\n';
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: resultText
+        }
+      ]
+    };
+  } catch (error) {
+    throw new Error(`获取记忆项目列表失败: ${error.response?.data?.error || error.message}`);
   }
 }
 
