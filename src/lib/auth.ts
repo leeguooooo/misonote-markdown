@@ -27,17 +27,33 @@ export interface AuthUser {
  * 验证管理员密码
  */
 export async function verifyAdminPassword(password: string): Promise<boolean> {
+  console.log('🔐 开始验证管理员密码...');
+  console.log('密码长度:', password?.length || 0);
+  console.log('ADMIN_PASSWORD_HASH 存在:', !!ADMIN_PASSWORD_HASH);
+
   try {
     if (ADMIN_PASSWORD_HASH) {
       // 生产环境：使用哈希密码验证
-      return await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+      console.log('使用哈希密码验证模式');
+      console.log('哈希值长度:', ADMIN_PASSWORD_HASH.length);
+      console.log('哈希值前缀:', ADMIN_PASSWORD_HASH.substring(0, 10));
+
+      const result = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
+      console.log('密码验证结果:', result ? '✅ 成功' : '❌ 失败');
+      return result;
     } else {
       // 开发环境：使用默认密码
       console.warn('⚠️  使用默认密码，请在生产环境中设置 ADMIN_PASSWORD_HASH 环境变量');
-      return password === DEFAULT_ADMIN_PASSWORD;
+      const result = password === DEFAULT_ADMIN_PASSWORD;
+      console.log('默认密码验证结果:', result ? '✅ 成功' : '❌ 失败');
+      return result;
     }
   } catch (error) {
-    console.error('密码验证失败:', error);
+    console.error('❌ 密码验证失败:', error);
+    console.error('错误详情:', {
+      message: error instanceof Error ? error.message : '未知错误',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return false;
   }
 }
@@ -46,31 +62,51 @@ export async function verifyAdminPassword(password: string): Promise<boolean> {
  * 生成 JWT Token
  */
 export function generateToken(user: AuthUser): string {
-  return jwt.sign(
-    {
-      id: user.id,
-      username: user.username,
-      role: user.role,
-    },
-    JWT_SECRET,
-    {
-      expiresIn: '24h', // 24小时过期
-    }
-  );
+  console.log('🎫 生成 JWT Token...');
+  console.log('用户信息:', { id: user.id, username: user.username, role: user.role });
+  console.log('JWT_SECRET 长度:', JWT_SECRET.length);
+
+  try {
+    const token = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+      JWT_SECRET,
+      {
+        expiresIn: '24h', // 24小时过期
+      }
+    );
+    console.log('✅ JWT Token 生成成功');
+    console.log('Token 长度:', token.length);
+    return token;
+  } catch (error) {
+    console.error('❌ JWT Token 生成失败:', error);
+    throw error;
+  }
 }
 
 /**
  * 验证 JWT Token
  */
 export function verifyToken(token: string): AuthUser | null {
+  console.log('🔍 验证 JWT Token...');
+  console.log('Token 长度:', token?.length || 0);
+  console.log('Token 前缀:', token?.substring(0, 20) || 'undefined');
+
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
+    console.log('✅ JWT Token 验证成功');
+    console.log('解码用户信息:', { id: decoded.id, username: decoded.username, role: decoded.role });
+
     return {
       id: decoded.id,
       username: decoded.username,
       role: decoded.role,
     };
   } catch (error) {
+    console.error('❌ JWT Token 验证失败:', error instanceof Error ? error.message : '未知错误');
     return null;
   }
 }
