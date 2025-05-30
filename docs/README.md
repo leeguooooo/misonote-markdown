@@ -68,6 +68,14 @@ pnpm dev
 ```
 
 ### 2. 配置 Cursor MCP 集成
+
+**克隆 MCP 客户端：**
+```bash
+git clone https://github.com/leeguooooo/misonote-mcp-client.git
+cd misonote-mcp-client
+npm install
+```
+
 详细配置请参考：[Cursor MCP 配置指南](docs/CURSOR-MCP-SETUP)
 
 ### 3. 开始使用

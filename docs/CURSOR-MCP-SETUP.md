@@ -33,7 +33,7 @@
 1. **克隆 MCP 客户端到本地**
    ```bash
    # 克隆 MCP 客户端项目
-   git clone https://github.com/your-repo/misonote-mcp-client.git
+   git clone https://github.com/leeguooooo/misonote-mcp-client.git
    cd misonote-mcp-client
 
    # 安装依赖
@@ -47,7 +47,7 @@
      "mcpServers": {
        "misonote-markdown": {
          "command": "node",
-         "args": ["/path/to/misonote-mcp-client/misonote-mcp-client.js"],
+         "args": ["/absolute/path/to/misonote-mcp-client/misonote-mcp-client.js"],
          "env": {
            "MCP_SERVER_URL": "http://localhost:3001",
            "MCP_API_KEY": "mcp_your_api_key_here"
@@ -77,7 +77,8 @@
 ```
 
 **重要说明**:
-- 请将 `/path/to/` 替换为实际的绝对路径
+- 请将 `/absolute/path/to/` 替换为实际的绝对路径
+- 推荐使用独立的 MCP 客户端仓库：`https://github.com/leeguooooo/misonote-mcp-client`
 - 如果使用 Docker 部署，服务器地址通常是 `http://localhost:3001`
 - 如果使用开发模式，服务器地址通常是 `http://localhost:3000`
 

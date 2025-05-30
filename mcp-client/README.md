@@ -1,19 +1,43 @@
-# Misonote Markdown MCP Client
+# 🤖 Misonote MCP Client
 
-这是一个 MCP (Model Context Protocol) 客户端，用于连接 misonote-markdown 服务器，为 AI 编辑器（如 Cursor）提供文档管理功能。
+> MCP (Model Context Protocol) 客户端，用于将 Misonote Markdown 文档系统与 Cursor 编辑器深度集成
 
-## 功能特性
+## ✨ 功能特性
 
-- 📄 文档列表查询
-- 📝 创建和更新文档
-- 🗑️ 删除文档
-- 📊 服务器状态查询
-- 🔍 文档内容获取
+### 📚 **文档管理**
+- **创建文档** - 通过自然语言创建 Markdown 文档
+- **读取文档** - 获取文档内容和元数据
+- **更新文档** - 修改现有文档内容
+- **删除文档** - 安全删除文档
+- **文档列表** - 浏览所有可用文档
 
-## 安装
+### 🔍 **智能搜索**
+- **全文搜索** - 搜索文档内容、标题和路径
+- **相关性评分** - 智能排序搜索结果
+- **文本片段** - 显示匹配的文本摘要
+
+### 🧠 **记忆系统**
+- **习惯记录** (habits) - 记录用户的工作习惯
+- **偏好管理** (preferences) - 保存用户的技术偏好
+- **复盘记录** (retrospectives) - 记录经验教训
+- **洞察学习** (insights) - 保存学习心得
+- **多项目支持** - 为不同项目维护独立记忆
+
+### 🔗 **地址生成**
+- **自动地址** - 创建文档时自动生成访问链接
+- **便于分享** - 一键获取文档分享地址
+
+## 🚀 快速开始
+
+### 1. 安装
 
 ```bash
-npm install misonote-mcp-client
+# 克隆项目
+git clone https://github.com/leeguooooo/misonote-mcp-client.git
+cd misonote-mcp-client
+
+# 安装依赖
+npm install
 ```
 
 ## 配置

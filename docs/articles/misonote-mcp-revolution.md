@@ -232,7 +232,7 @@ pnpm dev
 #### 1. 克隆 MCP 客户端
 ```bash
 # 克隆 MCP 客户端到本地
-git clone https://github.com/your-repo/misonote-mcp-client.git
+git clone https://github.com/leeguooooo/misonote-mcp-client.git
 cd misonote-mcp-client
 
 # 安装依赖
@@ -259,6 +259,7 @@ npm install
 
 **注意**:
 - 请将 `/path/to/` 替换为实际的绝对路径
+- 推荐使用独立仓库：`https://github.com/leeguooooo/misonote-mcp-client`
 - Docker 部署时服务器地址为 `http://localhost:3001`
 - 开发模式时服务器地址为 `http://localhost:3000`
 
@@ -328,8 +329,9 @@ Misonote Markdown 2.0 不仅仅是一个文档系统的升级，更是对未来�
 
 ## 🔗 相关链接
 
-- **项目地址**: [GitHub Repository]
-- **在线演示**: [Demo Site]
+- **主项目地址**: [misonote-markdown](https://github.com/leeguooooo/misonote-markdown)
+- **MCP 客户端**: [misonote-mcp-client](https://github.com/leeguooooo/misonote-mcp-client)
+- **Docker 镜像**: [leeguo/misonote-markdown](https://hub.docker.com/r/leeguo/misonote-markdown)
 - **配置指南**: [详细配置文档](http://localhost:3000/docs/CURSOR-MCP-SETUP)
 - **技术文档**: [MCP 集成说明](http://localhost:3000/docs/MCP-INTEGRATION)
 

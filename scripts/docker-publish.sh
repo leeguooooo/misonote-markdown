@@ -229,7 +229,7 @@ docker-compose up -d
 
 \`\`\`bash
 # 克隆 MCP 客户端到本地
-git clone https://github.com/your-repo/misonote-mcp-client.git
+git clone https://github.com/leeguooooo/misonote-mcp-client.git
 cd misonote-mcp-client
 
 # 安装依赖
