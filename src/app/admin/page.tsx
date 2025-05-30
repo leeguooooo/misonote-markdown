@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Plus, FolderPlus, Server, Send } from 'lucide-react';
+import { Upload, Plus, FolderPlus, Server, Send, Key } from 'lucide-react';
 import AdminAuth from '@/components/auth/AdminAuth';
 import EnhancedFileTree from '@/components/admin/EnhancedFileTree';
 import MarkdownEditor from '@/components/admin/MarkdownEditor';
@@ -9,6 +9,7 @@ import CreateFileDialog from '@/components/admin/CreateFileDialog';
 import DragDropUpload from '@/components/admin/DragDropUpload';
 import MCPServerManager from '@/components/admin/MCPServerManager';
 import MCPDocumentPusher from '@/components/admin/MCPDocumentPusher';
+import ApiKeyManager from '@/components/admin/ApiKeyManager';
 
 interface FileItem {
   name: string;
@@ -32,6 +33,7 @@ export default function AdminPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showMCPManager, setShowMCPManager] = useState(false);
   const [showMCPPusher, setShowMCPPusher] = useState(false);
+  const [showApiKeyManager, setShowApiKeyManager] = useState(false);
 
   // Load existing documents on component mount
   useEffect(() => {
@@ -354,6 +356,13 @@ export default function AdminPage() {
               </h2>
               <div className="flex items-center gap-2">
                 <button
+                  onClick={() => setShowApiKeyManager(true)}
+                  className="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
+                  title="API 密钥管理"
+                >
+                  <Key className="w-5 h-5" />
+                </button>
+                <button
                   onClick={() => setShowMCPManager(true)}
                   className="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors"
                   title="MCP 服务器管理"
@@ -476,6 +485,17 @@ export default function AdminPage() {
                   }))}
                   onClose={() => setShowMCPPusher(false)}
                 />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* API 密钥管理对话框 */}
+        {showApiKeyManager && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <ApiKeyManager onClose={() => setShowApiKeyManager(false)} />
               </div>
             </div>
           </div>
