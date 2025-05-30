@@ -74,7 +74,7 @@ export default function CacheMonitor() {
   }, []);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Database className="w-5 h-5 text-blue-600" />
