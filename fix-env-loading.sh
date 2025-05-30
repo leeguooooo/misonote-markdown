@@ -73,9 +73,9 @@ echo ""
 
 # 检查 dotenv 是否安装
 log_info "检查 dotenv 依赖..."
-if ! npm list dotenv > /dev/null 2>&1; then
+if ! pnpm list dotenv > /dev/null 2>&1; then
     log_warning "dotenv 未安装，正在安装..."
-    npm install dotenv
+    pnpm add dotenv
     log_success "dotenv 安装完成"
 else
     log_success "dotenv 已安装"
