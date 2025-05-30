@@ -3,7 +3,7 @@ import {
   BookOpen, Search, FileText, Zap, Star, Users, Shield, Rocket, Code, Palette, Globe, Heart,
   MessageSquare, Highlighter, MousePointer2, FolderTree,
   Upload, Settings, Layers, Target,
-  ArrowRight, CheckCircle, PlayCircle, Lightbulb
+  ArrowRight, CheckCircle, PlayCircle, Lightbulb, Brain, Bot, Link2, Sparkles
 } from 'lucide-react';
 import GitHubLink from '@/components/GitHubLink';
 
@@ -32,9 +32,9 @@ export default function Home() {
               </div>
               <div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  文档中心
+                  Misonote Markdown 2.0
                 </span>
-                <div className="text-xs text-gray-500">现代化文档系统</div>
+                <div className="text-xs text-gray-500">AI 原生文档系统</div>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -61,34 +61,34 @@ export default function Home() {
         <div className="text-center">
           {/* 主标题 */}
           <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100/80 backdrop-blur-sm rounded-full text-blue-700 text-sm font-medium mb-6 border border-blue-200/50">
-              <Rocket className="w-4 h-4" />
-              <span>现代化文档管理解决方案</span>
-              <Star className="w-4 h-4 text-yellow-500" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100/80 to-purple-100/80 backdrop-blur-sm rounded-full text-blue-700 text-sm font-medium mb-6 border border-blue-200/50">
+              <Bot className="w-4 h-4" />
+              <span>AI 原生文档管理系统 2.0</span>
+              <Sparkles className="w-4 h-4 text-yellow-500" />
             </div>
             <h1 className="text-5xl sm:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
-                现代化的
+                AI 原生的
               </span>
               <br />
               <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse">
-                Markdown
+                智能文档
               </span>
               <br />
               <span className="bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
-                文档系统
+                管理系统
               </span>
             </h1>
           </div>
 
           {/* 副标题 */}
           <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-5xl mx-auto leading-relaxed">
-            集成 <span className="text-blue-600 font-semibold">协作评论</span>、
-            <span className="text-green-600 font-semibold">文本标注</span>、
-            <span className="text-purple-600 font-semibold">多视图编辑</span>、
-            <span className="text-orange-600 font-semibold">拖拽管理</span> 的企业级文档系统
+            通过 <span className="text-blue-600 font-semibold">MCP 协议</span> 与
+            <span className="text-purple-600 font-semibold">Cursor 深度集成</span>，
+            支持 <span className="text-green-600 font-semibold">智能记忆</span>、
+            <span className="text-orange-600 font-semibold">自然语言交互</span> 的 AI 原生文档系统
             <br />
-            <span className="text-lg text-gray-500">让团队协作和知识管理变得简单高效</span>
+            <span className="text-lg text-gray-500">让 AI 成为您的智能文档助手，开启个性化知识管理新时代</span>
           </p>
 
           {/* CTA 按钮 */}
@@ -124,13 +124,16 @@ export default function Home() {
                 <span className="font-medium">Made by leeguoo</span>
               </div>
               <span className="px-4 py-2 bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 rounded-full font-medium border border-purple-200/50">
-                Next.js 14
+                Next.js 15
               </span>
               <span className="px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 rounded-full font-medium border border-blue-200/50">
                 TypeScript
               </span>
+              <span className="px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full font-medium border border-green-200/50">
+                MCP 协议
+              </span>
               <span className="px-4 py-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 rounded-full font-medium border border-orange-200/50">
-                生产级安全
+                AI 原生
               </span>
             </div>
             <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200/50 rounded-2xl p-6 max-w-3xl">
@@ -139,6 +142,74 @@ export default function Home() {
                 <br />
                 <span className="text-gray-600">你的每一个 Star 都是我继续优化的动力！</span>
               </p>
+            </div>
+          </div>
+
+          {/* AI 功能亮点 */}
+          <div className="mb-20">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                🤖 AI 原生体验
+              </h2>
+              <p className="text-gray-600 text-lg">
+                通过 MCP 协议与 Cursor 深度集成，让 AI 真正理解您的需求
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 mb-16">
+              {/* MCP 集成 */}
+              <div className="group relative bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Link2 className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                    MCP 协议集成
+                  </h3>
+                  <p className="text-gray-600 text-center leading-relaxed mb-4">
+                    与 Cursor 编辑器无缝集成，通过自然语言直接管理文档，AI 可以创建、搜索、更新文档。
+                  </p>
+                  <div className="bg-gray-50 rounded-xl p-4 text-sm text-gray-700">
+                    <div className="font-mono">
+                      <div className="text-blue-600">你:</div>
+                      <div className="mb-2">"帮我创建一个 API 文档"</div>
+                      <div className="text-green-600">AI:</div>
+                      <div>"文档创建成功！<br/>📖 在线地址: localhost:3000/docs/api-guide"</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 智能记忆 */}
+              <div className="group relative bg-gradient-to-br from-white to-purple-50/50 p-8 rounded-3xl shadow-xl hover:shadow-2xl border border-gray-200/50 transition-all duration-500 hover:-translate-y-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mb-6 mx-auto shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Brain className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center">
+                    智能记忆系统
+                  </h3>
+                  <p className="text-gray-600 text-center leading-relaxed mb-4">
+                    AI 自动记录您的习惯、偏好和经验，支持多项目记忆管理，让每次交互都更加个性化。
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-blue-100 text-blue-700 rounded-lg p-2 text-center font-medium">
+                      习惯记录
+                    </div>
+                    <div className="bg-green-100 text-green-700 rounded-lg p-2 text-center font-medium">
+                      偏好管理
+                    </div>
+                    <div className="bg-orange-100 text-orange-700 rounded-lg p-2 text-center font-medium">
+                      复盘记录
+                    </div>
+                    <div className="bg-purple-100 text-purple-700 rounded-lg p-2 text-center font-medium">
+                      洞察学习
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -511,13 +582,13 @@ export default function Home() {
                 </div>
                 <div>
                   <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    文档中心
+                    Misonote Markdown 2.0
                   </span>
-                  <div className="text-sm text-gray-500">现代化文档系统</div>
+                  <div className="text-sm text-gray-500">AI 原生文档系统</div>
                 </div>
               </div>
               <p className="text-gray-600 leading-relaxed">
-                为现代开发者打造的完整文档解决方案，让文档管理变得简单而高效。
+                通过 MCP 协议与 AI 深度集成的智能文档系统，让 AI 成为您的文档管理助手。
               </p>
             </div>
 

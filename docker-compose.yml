@@ -29,6 +29,30 @@ services:
     networks:
       - markdown-network
 
+  # MCP 客户端服务
+  mcp-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: misonote-mcp-client
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./mcp-client:/app/mcp-client
+      - ./.env:/app/.env
+    environment:
+      - NODE_ENV=production
+      - MCP_SERVER_URL=http://misonote-markdown:3001
+      - MCP_API_KEY=${MCP_API_KEY:-}
+    depends_on:
+      - misonote-markdown
+    restart: unless-stopped
+    command: ["node", "/app/mcp-client/misonote-mcp-client.js"]
+    networks:
+      - markdown-network
+    profiles:
+      - mcp
+
   # 可选：添加 Nginx 反向代理
   nginx:
     image: nginx:alpine
