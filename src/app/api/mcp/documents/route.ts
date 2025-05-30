@@ -47,6 +47,11 @@ export async function GET(request: NextRequest) {
           const content = fs.readFileSync(fullPath, 'utf-8');
           const fileInfo = await fileSystemManager.getFileInfo(filePath);
 
+          // 生成在线观看地址
+          const viewUrl = `/docs/${encodeURIComponent(path)}`;
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+          const fullUrl = `${baseUrl}${viewUrl}`;
+
           return NextResponse.json({
             success: true,
             data: {
@@ -55,7 +60,9 @@ export async function GET(request: NextRequest) {
               name: filePath.split('/').pop(),
               size: content.length,
               lastModified: fileInfo.metadata?.lastModified || new Date().toISOString(),
-              type: 'markdown'
+              type: 'markdown',
+              viewUrl: viewUrl,
+              fullUrl: fullUrl
             },
             message: '文档内容获取成功',
             timestamp: new Date().toISOString()
@@ -150,21 +157,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: {
-          documents: markdownFiles.map(file => ({
-            path: file.path,
-            name: file.name,
-            size: file.size || 0,
-            lastModified: file.lastModified,
-            type: 'markdown',
-            // 搜索相关字段
-            ...(searchQuery && {
-              relevanceScore: file.relevanceScore || 0,
-              matchedSnippets: file.matchedSnippets || [],
-              excerpt: file.matchedSnippets && file.matchedSnippets.length > 0
-                ? file.matchedSnippets[0]
-                : (file.content ? file.content.substring(0, 200) + '...' : '')
-            })
-          })),
+          documents: markdownFiles.map(file => {
+            const viewUrl = `/docs/${encodeURIComponent(file.path)}`;
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+            const fullUrl = `${baseUrl}${viewUrl}`;
+
+            return {
+              path: file.path,
+              name: file.name,
+              size: file.size || 0,
+              lastModified: file.lastModified,
+              type: 'markdown',
+              viewUrl: viewUrl,
+              fullUrl: fullUrl,
+              // 搜索相关字段
+              ...(searchQuery && {
+                relevanceScore: file.relevanceScore || 0,
+                matchedSnippets: file.matchedSnippets || [],
+                excerpt: file.matchedSnippets && file.matchedSnippets.length > 0
+                  ? file.matchedSnippets[0]
+                  : (file.content ? file.content.substring(0, 200) + '...' : '')
+              })
+            };
+          }),
           total: markdownFiles.length,
           path: path,
           // 搜索元信息
@@ -303,14 +318,24 @@ export async function POST(request: NextRequest) {
         size: documentContent.length
       });
 
+      // 生成在线观看地址
+      const docPath = filePath.replace('.md', '');
+      const viewUrl = `/docs/${encodeURIComponent(docPath)}`;
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const fullUrl = `${baseUrl}${viewUrl}`;
+
       return NextResponse.json({
         success: true,
         data: {
           path: filePath,
+          docPath: docPath,
           operation,
           size: fileInfo?.metadata?.size || documentContent.length,
           lastModified: fileInfo?.metadata?.lastModified || new Date(),
-          url: `/docs/${encodeURIComponent(filePath.replace('.md', ''))}`
+          viewUrl: viewUrl,
+          fullUrl: fullUrl,
+          // 保持向后兼容
+          url: viewUrl
         },
         message: `文档${operation === 'create' ? '创建' : '更新'}成功`,
         timestamp: new Date().toISOString()

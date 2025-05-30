@@ -259,6 +259,20 @@ const TOOLS = [
       type: 'object',
       properties: {}
     }
+  },
+  {
+    name: 'get_document_url',
+    description: '获取文档的在线观看地址',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        path: {
+          type: 'string',
+          description: '文档路径',
+        }
+      },
+      required: ['path']
+    }
   }
 ];
 
@@ -307,6 +321,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case 'list_memory_projects':
         return await listMemoryProjects();
+
+      case 'get_document_url':
+        return await getDocumentUrl(args.path);
 
       default:
         throw new McpError(
@@ -369,7 +386,7 @@ async function getDocument(path) {
       content: [
         {
           type: 'text',
-          text: `文档路径: ${documentData.path}\n文档名称: ${documentData.name}\n文档大小: ${documentData.size} 字节\n最后修改: ${new Date(documentData.lastModified).toLocaleString()}\n\n--- 文档内容 ---\n\n${documentData.content}`
+          text: `文档路径: ${documentData.path}\n文档名称: ${documentData.name}\n文档大小: ${documentData.size} 字节\n最后修改: ${new Date(documentData.lastModified).toLocaleString()}\n${documentData.fullUrl ? `在线地址: ${documentData.fullUrl}\n` : ''}\n--- 文档内容 ---\n\n${documentData.content}`
         }
       ]
     };
@@ -393,7 +410,7 @@ async function createDocument(path, content, title, metadata) {
       content: [
         {
           type: 'text',
-          text: `文档创建成功!\n路径: ${response.data.data.path}\n大小: ${response.data.data.size} 字节\n访问链接: ${SERVER_URL}${response.data.data.url}`
+          text: `文档创建成功!\n路径: ${response.data.data.path}\n大小: ${response.data.data.size} 字节\n${response.data.data.fullUrl ? `在线地址: ${response.data.data.fullUrl}` : `访问链接: ${SERVER_URL}${response.data.data.url}`}\n\n📖 点击地址即可在浏览器中查看文档。`
         }
       ]
     };
@@ -417,7 +434,7 @@ async function updateDocument(path, content, title, metadata) {
       content: [
         {
           type: 'text',
-          text: `文档更新成功!\n路径: ${response.data.data.path}\n大小: ${response.data.data.size} 字节\n访问链接: ${SERVER_URL}${response.data.data.url}`
+          text: `文档更新成功!\n路径: ${response.data.data.path}\n大小: ${response.data.data.size} 字节\n${response.data.data.fullUrl ? `在线地址: ${response.data.data.fullUrl}` : `访问链接: ${SERVER_URL}${response.data.data.url}`}\n\n📖 点击地址即可在浏览器中查看更新后的文档。`
         }
       ]
     };
@@ -513,6 +530,10 @@ async function searchDocuments(query, searchType = 'content', path = '') {
       resultText += `   路径: ${doc.path}\n`;
       resultText += `   大小: ${doc.size} 字节\n`;
       resultText += `   修改时间: ${new Date(doc.lastModified).toLocaleString()}\n`;
+
+      if (doc.fullUrl) {
+        resultText += `   在线地址: ${doc.fullUrl}\n`;
+      }
 
       if (doc.relevanceScore) {
         resultText += `   相关性: ${doc.relevanceScore}/10\n`;
@@ -821,6 +842,47 @@ async function listMemoryProjects() {
     };
   } catch (error) {
     throw new Error(`获取记忆项目列表失败: ${error.response?.data?.error || error.message}`);
+  }
+}
+
+async function getDocumentUrl(path) {
+  try {
+    // 生成文档地址
+    const cleanPath = path.replace('.md', '');
+    const viewUrl = `/docs/${encodeURIComponent(cleanPath)}`;
+    const fullUrl = `${SERVER_URL}${viewUrl}`;
+
+    // 检查文档是否存在
+    const apiClient = createApiClient();
+    try {
+      await apiClient.get('/api/mcp/documents', {
+        params: {
+          path: cleanPath,
+          content: 'false'  // 只检查存在性，不获取内容
+        }
+      });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `🔗 文档地址\n\n文档路径: ${path}\n在线地址: ${fullUrl}\n\n📖 点击地址即可在浏览器中查看文档内容。`
+          }
+        ]
+      };
+    } catch (error) {
+      // 文档不存在，但仍然返回地址
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `🔗 文档地址\n\n文档路径: ${path}\n在线地址: ${fullUrl}\n\n⚠️ 注意: 该文档可能不存在，请先创建文档后再访问。`
+          }
+        ]
+      };
+    }
+  } catch (error) {
+    throw new Error(`生成文档地址失败: ${error.message}`);
   }
 }
 
