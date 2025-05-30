@@ -64,7 +64,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   const { showToast } = useToast();
 
   return (
-    <div className="prose prose-slate max-w-none  ">
+    <div className="prose prose-slate max-w-none">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeHighlight]}
@@ -88,7 +88,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           pre({ children }) {
             return (
-              <pre className="bg-gray-50   rounded-lg p-4 overflow-x-auto">
+              <pre className="bg-gray-50 rounded-lg p-4 overflow-x-auto">
                 {children}
               </pre>
             );
@@ -104,7 +104,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           th({ children }) {
             return (
-              <th className="px-6 py-3 bg-gray-50   text-left text-xs font-medium text-gray-500   uppercase tracking-wider">
+              <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 {children}
               </th>
             );
@@ -118,7 +118,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           },
           blockquote({ children }) {
             return (
-              <blockquote className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50   my-4">
+              <blockquote className="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 my-4">
                 {children}
               </blockquote>
             );
@@ -187,7 +187,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
             return (
               <a
                 href={href}
-                className="text-blue-600   hover:text-blue-800   underline"
+                className="text-blue-600 hover:text-blue-800 underline"
                 target={href?.startsWith('http') ? '_blank' : undefined}
                 rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
               >

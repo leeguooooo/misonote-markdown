@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const results = searchDocs(query);
-    
+
     // Limit results and add preview
     const limitedResults = results.slice(0, 10).map(doc => ({
       id: doc.id,
@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
       lastModified: doc.lastModified,
     }));
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       results: limitedResults,
-      total: results.length 
+      total: results.length
     });
   } catch (error) {
     console.error('Search error:', error);

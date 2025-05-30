@@ -67,7 +67,7 @@ export default function CacheMonitor() {
 
   useEffect(() => {
     fetchStats();
-    
+
     // 每30秒自动刷新统计信息
     const interval = setInterval(fetchStats, 30000);
     return () => clearInterval(interval);
@@ -80,7 +80,7 @@ export default function CacheMonitor() {
           <Database className="w-5 h-5 text-blue-600" />
           <h3 className="text-lg font-semibold text-gray-900">缓存监控</h3>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <button
             onClick={fetchStats}
@@ -90,7 +90,7 @@ export default function CacheMonitor() {
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             刷新
           </button>
-          
+
           <button
             onClick={clearCache}
             disabled={loading}

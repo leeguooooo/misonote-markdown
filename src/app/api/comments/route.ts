@@ -98,10 +98,10 @@ export async function POST(request: NextRequest) {
     // 验证认证（可选，如果需要登录才能评论）
     // const user = authenticateRequest(request);
     // if (!user) {
-    //   return NextResponse.json(
-    //     { error: '未授权访问' },
-    //     { status: 401 }
-    //   );
+    // return NextResponse.json(
+    //   { error: '未授权访问' },
+    //   { status: 401 }
+    // );
     // }
 
     const { content, docPath, parentId, author = '匿名用户', authorRole = 'guest' } = await request.json();

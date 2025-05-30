@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
     // 验证密码
     const isValid = await verifyAdminPassword(password);
-    
+
     if (!isValid) {
       return NextResponse.json(
         { error: '密码错误' },

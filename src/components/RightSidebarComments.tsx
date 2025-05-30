@@ -219,13 +219,13 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
           setComments(prev => prev.map(comment =>
             comment.id === parentId
               ? {
-                  ...comment,
-                  replies: comment.replies.map(reply =>
-                    reply.id === commentId
-                      ? { ...reply, likes: reply.likes + (reply.isLiked ? -1 : 1), isLiked: !reply.isLiked }
-                      : reply
-                  )
-                }
+                ...comment,
+                replies: comment.replies.map(reply =>
+                  reply.id === commentId
+                    ? { ...reply, likes: reply.likes + (reply.isLiked ? -1 : 1), isLiked: !reply.isLiked }
+                    : reply
+                )
+              }
               : comment
           ));
         } else {
@@ -268,9 +268,9 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
           setComments(prev => prev.map(comment =>
             comment.id === parentId
               ? {
-                  ...comment,
-                  replies: comment.replies.filter(reply => reply.id !== commentId)
-                }
+                ...comment,
+                replies: comment.replies.filter(reply => reply.id !== commentId)
+              }
               : comment
           ));
         } else {
@@ -387,127 +387,126 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
     }, []);
 
     return (
-    <div className={`${isReply ? 'ml-6 mt-3' : 'mb-4'} bg-gray-50   rounded-lg p-3`}>
-      <div className="flex items-start gap-2">
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${getUserBadgeColor(comment.authorRole)}`}>
-          {comment.author[0]}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium text-gray-900   text-sm">{comment.author}</span>
-            {getRoleIcon(comment.authorRole)}
-            <span className="text-xs text-gray-500   flex items-center gap-1">
-              <Clock className="w-3 h-3" />
-              {formatTime(comment.timestamp)}
-            </span>
+      <div className={`${isReply ? 'ml-6 mt-3' : 'mb-4'} bg-gray-50   rounded-lg p-3`}>
+        <div className="flex items-start gap-2">
+          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${getUserBadgeColor(comment.authorRole)}`}>
+            {comment.author[0]}
           </div>
 
-          <p className="text-gray-700   text-sm mb-2 leading-relaxed">{comment.content}</p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-medium text-gray-900   text-sm">{comment.author}</span>
+              {getRoleIcon(comment.authorRole)}
+              <span className="text-xs text-gray-500   flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {formatTime(comment.timestamp)}
+              </span>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => handleLike(comment.id, isReply, parentId)}
-              className={`flex items-center gap-1 text-xs transition-colors ${
-                comment.isLiked
+            <p className="text-gray-700   text-sm mb-2 leading-relaxed">{comment.content}</p>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleLike(comment.id, isReply, parentId)}
+                className={`flex items-center gap-1 text-xs transition-colors ${comment.isLiked
                   ? 'text-red-500'
                   : 'text-gray-500 hover:text-red-500    '
-              }`}
-            >
-              <Heart className={`w-3 h-3 ${comment.isLiked ? 'fill-current' : ''}`} />
-              {comment.likes > 0 && <span>{comment.likes}</span>}
-            </button>
-
-            {!isReply && (
-              <button
-                onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500     transition-colors"
+                  }`}
               >
-                <Reply className="w-3 h-3" />
-                回复
+                <Heart className={`w-3 h-3 ${comment.isLiked ? 'fill-current' : ''}`} />
+                {comment.likes > 0 && <span>{comment.likes}</span>}
               </button>
-            )}
 
-            {/* 管理员删除按钮 */}
-            {user?.isRealAdmin && (
-              <button
-                onClick={() => handleDeleteComment(comment.id, isReply, parentId)}
-                disabled={deletingCommentId === comment.id}
-                className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500     transition-colors disabled:opacity-50"
-                title="删除评论"
-              >
-                <Trash2 className="w-3 h-3" />
-                {deletingCommentId === comment.id ? '删除中...' : '删除'}
-              </button>
-            )}
-          </div>
-
-          {/* 回复输入框 - 使用优化后的状态管理 */}
-          {replyTo === comment.id && (
-            <div className="mt-3 p-2 bg-white   rounded">
-              <textarea
-                ref={replyInputRef}
-                value={localValue}
-                onChange={handleInputChange}
-                onCompositionStart={handleCompositionStart}
-                onCompositionEnd={(e) => {
-                  handleCompositionEnd();
-                  // 输入法结束后确保状态同步
-                  const value = e.currentTarget.value;
-                  setLocalValue(value);
-                  setReplyContent(value);
-                }}
-                placeholder={`回复 ${comment.author}...`}
-                className="w-full p-2 text-sm border border-gray-300   rounded resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-1 focus:ring-blue-500 focus:border-transparent"
-                rows={2}
-              />
-              <div className="flex justify-end gap-2 mt-2">
+              {!isReply && (
                 <button
-                  onClick={() => {
-                    // 立即清理状态，确保响应性
-                    setReplyTo(null);
-                    setReplyContent('');
-                    setLocalValue('');
-                  }}
-                  className="px-2 py-1 text-xs text-gray-600   hover:text-gray-800  "
+                  onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
+                  className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-500     transition-colors"
                 >
-                  取消
-                </button>
-                <button
-                  onClick={() => {
-                    // 确保使用最新的本地值
-                    if (localValue.trim()) {
-                      setReplyContent(localValue);
-                      handleSubmitReply(comment.id);
-                    }
-                  }}
-                  disabled={!localValue.trim() || isLoading}
-                  className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                  <Reply className="w-3 h-3" />
                   回复
                 </button>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* 回复列表 */}
-          {comment.replies.length > 0 && (
-            <div className="mt-3">
-              {comment.replies
-                .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-                .map(reply => (
-                  <CommentItem
-                    key={reply.id}
-                    comment={reply}
-                    isReply={true}
-                    parentId={comment.id}
-                  />
-                ))}
+              {/* 管理员删除按钮 */}
+              {user?.isRealAdmin && (
+                <button
+                  onClick={() => handleDeleteComment(comment.id, isReply, parentId)}
+                  disabled={deletingCommentId === comment.id}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500     transition-colors disabled:opacity-50"
+                  title="删除评论"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  {deletingCommentId === comment.id ? '删除中...' : '删除'}
+                </button>
+              )}
             </div>
-          )}
+
+            {/* 回复输入框 - 使用优化后的状态管理 */}
+            {replyTo === comment.id && (
+              <div className="mt-3 p-2 bg-white   rounded">
+                <textarea
+                  ref={replyInputRef}
+                  value={localValue}
+                  onChange={handleInputChange}
+                  onCompositionStart={handleCompositionStart}
+                  onCompositionEnd={(e) => {
+                    handleCompositionEnd();
+                    // 输入法结束后确保状态同步
+                    const value = e.currentTarget.value;
+                    setLocalValue(value);
+                    setReplyContent(value);
+                  }}
+                  placeholder={`回复 ${comment.author}...`}
+                  className="w-full p-2 text-sm border border-gray-300   rounded resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                  rows={2}
+                />
+                <div className="flex justify-end gap-2 mt-2">
+                  <button
+                    onClick={() => {
+                      // 立即清理状态，确保响应性
+                      setReplyTo(null);
+                      setReplyContent('');
+                      setLocalValue('');
+                    }}
+                    className="px-2 py-1 text-xs text-gray-600   hover:text-gray-800  "
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={() => {
+                      // 确保使用最新的本地值
+                      if (localValue.trim()) {
+                        setReplyContent(localValue);
+                        handleSubmitReply(comment.id);
+                      }
+                    }}
+                    disabled={!localValue.trim() || isLoading}
+                    className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    回复
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 回复列表 */}
+            {comment.replies.length > 0 && (
+              <div className="mt-3">
+                {comment.replies
+                  .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+                  .map(reply => (
+                    <CommentItem
+                      key={reply.id}
+                      comment={reply}
+                      isReply={true}
+                      parentId={comment.id}
+                    />
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     );
   };
 

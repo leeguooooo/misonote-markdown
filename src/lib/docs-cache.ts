@@ -25,19 +25,19 @@ class DocsCache {
   private readonly DOCS_DIR = path.join(process.cwd(), 'docs');
 
   /**
-   * 检查文件是否需要重新读取
-   */
+ * 检查文件是否需要重新读取
+ */
   private needsRefresh(filePath: string, currentMtime: Date): boolean {
     const cached = this.cache.get(filePath);
     if (!cached) return true;
-    
+
     // 检查文件修改时间
     return currentMtime.getTime() !== cached.lastModified.getTime();
   }
 
   /**
-   * 检查目录是否需要重新扫描
-   */
+ * 检查目录是否需要重新扫描
+ */
   private needsDirectoryScan(dirPath: string): boolean {
     const cached = this.directoryCache.get(dirPath);
     if (!cached) return true;
@@ -45,12 +45,12 @@ class DocsCache {
     try {
       const stat = fs.statSync(dirPath);
       const now = new Date();
-      
+
       // 检查缓存是否过期
       if (now.getTime() - cached.lastScan.getTime() > this.CACHE_TTL) {
         return true;
       }
-      
+
       // 检查目录修改时间
       return stat.mtime.getTime() !== cached.directoryMtime.getTime();
     } catch (error) {
@@ -59,18 +59,18 @@ class DocsCache {
   }
 
   /**
-   * 获取单个文档（带缓存）
-   */
+ * 获取单个文档（带缓存）
+ */
   getDocBySlug(slug: string[]): DocFile | null {
     const filePath = path.join(this.DOCS_DIR, ...slug) + '.md';
-    
+
     try {
       if (!fs.existsSync(filePath)) {
         return null;
       }
 
       const stat = fs.statSync(filePath);
-      
+
       // 检查是否需要重新读取
       if (!this.needsRefresh(filePath, stat.mtime)) {
         const cached = this.cache.get(filePath);
@@ -111,8 +111,8 @@ class DocsCache {
   }
 
   /**
-   * 获取所有文档（带缓存）
-   */
+ * 获取所有文档（带缓存）
+ */
   getAllDocs(): DocFile[] {
     if (!this.needsDirectoryScan(this.DOCS_DIR)) {
       const cached = this.directoryCache.get(this.DOCS_DIR);
@@ -166,8 +166,8 @@ class DocsCache {
   }
 
   /**
-   * 清除缓存
-   */
+ * 清除缓存
+ */
   clearCache(): void {
     this.cache.clear();
     this.directoryCache.clear();
@@ -175,16 +175,16 @@ class DocsCache {
   }
 
   /**
-   * 清除特定文件的缓存
-   */
+ * 清除特定文件的缓存
+ */
   clearFileCache(filePath: string): void {
     this.cache.delete(filePath);
     console.log(`🗑️ 已清除文件缓存: ${filePath}`);
   }
 
   /**
-   * 获取缓存统计信息
-   */
+ * 获取缓存统计信息
+ */
   getCacheStats() {
     return {
       filesCached: this.cache.size,

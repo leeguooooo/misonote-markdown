@@ -26,7 +26,7 @@ export default function DragDropUpload({
     e.preventDefault();
     e.stopPropagation();
     setDragCounter(prev => prev + 1);
-    
+
     if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
       setIsDragOver(true);
     }
@@ -36,7 +36,7 @@ export default function DragDropUpload({
     e.preventDefault();
     e.stopPropagation();
     setDragCounter(prev => prev - 1);
-    
+
     if (dragCounter <= 1) {
       setIsDragOver(false);
     }
@@ -121,20 +121,20 @@ export default function DragDropUpload({
         onDrop={handleDrop}
         onClick={handleClick}
         className={`
-          flex flex-col items-center justify-center w-full h-32 
-          border-2 border-dashed rounded-lg cursor-pointer 
-          transition-all duration-200 ease-in-out
-          ${isDragOver 
-            ? 'border-blue-500 bg-blue-50   scale-105' 
-            : 'border-gray-300   bg-gray-50   hover:bg-gray-100  '
+    flex flex-col items-center justify-center w-full h-32 
+    border-2 border-dashed rounded-lg cursor-pointer 
+    transition-all duration-200 ease-in-out
+    ${isDragOver
+            ? 'border-blue-500 bg-blue-50 scale-105'
+            : 'border-gray-300 bg-gray-50 hover:bg-gray-100  '
           }
-        `}
+    `}
       >
         <div className="flex flex-col items-center justify-center pt-2 pb-3">
           <div className="mb-2">
             {getStatusIcon()}
           </div>
-          
+
           {isDragOver ? (
             <div className="text-center">
               <p className="text-sm font-medium text-blue-600  ">
@@ -149,7 +149,7 @@ export default function DragDropUpload({
               <p className="text-sm text-gray-600  ">
                 <span className="font-medium">点击上传</span> 或拖拽文件到此处
               </p>
-              <p className="text-xs text-gray-500   mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 支持 Markdown (.md) 文件{multiple ? '，可多选' : ''}
               </p>
             </div>

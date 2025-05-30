@@ -51,9 +51,8 @@ export default function Toast({ message, type = 'success', duration = 3000, onCl
 
   return (
     <div
-      className={`fixed top-20 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transition-all duration-300 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
-      } ${getBackgroundColor()}`}
+      className={`fixed top-20 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg transition-all duration-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+        } ${getBackgroundColor()}`}
     >
       {getIcon()}
       <span className="text-sm font-medium text-gray-800">{message}</span>

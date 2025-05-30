@@ -35,8 +35,8 @@ export default function DocsLayoutClient({ docTree, children }: DocsLayoutClient
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50 relative">
       {/* 文档页面背景网格 - 多层叠加 */}
-      <div className="fixed inset-0 bg-grid-docs opacity-50 pointer-events-none"></div>
-      <div className="fixed inset-0 bg-grid-floating opacity-60 pointer-events-none"></div>
+      <div className="fixed inset-0 bg-grid-docs opacity-20 pointer-events-none"></div>
+      <div className="fixed inset-0 bg-grid-floating opacity-30 pointer-events-none"></div>
 
       {/* 微妙的浮动装饰 */}
       <div className="fixed top-20 right-10 w-32 h-32 bg-blue-400/8 rounded-full blur-2xl pointer-events-none animate-pulse" style={{ animationDuration: '4s' }}></div>

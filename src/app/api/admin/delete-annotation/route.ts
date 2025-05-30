@@ -16,11 +16,11 @@ function ensureDataDirectory() {
 // 读取标注数据
 function readAnnotations() {
   ensureDataDirectory();
-  
+
   if (!fs.existsSync(ANNOTATIONS_FILE)) {
     return [];
   }
-  
+
   try {
     const data = fs.readFileSync(ANNOTATIONS_FILE, 'utf-8');
     return JSON.parse(data);
@@ -33,7 +33,7 @@ function readAnnotations() {
 // 写入标注数据
 function writeAnnotations(annotations: any[]) {
   ensureDataDirectory();
-  
+
   try {
     fs.writeFileSync(ANNOTATIONS_FILE, JSON.stringify(annotations, null, 2));
   } catch (error) {
@@ -57,29 +57,29 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const annotationId = searchParams.get('annotationId');
     const docPath = searchParams.get('docPath');
-    
+
     if (!annotationId || !docPath) {
       return NextResponse.json(
         { error: 'annotationId and docPath are required' },
         { status: 400 }
       );
     }
-    
+
     const annotations = readAnnotations();
     const filteredAnnotations = annotations.filter(
       (annotation: any) => !(annotation.id === annotationId && annotation.docPath === docPath)
     );
-    
+
     if (filteredAnnotations.length === annotations.length) {
       return NextResponse.json(
         { error: 'Annotation not found' },
         { status: 404 }
       );
     }
-    
+
     writeAnnotations(filteredAnnotations);
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       success: true,
       message: '标注已删除'
     });

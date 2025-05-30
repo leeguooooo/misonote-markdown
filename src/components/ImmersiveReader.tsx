@@ -34,8 +34,8 @@ const ImmersiveContext = createContext<ImmersiveContextType>({
     maxWidth: 800,
     showProgress: true,
   },
-  updateSettings: () => {},
-  toggleImmersive: () => {},
+  updateSettings: () => { },
+  toggleImmersive: () => { },
 });
 
 export const useImmersive = () => useContext(ImmersiveContext);
@@ -164,7 +164,7 @@ export default function ImmersiveReader() {
         {/* 设置按钮 */}
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="p-2 bg-white   text-gray-700   rounded-lg shadow-lg hover:bg-gray-50   transition-colors"
+          className="p-2 bg-white text-gray-700 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
           title="阅读设置"
         >
           <Settings className="w-4 h-4" />
@@ -173,7 +173,7 @@ export default function ImmersiveReader() {
         {/* 退出沉浸式 */}
         <button
           onClick={toggleImmersive}
-          className="p-2 bg-white   text-gray-700   rounded-lg shadow-lg hover:bg-gray-50   transition-colors"
+          className="p-2 bg-white text-gray-700 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
           title="退出沉浸式阅读"
         >
           <Minimize className="w-4 h-4" />
@@ -182,7 +182,7 @@ export default function ImmersiveReader() {
 
       {/* 设置面板 */}
       {showSettings && (
-        <div className="fixed top-16 right-4 z-50 w-80 bg-white   rounded-lg shadow-xl border border-gray-200   p-4">
+        <div className="fixed top-16 right-4 z-50 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-900  ">阅读设置</h3>
             <button
@@ -205,11 +205,11 @@ export default function ImmersiveReader() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => updateSettings({ fontSize: Math.max(12, settings.fontSize - 1) })}
-                  className="p-1 bg-gray-200   text-gray-700   rounded hover:bg-gray-300  "
+                  className="p-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300  "
                 >
                   <Minus className="w-3 h-3" />
                 </button>
-                <div className="flex-1 bg-gray-200   rounded-full h-2">
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all"
                     style={{ width: `${((settings.fontSize - 12) / (24 - 12)) * 100}%` }}
@@ -217,7 +217,7 @@ export default function ImmersiveReader() {
                 </div>
                 <button
                   onClick={() => updateSettings({ fontSize: Math.min(24, settings.fontSize + 1) })}
-                  className="p-1 bg-gray-200   text-gray-700   rounded hover:bg-gray-300  "
+                  className="p-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300  "
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -233,11 +233,11 @@ export default function ImmersiveReader() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => updateSettings({ lineHeight: Math.max(1.2, settings.lineHeight - 0.1) })}
-                  className="p-1 bg-gray-200   text-gray-700   rounded hover:bg-gray-300  "
+                  className="p-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300  "
                 >
                   <Minus className="w-3 h-3" />
                 </button>
-                <div className="flex-1 bg-gray-200   rounded-full h-2">
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all"
                     style={{ width: `${((settings.lineHeight - 1.2) / (2.0 - 1.2)) * 100}%` }}
@@ -245,7 +245,7 @@ export default function ImmersiveReader() {
                 </div>
                 <button
                   onClick={() => updateSettings({ lineHeight: Math.min(2.0, settings.lineHeight + 0.1) })}
-                  className="p-1 bg-gray-200   text-gray-700   rounded hover:bg-gray-300  "
+                  className="p-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300  "
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -257,11 +257,10 @@ export default function ImmersiveReader() {
               <span className="text-sm text-gray-700  ">显示阅读进度</span>
               <button
                 onClick={() => updateSettings({ showProgress: !settings.showProgress })}
-                className={`p-2 rounded-lg transition-colors ${
-                  settings.showProgress
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200   text-gray-700  '
-                }`}
+                className={`p-2 rounded-lg transition-colors ${settings.showProgress
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700  '
+                  }`}
               >
                 {settings.showProgress ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
               </button>
@@ -269,7 +268,7 @@ export default function ImmersiveReader() {
 
             {/* 阅读进度显示 */}
             {settings.showProgress && (
-              <div className="text-center p-2 bg-gray-100   rounded-lg">
+              <div className="text-center p-2 bg-gray-100 rounded-lg">
                 <span className="text-sm text-gray-600  ">
                   阅读进度: {readingProgress.toFixed(1)}%
                 </span>

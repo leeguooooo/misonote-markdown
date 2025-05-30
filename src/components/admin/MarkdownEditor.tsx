@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { 
-  Eye, 
-  Edit3, 
-  Save, 
-  RotateCcw, 
-  Type, 
-  Bold, 
-  Italic, 
-  Link, 
-  List, 
+import {
+  Eye,
+  Edit3,
+  Save,
+  RotateCcw,
+  Type,
+  Bold,
+  Italic,
+  Link,
+  List,
   ListOrdered,
   Quote,
   Code,
@@ -66,14 +66,14 @@ export default function MarkdownEditor({
     const selectedText = textarea.value.substring(start, end);
     const textToInsert = selectedText || placeholder;
     const newText = before + textToInsert + after;
-    
-    const newContent = 
-      textarea.value.substring(0, start) + 
-      newText + 
+
+    const newContent =
+      textarea.value.substring(0, start) +
+      newText +
       textarea.value.substring(end);
-    
+
     onContentChange(newContent);
-    
+
     // 设置新的光标位置
     setTimeout(() => {
       textarea.focus();
@@ -88,25 +88,25 @@ export default function MarkdownEditor({
 
     const start = textarea.selectionStart;
     const content = textarea.value;
-    
+
     // 找到当前行的开始
     const lineStart = content.lastIndexOf('\n', start - 1) + 1;
     const lineEnd = content.indexOf('\n', start);
     const currentLine = content.substring(lineStart, lineEnd === -1 ? content.length : lineEnd);
-    
+
     // 检查是否已经有前缀
     if (currentLine.startsWith(prefix)) {
       // 移除前缀
-      const newContent = 
-        content.substring(0, lineStart) + 
-        currentLine.substring(prefix.length) + 
+      const newContent =
+        content.substring(0, lineStart) +
+        currentLine.substring(prefix.length) +
         content.substring(lineEnd === -1 ? content.length : lineEnd);
       onContentChange(newContent);
     } else {
       // 添加前缀
-      const newContent = 
-        content.substring(0, lineStart) + 
-        prefix + currentLine + 
+      const newContent =
+        content.substring(0, lineStart) +
+        prefix + currentLine +
         content.substring(lineEnd === -1 ? content.length : lineEnd);
       onContentChange(newContent);
     }
@@ -171,7 +171,7 @@ export default function MarkdownEditor({
       e.preventDefault();
       onSave();
     }
-    
+
     // Tab 键插入空格
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -186,9 +186,9 @@ export default function MarkdownEditor({
   };
 
   return (
-    <div className={`flex flex-col bg-white   rounded-lg shadow-sm border border-gray-200   ${
-      isFullscreen ? 'fixed inset-0 z-50' : 'h-full'
-    }`}>
+    <div className={`flex flex-col bg-white rounded-lg shadow-sm border border-gray-200 ${isFullscreen ? 'fixed inset-0 z-50' : 'h-full'
+      }`}>
+      111
       {/* 工具栏 */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200  ">
         <div className="flex items-center gap-2">
@@ -199,37 +199,34 @@ export default function MarkdownEditor({
             )}
           </h3>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {/* 视图模式切换 */}
-          <div className="flex items-center bg-gray-100   rounded-lg p-1">
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setMode('edit')}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
-                mode === 'edit'
-                  ? 'bg-white   text-gray-900   shadow-sm'
-                  : 'text-gray-600  '
-              }`}
+              className={`px-3 py-1 rounded text-sm transition-colors ${mode === 'edit'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600  '
+                }`}
             >
               <Edit3 className="w-4 h-4" />
             </button>
             <button
               onClick={() => setMode('split')}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
-                mode === 'split'
-                  ? 'bg-white   text-gray-900   shadow-sm'
-                  : 'text-gray-600  '
-              }`}
+              className={`px-3 py-1 rounded text-sm transition-colors ${mode === 'split'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600  '
+                }`}
             >
               分屏
             </button>
             <button
               onClick={() => setMode('preview')}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
-                mode === 'preview'
-                  ? 'bg-white   text-gray-900   shadow-sm'
-                  : 'text-gray-600  '
-              }`}
+              className={`px-3 py-1 rounded text-sm transition-colors ${mode === 'preview'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600  '
+                }`}
             >
               <Eye className="w-4 h-4" />
             </button>
@@ -240,13 +237,13 @@ export default function MarkdownEditor({
             {hasUnsavedChanges && (
               <button
                 onClick={resetContent}
-                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800     transition-colors"
+                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800   transition-colors"
                 title="重置内容"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
             )}
-            
+
             <button
               onClick={onSave}
               className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition-colors flex items-center gap-1"
@@ -258,7 +255,7 @@ export default function MarkdownEditor({
             {onToggleFullscreen && (
               <button
                 onClick={onToggleFullscreen}
-                className="px-3 py-1 text-gray-600 hover:text-gray-800     transition-colors"
+                className="px-3 py-1 text-gray-600 hover:text-gray-800   transition-colors"
                 title={isFullscreen ? '退出全屏' : '全屏编辑'}
               >
                 {isFullscreen ? (
@@ -274,12 +271,12 @@ export default function MarkdownEditor({
 
       {/* 编辑工具栏 */}
       {(mode === 'edit' || mode === 'split') && (
-        <div className="flex items-center gap-1 p-2 border-b border-gray-200   bg-gray-50  ">
+        <div className="flex items-center gap-1 p-2 border-b border-gray-200 bg-gray-50  ">
           {toolbarButtons.map((button, index) => (
             <button
               key={index}
               onClick={button.action}
-              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200       rounded transition-colors"
+              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200   rounded transition-colors"
               title={button.title}
             >
               <button.icon className="w-4 h-4" />
@@ -298,7 +295,7 @@ export default function MarkdownEditor({
               value={file.content}
               onChange={(e) => onContentChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 p-4 border-0 resize-none font-mono text-sm focus:ring-0 focus:outline-none     leading-relaxed"
+              className="flex-1 p-4 border-0 resize-none font-mono text-sm focus:ring-0 focus:outline-none   leading-relaxed"
               placeholder="在这里编写 Markdown 内容..."
               spellCheck={false}
             />
@@ -323,7 +320,7 @@ export default function MarkdownEditor({
       </div>
 
       {/* 状态栏 */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200   bg-gray-50   text-xs text-gray-500  ">
+      <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-gray-50 text-xs text-gray-500  ">
         <div className="flex items-center gap-4">
           <span>字符数: {file.content.length}</span>
           <span>行数: {file.content.split('\n').length}</span>

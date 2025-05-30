@@ -12,18 +12,18 @@ export class RateLimiter {
   }
 
   /**
-   * 检查是否超过速率限制
-   */
+ * 检查是否超过速率限制
+ */
   isRateLimited(identifier: string): boolean {
     const now = Date.now();
     const windowStart = now - this.windowMs;
 
     // 获取或创建请求记录
     let requests = this.requests.get(identifier) || [];
-    
+
     // 清理过期的请求记录
     requests = requests.filter(timestamp => timestamp > windowStart);
-    
+
     // 检查是否超过限制
     if (requests.length >= this.maxRequests) {
       return true;
@@ -37,8 +37,8 @@ export class RateLimiter {
   }
 
   /**
-   * 清理过期的记录
-   */
+ * 清理过期的记录
+ */
   cleanup(): void {
     const now = Date.now();
     const windowStart = now - this.windowMs;

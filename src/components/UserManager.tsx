@@ -22,7 +22,7 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType>({
   user: null,
-  setUser: () => {},
+  setUser: () => { },
   isAdmin: false,
   isLoggedIn: false,
 });
@@ -196,7 +196,7 @@ export default function UserManager() {
   // 避免 hydration 错误
   if (!isMounted) {
     return (
-      <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900     transition-colors">
+      <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900   transition-colors">
         <User className="w-4 h-4" />
         登录
       </button>

@@ -20,10 +20,10 @@ interface DocPageProps {
 
 // 注释掉静态生成，改为服务端渲染以支持实时文档更新
 // export async function generateStaticParams() {
-//   const docs = getAllDocs();
-//   return docs.map((doc) => ({
-//     slug: doc.slug,
-//   }));
+// const docs = getAllDocs();
+// return docs.map((doc) => ({
+//   slug: doc.slug,
+// }));
 // }
 
 export async function generateMetadata({ params }: DocPageProps): Promise<Metadata> {
@@ -114,7 +114,7 @@ export default async function DocPage({ params }: DocPageProps) {
     <ImmersiveWrapper>
       <div className="space-y-8">
         {/* Document Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg">
           {/* Document Header */}
           <div className="border-b border-gray-200 px-8 py-6">
             <div className="flex items-start justify-between mb-4">
@@ -140,7 +140,7 @@ export default async function DocPage({ params }: DocPageProps) {
             <nav className="mt-4">
               <ol className="flex items-center space-x-2 text-sm">
                 <li>
-                  <a href="/docs" className="text-blue-600 hover:text-blue-800    ">
+                  <a href="/docs" className="text-blue-600 hover:text-blue-800  ">
                     文档
                   </a>
                 </li>
@@ -152,7 +152,7 @@ export default async function DocPage({ params }: DocPageProps) {
                     ) : (
                       <a
                         href={`/docs/${decodedSlug.slice(0, index + 1).map(s => encodeURIComponent(s)).join('/')}`}
-                        className="text-blue-600 hover:text-blue-800    "
+                        className="text-blue-600 hover:text-blue-800  "
                       >
                         {segment}
                       </a>
@@ -191,30 +191,30 @@ export default async function DocPage({ params }: DocPageProps) {
           </div>
         </div>
 
-      {/* 功能测试区域 */}
-      {/* <div className="bg-blue-50   border border-blue-200   rounded-lg p-6 mb-8">
-        <h3 className="text-lg font-semibold text-blue-900   mb-4">
-          🎯 功能测试区域
-        </h3>
-        <div className="space-y-3 text-blue-800  ">
-          <p>✅ <strong>用户登录</strong>：右上角登录选择身份（管理员/用户）</p>
-          <p>✅ <strong>划词标注</strong>：登录后选中文档文字，会出现标注菜单</p>
-          <p>✅ <strong>右侧评论栏</strong>：在右侧可以看到评论区域（大屏幕显示）</p>
-          <p>✅ <strong>沉浸式阅读</strong>：左下角书本图标进入全屏阅读模式</p>
-          <p>👑 <strong>管理员权限</strong>：管理员登录后左下角显示清空功能</p>
-          <p>💾 <strong>数据持久化</strong>：评论和标注数据自动保存，刷新不丢失</p>
-          <p>📝 <strong>测试文本</strong>：这是一段可以用来测试划词标注功能的文本，请尝试选中这段文字。</p>
-        </div>
-      </div> */}
+        {/* 功能测试区域 */}
+        {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+    <h3 className="text-lg font-semibold text-blue-900 mb-4">
+    🎯 功能测试区域
+    </h3>
+    <div className="space-y-3 text-blue-800  ">
+    <p>✅ <strong>用户登录</strong>：右上角登录选择身份（管理员/用户）</p>
+    <p>✅ <strong>划词标注</strong>：登录后选中文档文字，会出现标注菜单</p>
+    <p>✅ <strong>右侧评论栏</strong>：在右侧可以看到评论区域（大屏幕显示）</p>
+    <p>✅ <strong>沉浸式阅读</strong>：左下角书本图标进入全屏阅读模式</p>
+    <p>👑 <strong>管理员权限</strong>：管理员登录后左下角显示清空功能</p>
+    <p>💾 <strong>数据持久化</strong>：评论和标注数据自动保存，刷新不丢失</p>
+    <p>📝 <strong>测试文本</strong>：这是一段可以用来测试划词标注功能的文本，请尝试选中这段文字。</p>
+    </div>
+  </div> */}
 
-      {/* Debug Panel */}
-      {/* <DebugPanel /> */}
+        {/* Debug Panel */}
+        {/* <DebugPanel /> */}
 
-      {/* Admin Controls */}
-      {/* <AdminControls docPath={decodedSlug.join('/')} /> */}
+        {/* Admin Controls */}
+        {/* <AdminControls docPath={decodedSlug.join('/')} /> */}
 
-      {/* Immersive Reader */}
-      {/* <ImmersiveReader /> */}
+        {/* Immersive Reader */}
+        {/* <ImmersiveReader /> */}
 
         {/* Right Sidebar Comments */}
         <DocPageClient docPath={decodedSlug.join('/')} />

@@ -15,10 +15,10 @@ interface GitHubLinkProps {
   className?: string;
 }
 
-export default function GitHubLink({ 
-  variant = 'button', 
-  showStats = false, 
-  className = '' 
+export default function GitHubLink({
+  variant = 'button',
+  showStats = false,
+  className = ''
 }: GitHubLinkProps) {
   const [stats, setStats] = useState<GitHubStats | null>(null);
   const githubUrl = process.env.NEXT_PUBLIC_GITHUB_URL;
@@ -62,7 +62,7 @@ export default function GitHubLink({
           href={githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${baseClasses} px-4 py-2 bg-gray-900   text-white   rounded-lg hover:bg-gray-800   font-medium ${className}`}
+          className={`${baseClasses} px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 font-medium ${className}`}
         >
           <Github className="w-5 h-5" />
           <span>GitHub</span>
@@ -88,7 +88,7 @@ export default function GitHubLink({
           href={githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${baseClasses} px-3 py-1 bg-blue-100   text-blue-800   rounded-full text-sm hover:bg-blue-200   ${className}`}
+          className={`${baseClasses} px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200 ${className}`}
         >
           <Github className="w-4 h-4" />
           <span>开源项目</span>
@@ -101,7 +101,7 @@ export default function GitHubLink({
           href={githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${baseClasses} text-gray-600   hover:text-gray-900   ${className}`}
+          className={`${baseClasses} text-gray-600 hover:text-gray-900 ${className}`}
           title="查看源代码"
         >
           <Github className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function GitHubLink({
             href={githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-gray-600   hover:text-gray-900  "
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900  "
           >
             <Github className="w-5 h-5" />
             <span>开源项目</span>
@@ -141,13 +141,13 @@ export default function GitHubLink({
               </div>
             </div>
           )}
-          <p className="text-xs text-gray-500   mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             Made with ❤️ by{' '}
             <a
               href={process.env.NEXT_PUBLIC_AUTHOR_GITHUB}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600   hover:underline"
+              className="text-blue-600 hover:underline"
             >
               {authorName}
             </a>

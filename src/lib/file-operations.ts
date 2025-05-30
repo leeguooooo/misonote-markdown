@@ -49,8 +49,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 验证路径安全性
-   */
+ * 验证路径安全性
+ */
   private validatePath(filePath: string): boolean {
     // 检查空路径
     if (!filePath || typeof filePath !== 'string') {
@@ -79,39 +79,39 @@ export class FileSystemManager {
   }
 
   /**
-   * 获取完整路径
-   */
+ * 获取完整路径
+ */
   private getFullPath(filePath: string): string {
     return path.join(this.basePath, filePath);
   }
 
   /**
-   * 验证文件扩展名
-   */
+ * 验证文件扩展名
+ */
   private validateFileExtension(fileName: string): boolean {
     const ext = path.extname(fileName).toLowerCase();
     return this.ALLOWED_EXTENSIONS.includes(ext);
   }
 
   /**
-   * 验证内容大小
-   */
+ * 验证内容大小
+ */
   private validateContentSize(content: string): boolean {
     const contentSize = Buffer.byteLength(content, 'utf8');
     return contentSize <= this.MAX_CONTENT_LENGTH;
   }
 
   /**
-   * 验证目录深度
-   */
+ * 验证目录深度
+ */
   private validateDirectoryDepth(filePath: string): boolean {
     const depth = filePath.split(path.sep).length;
     return depth <= this.MAX_DEPTH;
   }
 
   /**
-   * 验证文件内容是否为有效的文本
-   */
+ * 验证文件内容是否为有效的文本
+ */
   private validateTextContent(content: string): boolean {
     try {
       // 检查是否包含二进制内容
@@ -129,8 +129,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 安全写入文件
-   */
+ * 安全写入文件
+ */
   async writeFile(filePath: string, content: string): Promise<void> {
     // 验证路径
     if (!this.validatePath(filePath)) {
@@ -170,8 +170,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 移动文件或目录
-   */
+ * 移动文件或目录
+ */
   async moveFile(sourcePath: string, targetPath: string): Promise<void> {
     if (!this.validatePath(sourcePath) || !this.validatePath(targetPath)) {
       throw new Error('Invalid path');
@@ -225,8 +225,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 更新子目录的元数据路径引用
-   */
+ * 更新子目录的元数据路径引用
+ */
   private updateSubDirectoryMetadata(dirPath: string, oldBasePath: string, newBasePath: string): void {
     if (!fs.existsSync(dirPath)) return;
 
@@ -257,8 +257,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 重命名文件或目录
-   */
+ * 重命名文件或目录
+ */
   async renameFile(filePath: string, newName: string): Promise<string> {
     if (!this.validatePath(filePath)) {
       throw new Error('Invalid path');
@@ -298,8 +298,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 创建目录
-   */
+ * 创建目录
+ */
   async createDirectory(dirPath: string): Promise<void> {
     if (!this.validatePath(dirPath)) {
       throw new Error('Invalid path');
@@ -310,8 +310,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 删除文件或目录
-   */
+ * 删除文件或目录
+ */
   async deleteFile(filePath: string): Promise<void> {
     if (!this.validatePath(filePath)) {
       throw new Error('Invalid path');
@@ -335,8 +335,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 清理空目录
-   */
+ * 清理空目录
+ */
   private cleanupEmptyDirectories(dirPath: string): void {
     if (dirPath === this.basePath) return;
 
@@ -352,8 +352,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 复制文件
-   */
+ * 复制文件
+ */
   async copyFile(sourcePath: string, targetPath: string): Promise<void> {
     if (!this.validatePath(sourcePath) || !this.validatePath(targetPath)) {
       throw new Error('Invalid path');
@@ -372,8 +372,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 获取文件信息
-   */
+ * 获取文件信息
+ */
   async getFileInfo(filePath: string): Promise<FileSystemNode> {
     if (!this.validatePath(filePath)) {
       throw new Error('Invalid path');
@@ -397,8 +397,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 检查路径是否存在
-   */
+ * 检查路径是否存在
+ */
   exists(filePath: string): boolean {
     if (!this.validatePath(filePath)) {
       return false;
@@ -407,8 +407,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 生成唯一文件名
-   */
+ * 生成唯一文件名
+ */
   generateUniqueFileName(dirPath: string, baseName: string, extension: string = ''): string {
     let counter = 1;
     let fileName = baseName + extension;
@@ -424,8 +424,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 验证文件名
-   */
+ * 验证文件名
+ */
   validateFileName(fileName: string): boolean {
     // 检查空文件名
     if (!fileName || typeof fileName !== 'string') {
@@ -472,8 +472,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 切换文件/文件夹的隐藏状态
-   */
+ * 切换文件/文件夹的隐藏状态
+ */
   async toggleHidden(filePath: string): Promise<void> {
     if (!this.validatePath(filePath)) {
       throw new Error('Invalid path');
@@ -504,8 +504,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 检查文件/文件夹是否隐藏
-   */
+ * 检查文件/文件夹是否隐藏
+ */
   isHidden(filePath: string): boolean {
     if (!this.validatePath(filePath)) {
       return false;
@@ -528,8 +528,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 获取文件元数据
-   */
+ * 获取文件元数据
+ */
   getMetadata(filePath: string): any {
     if (!this.validatePath(filePath)) {
       return {};
@@ -551,8 +551,8 @@ export class FileSystemManager {
   }
 
   /**
-   * 获取完整的文件系统结构（包括空文件夹）
-   */
+ * 获取完整的文件系统结构（包括空文件夹）
+ */
   getFileSystemStructure(): any[] {
     const result: any[] = [];
 

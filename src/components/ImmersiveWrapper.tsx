@@ -29,10 +29,10 @@ export default function ImmersiveWrapper({ children }: ImmersiveWrapperProps) {
       <div ref={contentRef} className={settings.isImmersive ? 'hidden' : ''}>
         {children}
       </div>
-      
+
       {settings.isImmersive && (
         <div className="immersive-reading">
-          <div 
+          <div
             id="immersive-container"
             className="immersive-content"
             style={{

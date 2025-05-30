@@ -21,7 +21,7 @@ export default function DebugPanel() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 bg-white   rounded-lg shadow-xl border border-gray-200   p-4 w-80">
+    <div className="fixed bottom-4 right-4 z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-4 w-80">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900  ">🔧 功能调试面板</h3>
         <button

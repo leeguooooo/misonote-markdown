@@ -31,13 +31,13 @@ function ensureDataDirectory() {
 // 读取标注数据
 function readAnnotations(): Annotation[] {
   ensureDataDirectory();
-  
+
   if (!fs.existsSync(ANNOTATIONS_FILE)) {
     const initialAnnotations: Annotation[] = [];
     writeAnnotations(initialAnnotations);
     return initialAnnotations;
   }
-  
+
   try {
     const data = fs.readFileSync(ANNOTATIONS_FILE, 'utf-8');
     const annotations = JSON.parse(data);
@@ -54,7 +54,7 @@ function readAnnotations(): Annotation[] {
 // 写入标注数据
 function writeAnnotations(annotations: Annotation[]) {
   ensureDataDirectory();
-  
+
   try {
     fs.writeFileSync(ANNOTATIONS_FILE, JSON.stringify(annotations, null, 2));
   } catch (error) {
@@ -68,17 +68,17 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const docPath = searchParams.get('docPath');
-    
+
     if (!docPath) {
       return NextResponse.json(
         { error: 'docPath is required' },
         { status: 400 }
       );
     }
-    
+
     const annotations = readAnnotations();
     const docAnnotations = annotations.filter(annotation => annotation.docPath === docPath);
-    
+
     return NextResponse.json({ annotations: docAnnotations });
   } catch (error) {
     console.error('Error fetching annotations:', error);
@@ -93,16 +93,16 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { text, comment, type, position, docPath, author = '当前用户' } = await request.json();
-    
+
     if (!text || !type || !position || !docPath) {
       return NextResponse.json(
         { error: 'text, type, position, and docPath are required' },
         { status: 400 }
       );
     }
-    
+
     const annotations = readAnnotations();
-    
+
     const newAnnotation: Annotation = {
       id: Date.now().toString(),
       text,
@@ -113,13 +113,13 @@ export async function POST(request: NextRequest) {
       author,
       docPath
     };
-    
+
     annotations.push(newAnnotation);
     writeAnnotations(annotations);
-    
-    return NextResponse.json({ 
-      success: true, 
-      annotation: newAnnotation 
+
+    return NextResponse.json({
+      success: true,
+      annotation: newAnnotation
     });
   } catch (error) {
     console.error('Error creating annotation:', error);
@@ -136,28 +136,28 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const annotationId = searchParams.get('annotationId');
     const docPath = searchParams.get('docPath');
-    
+
     if (!annotationId || !docPath) {
       return NextResponse.json(
         { error: 'annotationId and docPath are required' },
         { status: 400 }
       );
     }
-    
+
     const annotations = readAnnotations();
     const filteredAnnotations = annotations.filter(
       annotation => !(annotation.id === annotationId && annotation.docPath === docPath)
     );
-    
+
     if (filteredAnnotations.length === annotations.length) {
       return NextResponse.json(
         { error: 'Annotation not found' },
         { status: 404 }
       );
     }
-    
+
     writeAnnotations(filteredAnnotations);
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting annotation:', error);

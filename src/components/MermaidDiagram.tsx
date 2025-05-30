@@ -52,25 +52,25 @@ export default function MermaidDiagram({ chart, id }: MermaidDiagramProps) {
         console.error('Mermaid rendering error:', error);
         if (ref.current) {
           ref.current.innerHTML = `
-            <div class="p-4 border border-red-200 rounded-lg bg-red-50 text-red-700">
-              <p class="font-medium">图表渲染错误</p>
-              <p class="text-sm mt-1">请检查 Mermaid 语法是否正确</p>
-              <details class="mt-2">
-                <summary class="cursor-pointer text-sm">查看错误详情</summary>
-                <pre class="mt-2 text-xs bg-red-100 p-2 rounded overflow-auto">${error.message}</pre>
-              </details>
-            </div>
-          `;
+    <div class="p-4 border border-red-200 rounded-lg bg-red-50 text-red-700">
+      <p class="font-medium">图表渲染错误</p>
+      <p class="text-sm mt-1">请检查 Mermaid 语法是否正确</p>
+      <details class="mt-2">
+      <summary class="cursor-pointer text-sm">查看错误详情</summary>
+      <pre class="mt-2 text-xs bg-red-100 p-2 rounded overflow-auto">${error.message}</pre>
+      </details>
+    </div>
+    `;
         }
       });
     }
   }, [chart, chartId]);
 
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className="mermaid-diagram my-4 flex justify-center"
-      style={{ 
+      style={{
         minHeight: '100px',
         maxWidth: '100%',
         overflow: 'auto'

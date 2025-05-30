@@ -4,7 +4,7 @@ import { getSecurityStatus } from '@/lib/auth';
 export async function GET() {
   try {
     const securityStatus = getSecurityStatus();
-    
+
     return NextResponse.json({
       success: true,
       ...securityStatus,

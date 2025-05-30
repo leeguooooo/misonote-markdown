@@ -450,7 +450,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
             existingRange.selectNodeContents(existing);
             // 检查是否有重叠
             if (range.compareBoundaryPoints(Range.START_TO_END, existingRange) > 0 &&
-                range.compareBoundaryPoints(Range.END_TO_START, existingRange) < 0) {
+              range.compareBoundaryPoints(Range.END_TO_START, existingRange) < 0) {
               isNested = true;
               break;
             }
@@ -475,7 +475,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
       // 创建更详细的 title
       const typeText = annotation.type === 'highlight' ? '高亮' :
-                      annotation.type === 'note' ? '笔记' : '书签';
+        annotation.type === 'note' ? '笔记' : '书签';
       const title = annotation.comment ?
         `${typeText}: ${annotation.comment} (作者: ${annotation.author})` :
         `${typeText} (作者: ${annotation.author})`;
@@ -483,7 +483,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
       // 检查是否可以直接包围内容
       const canSurround = range.startContainer === range.endContainer &&
-                         range.startContainer.nodeType === Node.TEXT_NODE;
+        range.startContainer.nodeType === Node.TEXT_NODE;
 
       if (canSurround) {
         try {
@@ -620,7 +620,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
       {/* 标注菜单 */}
       {showAnnotationMenu && (
         <div
-          className="annotation-menu absolute z-50 bg-white   rounded-lg shadow-lg border border-gray-200   p-2"
+          className="annotation-menu absolute z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-2"
           style={{
             left: menuPosition.x - 100,
             top: menuPosition.y,
@@ -630,7 +630,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
             <div className="flex items-center gap-1">
               <button
                 onClick={() => createAnnotation('highlight')}
-                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 title="高亮"
               >
                 <Highlighter className="w-4 h-4 text-yellow-600" />
@@ -640,21 +640,21 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
                   setAnnotationType('note');
                   setShowCommentDialog(true);
                 }}
-                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 title="添加笔记"
               >
                 <MessageSquare className="w-4 h-4 text-blue-600" />
               </button>
               <button
                 onClick={() => createAnnotation('bookmark')}
-                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 title="书签"
               >
                 <Bookmark className="w-4 h-4 text-green-600" />
               </button>
               <button
                 onClick={() => setShowAnnotationMenu(false)}
-                className="p-2 hover:bg-gray-100   rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 title="关闭"
               >
                 <X className="w-4 h-4 text-gray-600" />
@@ -665,7 +665,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
               <span className="text-sm text-gray-600">请先登录以使用标注功能</span>
               <button
                 onClick={() => setShowAnnotationMenu(false)}
-                className="p-1 hover:bg-gray-100   rounded transition-colors"
+                className="p-1 hover:bg-gray-100 rounded transition-colors"
                 title="关闭"
               >
                 <X className="w-3 h-3 text-gray-600" />
@@ -689,13 +689,13 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
           }}
         >
           <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] max-h-[80vh] overflow-y-auto"
-               style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
+            style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
             <h3 className="text-lg font-semibold mb-4 text-gray-900  ">
               添加笔记
             </h3>
             <div className="mb-4">
-              <p className="text-sm text-gray-600   mb-2">选中文本：</p>
-              <div className="p-3 bg-gray-100   rounded-lg text-sm">
+              <p className="text-sm text-gray-600 mb-2">选中文本：</p>
+              <div className="p-3 bg-gray-100 rounded-lg text-sm">
                 "{selectedText}"
               </div>
             </div>
@@ -703,7 +703,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
               placeholder="输入你的笔记..."
-              className="w-full p-3 border border-gray-300   rounded-lg resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-3 border border-gray-300 rounded-lg resize-none bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={4}
             />
             <div className="flex justify-end gap-2 mt-4">
@@ -713,7 +713,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
                   setShowAnnotationMenu(false);
                   setCommentText('');
                 }}
-                className="px-4 py-2 text-gray-600   hover:text-gray-800  "
+                className="px-4 py-2 text-gray-600 hover:text-gray-800  "
               >
                 取消
               </button>
@@ -743,7 +743,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
           }}
         >
           <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] max-h-[80vh] overflow-y-auto"
-               style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
+            style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 {selectedAnnotation.type === 'highlight' && <Highlighter className="w-5 h-5 text-yellow-600" />}
@@ -751,7 +751,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
                 {selectedAnnotation.type === 'bookmark' && <Bookmark className="w-5 h-5 text-green-600" />}
                 <h3 className="text-lg font-semibold text-gray-900  ">
                   {selectedAnnotation.type === 'highlight' ? '高亮标注' :
-                   selectedAnnotation.type === 'note' ? '笔记标注' : '书签标注'}
+                    selectedAnnotation.type === 'note' ? '笔记标注' : '书签标注'}
                 </h3>
               </div>
               <button
@@ -765,7 +765,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700  ">选中文本：</label>
-                <div className="mt-1 p-3 bg-gray-100   rounded-lg text-sm text-gray-900  ">
+                <div className="mt-1 p-3 bg-gray-100 rounded-lg text-sm text-gray-900  ">
                   "{selectedAnnotation.text}"
                 </div>
               </div>
@@ -773,7 +773,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
               {selectedAnnotation.comment && (
                 <div>
                   <label className="text-sm font-medium text-gray-700  ">备注内容：</label>
-                  <div className="mt-1 p-3 bg-gray-100   rounded-lg text-sm text-gray-900  ">
+                  <div className="mt-1 p-3 bg-gray-100 rounded-lg text-sm text-gray-900  ">
                     {selectedAnnotation.comment}
                   </div>
                 </div>
@@ -797,7 +797,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
                     removeAnnotation(selectedAnnotation.id, isAdminDelete);
                     setShowAnnotationDetail(false);
                   }}
-                  className="px-4 py-2 text-red-600   hover:bg-red-50   rounded-lg transition-colors"
+                  className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                 >
                   删除标注
                 </button>
@@ -815,8 +815,8 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
       {/* 标注列表 */}
       {annotations.length > 0 && (
-        <div className="mt-8 p-4 bg-gray-50   rounded-lg">
-          <h4 className="font-semibold mb-4 text-gray-900   flex items-center gap-2">
+        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+          <h4 className="font-semibold mb-4 text-gray-900 flex items-center gap-2">
             <MessageSquare className="w-4 h-4" />
             我的标注 ({annotations.length})
           </h4>
@@ -824,7 +824,7 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
             {annotations.map(annotation => (
               <div
                 key={annotation.id}
-                className="p-3 bg-white   rounded-lg border border-gray-200   cursor-pointer hover:bg-gray-50   transition-colors"
+                className="p-3 bg-white rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={() => {
                   setSelectedAnnotation(annotation);
                   setShowAnnotationDetail(true);
@@ -843,11 +843,11 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
                         by {annotation.author}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600   mb-1">
+                    <p className="text-sm text-gray-600 mb-1">
                       "{annotation.text}"
                     </p>
                     {annotation.comment && (
-                      <p className="text-sm text-gray-800   line-clamp-2">
+                      <p className="text-sm text-gray-800 line-clamp-2">
                         {annotation.comment}
                       </p>
                     )}

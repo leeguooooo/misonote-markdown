@@ -27,11 +27,10 @@ function TreeNode({ node, level, currentPath, expandedFolders, onToggleFolder }:
     return (
       <Link
         href={`/docs/${node.file.slug.join('/')}`}
-        className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
-          isCurrentFile
-            ? 'bg-blue-100 text-blue-900'
-            : 'text-gray-700 hover:bg-gray-100'
-        }`}
+        className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${isCurrentFile
+          ? 'bg-blue-100 text-blue-900'
+          : 'text-gray-700 hover:bg-gray-100'
+          }`}
         style={{ paddingLeft: `${level * 12 + 12}px` }}
       >
         <FileText className="w-4 h-4 flex-shrink-0" />

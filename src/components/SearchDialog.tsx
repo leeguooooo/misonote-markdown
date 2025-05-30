@@ -110,7 +110,7 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
       />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-2xl bg-white   rounded-lg shadow-xl border border-gray-200  ">
+      <div className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl border border-gray-200  ">
         {/* Header */}
         <div className="flex items-center gap-3 p-4 border-b border-gray-200  ">
           <Search className="w-5 h-5 text-gray-400" />
@@ -120,7 +120,7 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
             placeholder="搜索文档..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-gray-900   placeholder-gray-500"
+            className="flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-500"
           />
           <button
             onClick={onClose}
@@ -144,15 +144,15 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
                   key={doc.id}
                   href={`/docs/${doc.slug.join('/')}`}
                   onClick={onClose}
-                  className="block p-3 rounded-lg hover:bg-gray-50   transition-colors"
+                  className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-start gap-3">
                     <FileText className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900   truncate">
+                      <h3 className="font-medium text-gray-900 truncate">
                         {highlightText(doc.title, query)}
                       </h3>
-                      <p className="text-sm text-gray-600   mt-1 line-clamp-2">
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                         {highlightText(getContentPreview(doc.content, query), query)}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
@@ -179,7 +179,7 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
         </div>
 
         {/* Footer */}
-        <div className="p-3 border-t border-gray-200   text-xs text-gray-500 flex items-center justify-between">
+        <div className="p-3 border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
           <span>使用 ↑↓ 导航，Enter 选择</span>
           <span>ESC 关闭</span>
         </div>
