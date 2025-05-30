@@ -29,7 +29,7 @@ let db: Database.Database | null = null;
 export function getDatabase(): Database.Database {
   if (!db) {
     ensureDataDirectory();
-    
+    log.info('数据库路径: ' + DB_PATH);
     const isNewDatabase = !fs.existsSync(DB_PATH);
     
     db = new Database(DB_PATH);
