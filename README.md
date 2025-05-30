@@ -11,10 +11,12 @@
 
 <div align="center">
 
-**🚀 一键部署 | 📱 响应式设计 | 🔐 安全认证 | 💬 评论系统**
+**🐳 Docker 一键运行 | 📱 响应式设计 | 🔐 安全认证 | 💬 评论系统**
 
-[![快速开始](https://img.shields.io/badge/快速开始-4分钟部署-success?style=for-the-badge)](https://github.com/leeguooooo/markdown-site#-一键部署推荐)
-[![在线演示](https://img.shields.io/badge/在线演示-立即体验-blue?style=for-the-badge)](https://your-demo-url.com)
+[![一键运行](https://img.shields.io/badge/🐳_Docker_一键运行-立即开始-success?style=for-the-badge)](https://github.com/leeguooooo/markdown-site#-一键运行推荐)
+[![Docker Hub](https://img.shields.io/badge/Docker_Hub-leeguo/misonote--markdown-blue?style=for-the-badge&logo=docker)](https://hub.docker.com/r/leeguo/misonote-markdown)
+[![快速指南](https://img.shields.io/badge/📖_快速指南-Docker_教程-green?style=for-the-badge)](./DOCKER-QUICKSTART.md)
+[![在线演示](https://img.shields.io/badge/在线演示-立即体验-orange?style=for-the-badge)](https://your-demo-url.com)
 
 </div>
 
@@ -22,8 +24,9 @@
 
 ## 🎯 为什么选择这个项目？
 
+- 🐳 **一键运行**: Docker 镜像开箱即用，无需安装 Node.js
+- ✅ **多架构支持**: 支持 Intel/AMD 和 Apple Silicon 芯片
 - ✅ **零配置部署**: 一条命令完成部署，自动配置环境变量
-- ✅ **开箱即用**: 无需复杂配置，克隆即可使用
 - ✅ **生产就绪**: 内置 PM2 支持，适合生产环境
 - ✅ **安全可靠**: Base64 编码解决特殊字符问题，bcrypt 密码加密
 - ✅ **现代技术栈**: Next.js 15 + React 19 + TypeScript
@@ -41,7 +44,68 @@
 
 ## 🚀 快速开始
 
+### 🐳 一键运行（推荐）
+
+**无需安装 Node.js，无需克隆代码，一条命令即可运行！**
+
+```bash
+# 直接运行最新版本
+docker run -d \
+  --name misonote-markdown \
+  -p 3001:3001 \
+  -v $(pwd)/docs:/app/docs \
+  -v $(pwd)/data:/app/data \
+  leeguo/misonote-markdown:latest
+```
+
+**立即访问**: http://localhost:3001
+**管理后台**: http://localhost:3001/admin (默认密码: admin123)
+
+#### 🔧 常用管理命令
+
+```bash
+# 查看容器状态
+docker ps
+
+# 查看应用日志
+docker logs misonote-markdown
+
+# 停止应用
+docker stop misonote-markdown
+
+# 重启应用
+docker restart misonote-markdown
+
+# 进入容器
+docker exec -it misonote-markdown sh
+
+# 删除容器
+docker rm -f misonote-markdown
+```
+
+#### 🔧 使用 Docker Compose（推荐生产环境）
+
+```bash
+# 下载配置文件
+curl -O https://raw.githubusercontent.com/leeguooooo/markdown-site/main/docker-compose.yml
+
+# 启动服务
+docker-compose up -d
+
+# 查看状态
+docker-compose ps
+```
+
+#### 📦 Docker Hub 镜像信息
+
+- **镜像地址**: `leeguo/misonote-markdown`
+- **支持架构**: AMD64 (Intel/AMD) + ARM64 (Apple Silicon)
+- **镜像大小**: 优化后的 Alpine Linux 基础镜像
+- **更新频率**: 跟随项目版本发布
+
 ### 开发环境
+
+如果您想参与开发或自定义功能：
 
 1. **克隆项目**
    ```bash
@@ -63,31 +127,11 @@
    - 文档预览: http://localhost:3001
    - 管理界面: http://localhost:3001/admin (密码: admin123)
 
-### 生产环境部署
+### 其他部署方式
 
-#### 🐳 Docker 部署（推荐，最简单）
+#### 🐳 本地构建 Docker
 
-##### 方法一：使用预构建镜像（最快）
-
-直接使用我们发布的 Docker 镜像，无需构建：
-
-```bash
-# 直接运行最新版本
-docker run -d \
-  --name misonote-markdown \
-  -p 3001:3001 \
-  -v $(pwd)/docs:/app/docs \
-  -v $(pwd)/data:/app/data \
-  leeguo/misonote-markdown:latest
-
-# 或使用 Docker Compose
-curl -O https://raw.githubusercontent.com/leeguooooo/markdown-site/main/docker-compose.yml
-docker-compose up -d
-```
-
-##### 方法二：本地构建部署
-
-使用 Docker 一键部署，无需配置 Node.js 环境：
+如果您想自己构建镜像：
 
 ```bash
 # 克隆项目
@@ -198,13 +242,17 @@ pnpm build:safe
 │   ├── pre-build-check.js    # 构建前环境检查
 │   ├── generate-password.js  # 密码生成工具
 │   ├── verify-password.js    # 密码验证工具
-│   └── safe-build.sh         # 安全构建脚本
+│   ├── safe-build.sh         # 安全构建脚本
+│   ├── docker-publish.sh     # Docker 镜像发布脚本
+│   └── docker-entrypoint.sh  # Docker 容器启动脚本
 ├── docs/                 # 文档目录
 │   ├── 示例文档/         # 示例和演示文档
 │   ├── security/         # 安全相关文档
 │   └── 项目文档/         # 项目说明文档
 ├── public/               # 静态资源
 ├── .env                  # 环境变量配置
+├── Dockerfile            # Docker 镜像构建文件
+├── docker-compose.yml    # Docker Compose 配置
 ├── ecosystem.config.js   # PM2 配置文件
 ├── SETUP.md              # 详细设置指南
 └── package.json          # 项目配置
@@ -233,6 +281,14 @@ pnpm build:safe
 4. **防火墙**: 限制管理界面的访问 IP
 
 ## 📖 使用指南
+
+### 🚀 快速体验
+
+使用 Docker 一键运行后，您可以：
+
+1. **立即访问**: 打开 http://localhost:3001
+2. **管理后台**: 访问 http://localhost:3001/admin
+3. **默认密码**: admin123 (首次登录后请修改)
 
 ### 文档管理
 
@@ -357,11 +413,57 @@ MIT License
 
 ## 📞 支持
 
+### 🐳 Docker 常见问题
+
+**Q: 如何自定义端口？**
+```bash
+docker run -d -p 8080:3001 --name misonote-markdown leeguo/misonote-markdown:latest
+# 然后访问 http://localhost:8080
+```
+
+**Q: 如何持久化数据？**
+```bash
+# 创建本地目录
+mkdir -p ./my-docs ./my-data
+
+# 挂载到容器
+docker run -d \
+  -p 3001:3001 \
+  -v $(pwd)/my-docs:/app/docs \
+  -v $(pwd)/my-data:/app/data \
+  --name misonote-markdown \
+  leeguo/misonote-markdown:latest
+```
+
+**Q: 如何修改管理员密码？**
+```bash
+# 进入容器
+docker exec -it misonote-markdown sh
+
+# 运行密码生成工具
+node scripts/generate-password.js
+
+# 重启容器
+docker restart misonote-markdown
+```
+
+**Q: 如何查看详细日志？**
+```bash
+# 查看应用日志
+docker logs -f misonote-markdown
+
+# 查看容器内日志文件
+docker exec misonote-markdown cat logs/app.log
+```
+
+### 其他支持
+
 如果你遇到问题或有建议，请：
 
 1. 查看 [常见问题](./docs/faq.md)
 2. 提交 [Issue](../../issues)
 3. 查看 [文档](./docs)
+4. 访问 [Docker Hub](https://hub.docker.com/r/leeguo/misonote-markdown)
 
 ---
 
