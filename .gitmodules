@@ -4,3 +4,6 @@
 [submodule "enterprise"]
 	path = enterprise
 	url = https://github.com/leeguooooo/misonote-enterprise.git
+[submodule "misonote-license-server"]
+	path = misonote-license-server
+	url = https://github.com/leeguooooo/misonote-license-server.git
