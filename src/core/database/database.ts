@@ -13,6 +13,18 @@ let db: Database.Database | null = null;
  * 获取数据库实例
  */
 export function getDatabase(): Database.Database {
+  // 在测试环境中使用测试数据库
+  if (process.env.NODE_ENV === 'test') {
+    try {
+      const testDbPath = path.join(process.cwd(), 'tests', 'utils', 'test-database');
+      const { getTestDatabase } = require(testDbPath);
+      return getTestDatabase();
+    } catch (error) {
+      // 如果测试数据库模块不存在，回退到普通数据库
+      log.warn('测试数据库模块未找到，使用普通数据库');
+    }
+  }
+
   if (!db) {
     initializeDatabase();
   }

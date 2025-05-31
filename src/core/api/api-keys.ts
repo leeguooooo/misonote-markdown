@@ -46,13 +46,13 @@ function generateApiKey(): { key: string; prefix: string; hash: string } {
   // 生成 32 字节的随机密钥
   const randomBytes = crypto.randomBytes(32);
   const key = `mcp_${randomBytes.toString('hex')}`;
-  
+
   // 提取前缀用于快速查找
   const prefix = key.substring(0, 12);
-  
+
   // 生成哈希用于存储
   const hash = bcrypt.hashSync(key, 12);
-  
+
   return { key, prefix, hash };
 }
 
@@ -62,7 +62,7 @@ function generateApiKey(): { key: string; prefix: string; hash: string } {
 export function createApiKey(request: CreateApiKeyRequest): ApiKeyWithSecret {
   const db = getDatabase();
   const { key, prefix, hash } = generateApiKey();
-  
+
   const apiKeyData: Omit<ApiKey, 'id' | 'createdAt' | 'updatedAt'> = {
     name: request.name,
     keyHash: hash,
@@ -131,7 +131,7 @@ export function validateApiKey(key: string): ApiKey | null {
   const prefix = key.substring(0, 12);
 
   const stmt = db.prepare(`
-    SELECT * FROM api_keys 
+    SELECT * FROM api_keys
     WHERE key_prefix = ? AND is_active = 1
   `);
 
@@ -142,7 +142,7 @@ export function validateApiKey(key: string): ApiKey | null {
       if (bcrypt.compareSync(key, row.key_hash)) {
         // 更新使用统计
         updateApiKeyUsage(row.id);
-        
+
         return {
           id: row.id,
           name: row.name,
@@ -168,21 +168,7 @@ export function validateApiKey(key: string): ApiKey | null {
   return null;
 }
 
-/**
- * 更新 API 密钥使用统计
- */
-function updateApiKeyUsage(id: string): void {
-  const db = getDatabase();
-  const stmt = db.prepare(`
-    UPDATE api_keys 
-    SET usage_count = usage_count + 1, 
-        last_used_at = CURRENT_TIMESTAMP,
-        updated_at = CURRENT_TIMESTAMP
-    WHERE id = ?
-  `);
-  
-  stmt.run(id);
-}
+
 
 /**
  * 获取所有 API 密钥（不包含密钥哈希）
@@ -190,12 +176,12 @@ function updateApiKeyUsage(id: string): void {
 export function getAllApiKeys(): ApiKey[] {
   const db = getDatabase();
   const stmt = db.prepare(`
-    SELECT * FROM api_keys 
+    SELECT * FROM api_keys
     ORDER BY created_at DESC
   `);
 
   const rows = stmt.all() as any[];
-  
+
   return rows.map(row => ({
     id: row.id,
     name: row.name,
@@ -249,7 +235,7 @@ export function getApiKeyById(id: string): ApiKey | null {
  */
 export function updateApiKey(id: string, updates: Partial<Pick<ApiKey, 'name' | 'permissions' | 'isActive' | 'expiresAt' | 'rateLimit' | 'description'>>): boolean {
   const db = getDatabase();
-  
+
   const fields: string[] = [];
   const values: any[] = [];
 
@@ -257,27 +243,27 @@ export function updateApiKey(id: string, updates: Partial<Pick<ApiKey, 'name' | 
     fields.push('name = ?');
     values.push(updates.name);
   }
-  
+
   if (updates.permissions !== undefined) {
     fields.push('permissions = ?');
     values.push(JSON.stringify(updates.permissions));
   }
-  
+
   if (updates.isActive !== undefined) {
     fields.push('is_active = ?');
     values.push(updates.isActive ? 1 : 0);
   }
-  
+
   if (updates.expiresAt !== undefined) {
     fields.push('expires_at = ?');
     values.push(updates.expiresAt?.toISOString());
   }
-  
+
   if (updates.rateLimit !== undefined) {
     fields.push('rate_limit = ?');
     values.push(updates.rateLimit);
   }
-  
+
   if (updates.description !== undefined) {
     fields.push('description = ?');
     values.push(updates.description);
@@ -293,12 +279,12 @@ export function updateApiKey(id: string, updates: Partial<Pick<ApiKey, 'name' | 
   `);
 
   const result = stmt.run(...values);
-  
+
   if (result.changes > 0) {
     log.info('更新 API 密钥', { id, updates });
     return true;
   }
-  
+
   return false;
 }
 
@@ -309,12 +295,51 @@ export function deleteApiKey(id: string): boolean {
   const db = getDatabase();
   const stmt = db.prepare(`DELETE FROM api_keys WHERE id = ?`);
   const result = stmt.run(id);
-  
+
   if (result.changes > 0) {
     log.info('删除 API 密钥', { id });
     return true;
   }
-  
+
+  return false;
+}
+
+/**
+ * 撤销 API 密钥（禁用）
+ */
+export function revokeApiKey(id: string): boolean {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    UPDATE api_keys
+    SET is_active = 0, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `);
+  const result = stmt.run(id);
+
+  if (result.changes > 0) {
+    log.info('撤销 API 密钥', { id });
+    return true;
+  }
+  return false;
+}
+
+/**
+ * 更新 API 密钥使用统计
+ */
+export function updateApiKeyUsage(id: string): boolean {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    UPDATE api_keys
+    SET usage_count = usage_count + 1,
+        last_used_at = CURRENT_TIMESTAMP,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `);
+  const result = stmt.run(id);
+
+  if (result.changes > 0) {
+    return true;
+  }
   return false;
 }
 
@@ -339,15 +364,15 @@ export function isApiKeyExpired(apiKey: ApiKey): boolean {
 export function cleanupExpiredApiKeys(): number {
   const db = getDatabase();
   const stmt = db.prepare(`
-    DELETE FROM api_keys 
+    DELETE FROM api_keys
     WHERE expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP
   `);
-  
+
   const result = stmt.run();
-  
+
   if (result.changes > 0) {
     log.info('清理过期 API 密钥', { count: result.changes });
   }
-  
+
   return result.changes;
 }

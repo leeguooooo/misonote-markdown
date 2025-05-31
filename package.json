@@ -11,6 +11,11 @@
     "build:docker": "DOCKER_BUILD=true SKIP_PREBUILD=true next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --watch",
     "postinstall": "[ \"$SKIP_POSTINSTALL\" = \"true\" ] || (echo 'ℹ️  如果看到构建脚本警告，请运行: pnpm approve-builds' && exit 0)",
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:stop": "pm2 stop docs-platform",
@@ -53,7 +58,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.5.0",
-    "fs": "0.0.1-security",
     "fuse.js": "^7.1.0",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.11.1",
@@ -74,6 +78,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/jsonwebtoken": "^9.0.9",
@@ -81,9 +88,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
+    "@vitest/ui": "^3.1.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "jsdom": "^26.1.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.1.4"
   }
 }
