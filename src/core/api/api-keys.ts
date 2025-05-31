@@ -43,7 +43,7 @@ export interface ApiKeyWithSecret {
  * 生成 API 密钥
  */
 function generateApiKey(): { key: string; prefix: string; hash: string } {
-  // 生成 32 字节的随机密钥
+  // 生成 32 字节的随机密钥，转换为hex后是64个字符
   const randomBytes = crypto.randomBytes(32);
   const key = `mcp_${randomBytes.toString('hex')}`;
 
@@ -133,6 +133,7 @@ export function validateApiKey(key: string): ApiKey | null {
   const stmt = db.prepare(`
     SELECT * FROM api_keys
     WHERE key_prefix = ? AND is_active = 1
+    AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)
   `);
 
   const rows = stmt.all(prefix) as any[];
@@ -140,6 +141,15 @@ export function validateApiKey(key: string): ApiKey | null {
   for (const row of rows) {
     try {
       if (bcrypt.compareSync(key, row.key_hash)) {
+        // 检查是否过期
+        if (row.expires_at) {
+          const expiresAt = new Date(row.expires_at);
+          if (new Date() > expiresAt) {
+            log.warn('API 密钥已过期', { prefix, expiresAt });
+            return null;
+          }
+        }
+
         // 更新使用统计
         updateApiKeyUsage(row.id);
 

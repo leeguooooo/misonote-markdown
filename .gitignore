@@ -66,3 +66,4 @@ mcp-client/node_modules/*
 
 # MCP 客户端 (独立仓库)
 mcp-client/
+tests/backups/test-backup.db

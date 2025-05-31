@@ -13,16 +13,23 @@ let db: Database.Database | null = null;
  * 获取数据库实例
  */
 export function getDatabase(): Database.Database {
-  // 在测试环境中使用测试数据库
+  // 在测试环境中使用内存数据库
   if (process.env.NODE_ENV === 'test') {
-    try {
-      const testDbPath = path.join(process.cwd(), 'tests', 'utils', 'test-database');
-      const { getTestDatabase } = require(testDbPath);
-      return getTestDatabase();
-    } catch (error) {
-      // 如果测试数据库模块不存在，回退到普通数据库
-      log.warn('测试数据库模块未找到，使用普通数据库');
+    if (!db) {
+      // 创建内存数据库用于测试
+      db = new Database(':memory:');
+
+      // 设置数据库选项
+      db.pragma('journal_mode = WAL');
+      db.pragma('synchronous = NORMAL');
+      db.pragma('foreign_keys = ON');
+
+      // 初始化测试表
+      initializeTables();
+
+      log.info('测试数据库已初始化（内存模式）');
     }
+    return db;
   }
 
   if (!db) {
@@ -227,6 +234,28 @@ export function closeDatabase(): void {
       log.info('数据库连接已关闭');
     } catch (error) {
       log.error('关闭数据库连接失败:', error);
+    }
+  }
+}
+
+/**
+ * 清理测试数据库
+ */
+export function cleanTestDatabase(): void {
+  if (process.env.NODE_ENV === 'test' && db) {
+    try {
+      // 清空所有表
+      const tables = ['api_keys', 'system_settings', 'comments', 'annotations', 'user_sessions'];
+      for (const table of tables) {
+        try {
+          db.exec(`DELETE FROM ${table}`);
+        } catch (error) {
+          // 忽略表不存在的错误
+        }
+      }
+      log.debug('测试数据库已清理');
+    } catch (error) {
+      log.error('清理测试数据库失败:', error);
     }
   }
 }

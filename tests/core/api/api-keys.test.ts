@@ -13,7 +13,14 @@ import {
   revokeApiKey,
   updateApiKeyUsage,
 } from '@/core/api/api-keys'
-import { cleanTestDatabase, getTableCount, getTableData } from '../../utils/test-database'
+import { cleanTestDatabase, getDatabase } from '@/core/database/database'
+
+// 辅助函数：获取表中的记录数
+function getTableCount(tableName: string): number {
+  const db = getDatabase()
+  const result = db.prepare(`SELECT COUNT(*) as count FROM ${tableName}`).get() as { count: number }
+  return result.count
+}
 
 describe('API Keys 功能测试', () => {
   beforeEach(() => {
@@ -44,7 +51,7 @@ describe('API Keys 功能测试', () => {
       expect(result.apiKey.createdBy).toBe(request.createdBy)
       expect(result.apiKey.isActive).toBe(true)
       expect(result.apiKey.usageCount).toBe(0)
-      expect(result.secretKey).toMatch(/^mcp_[a-zA-Z0-9]{32}$/)
+      expect(result.secretKey).toMatch(/^mcp_[a-f0-9]{64}$/)
 
       // 验证数据库中的记录
       expect(getTableCount('api_keys')).toBe(1)
@@ -111,7 +118,7 @@ describe('API Keys 功能测试', () => {
       const { apiKey, secretKey } = createApiKey({
         name: 'Disabled Key',
       })
-      
+
       revokeApiKey(apiKey.id)
 
       // 尝试验证已禁用的密钥
@@ -167,7 +174,8 @@ describe('API Keys 功能测试', () => {
       const allKeys = getAllApiKeys()
 
       expect(allKeys).toHaveLength(3)
-      expect(allKeys.map(k => k.name)).toEqual(['Key 1', 'Key 2', 'Key 3'])
+      // 应该按创建时间倒序排列（最新的在前）
+      expect(allKeys.map(k => k.name)).toEqual(['Key 3', 'Key 2', 'Key 1'])
     })
 
     it('应该在没有API密钥时返回空数组', () => {
@@ -176,19 +184,21 @@ describe('API Keys 功能测试', () => {
       expect(allKeys).toEqual([])
     })
 
-    it('应该按创建时间排序', () => {
-      // 创建API密钥（有时间间隔）
+    it('应该按创建时间排序', async () => {
+      // 创建第一个API密钥
       const key1 = createApiKey({ name: 'First Key' })
-      
-      // 模拟时间间隔
-      setTimeout(() => {
-        const key2 = createApiKey({ name: 'Second Key' })
-        
-        const allKeys = getAllApiKeys()
-        
-        expect(allKeys[0].name).toBe('First Key')
-        expect(allKeys[1].name).toBe('Second Key')
-      }, 10)
+
+      // 等待一小段时间确保时间戳不同
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      // 创建第二个API密钥
+      const key2 = createApiKey({ name: 'Second Key' })
+
+      const allKeys = getAllApiKeys()
+
+      // 应该按创建时间倒序排列（最新的在前）
+      expect(allKeys[0].name).toBe('Second Key')
+      expect(allKeys[1].name).toBe('First Key')
     })
   })
 
