@@ -1,21 +1,21 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useEffect, useState } from 'react';
 
-import { 
-  Shield, 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle,
+import {
+  Activity,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  RefreshCw,
+  Shield,
   Wifi,
   WifiOff,
-  Activity,
-  RefreshCw
+  XCircle
 } from 'lucide-react';
 
 interface TimeSecurityStatus {
@@ -37,11 +37,11 @@ const TimeSecurityMonitor: React.FC = () => {
   const fetchTimeSecurityStatus = async () => {
     try {
       setLoading(true);
-      
+
       // 这里应该调用实际的API
       // const response = await fetch('/api/license/time-security');
       // const data = await response.json();
-      
+
       // 模拟数据
       const mockData: TimeSecurityStatus = {
         safe: Math.random() > 0.3,
@@ -58,7 +58,7 @@ const TimeSecurityMonitor: React.FC = () => {
         drift: Math.random() * 10000 - 5000,
         lastSync: Date.now() - Math.random() * 300000
       };
-      
+
       setStatus(mockData);
       setLastUpdate(new Date());
     } catch (error) {
@@ -70,7 +70,7 @@ const TimeSecurityMonitor: React.FC = () => {
 
   useEffect(() => {
     fetchTimeSecurityStatus();
-    
+
     // 每30秒更新一次
     const interval = setInterval(fetchTimeSecurityStatus, 30000);
     return () => clearInterval(interval);
@@ -168,8 +168,8 @@ const TimeSecurityMonitor: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="font-medium">时间可信度</span>
             <Badge className={getConfidenceColor(status.confidence)}>
-              {status.confidence === 'high' ? '高' : 
-               status.confidence === 'medium' ? '中' : '低'}
+              {status.confidence === 'high' ? '高' :
+                status.confidence === 'medium' ? '中' : '低'}
             </Badge>
           </div>
 
@@ -180,7 +180,7 @@ const TimeSecurityMonitor: React.FC = () => {
               {getTimeSourceIcon(status.timeSource)}
               <span className="capitalize">
                 {status.timeSource === 'network' ? '网络时间' :
-                 status.timeSource === 'cached' ? '缓存时间' : '本地时间'}
+                  status.timeSource === 'cached' ? '缓存时间' : '本地时间'}
               </span>
             </div>
           </div>
@@ -190,10 +190,9 @@ const TimeSecurityMonitor: React.FC = () => {
             <div className="flex items-center justify-between">
               <span className="font-medium">时间偏差</span>
               <div className="flex items-center gap-2">
-                <span className={`font-mono ${
-                  getDriftSeverity(status.drift) === 'high' ? 'text-red-600' :
-                  getDriftSeverity(status.drift) === 'medium' ? 'text-yellow-600' : 'text-green-600'
-                }`}>
+                <span className={`font-mono ${getDriftSeverity(status.drift) === 'high' ? 'text-red-600' :
+                    getDriftSeverity(status.drift) === 'medium' ? 'text-yellow-600' : 'text-green-600'
+                  }`}>
                   {formatDrift(status.drift)}
                 </span>
                 {getDriftSeverity(status.drift) === 'high' && (
@@ -218,9 +217,9 @@ const TimeSecurityMonitor: React.FC = () => {
             <span className="text-xs text-gray-500">
               {lastUpdate && `最后更新: ${lastUpdate.toLocaleTimeString('zh-CN')}`}
             </span>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               onClick={fetchTimeSecurityStatus}
               disabled={loading}
             >

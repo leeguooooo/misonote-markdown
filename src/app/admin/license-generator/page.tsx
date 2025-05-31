@@ -1,26 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Key, 
-  Copy, 
-  Download, 
-  Mail, 
-  Calendar,
-  Users,
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  AlertCircle,
   Building,
-  Shield,
+  Calendar,
   CheckCircle,
-  AlertCircle
+  Copy,
+  Download,
+  Key,
+  Mail,
+  Shield,
+  Users
 } from 'lucide-react';
+import React, { useState } from 'react';
 
 const LicenseGeneratorPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ const LicenseGeneratorPage: React.FC = () => {
     features: [] as string[],
     notes: ''
   });
-  
+
   const [generatedLicense, setGeneratedLicense] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -296,15 +296,19 @@ Misonote 团队
                   {Object.entries(availableFeatures).map(([key, name]) => {
                     const isSelected = formData.features.includes(key);
                     return (
-                      <Badge
+                      <div
                         key={key}
-                        variant={isSelected ? "default" : "outline"}
-                        className="cursor-pointer justify-center p-2"
+                        className="cursor-pointer"
                         onClick={() => handleFeatureToggle(key)}
                       >
-                        {isSelected && <CheckCircle className="h-3 w-3 mr-1" />}
-                        {name}
-                      </Badge>
+                        <Badge
+                          variant={isSelected ? "default" : "outline"}
+                          className="justify-center p-2 w-full"
+                        >
+                          {isSelected && <CheckCircle className="h-3 w-3 mr-1" />}
+                          {name}
+                        </Badge>
+                      </div>
                     );
                   })}
                 </div>
@@ -329,8 +333,8 @@ Misonote 团队
                 </Alert>
               )}
 
-              <Button 
-                onClick={generateLicense} 
+              <Button
+                onClick={generateLicense}
                 disabled={generating}
                 className="w-full"
               >

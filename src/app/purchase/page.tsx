@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,13 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Star, 
-  Crown, 
-  CheckCircle, 
-  Users, 
-  Shield, 
-  Zap,
+import {
+  Star,
+  Crown,
+  CheckCircle,
+  Users,
+  Shield,
   Mail,
   Building,
   CreditCard
@@ -72,7 +71,6 @@ const PurchasePage: React.FC = () => {
   };
 
   const currentLicense = licenseTypes[selectedType as keyof typeof licenseTypes];
-  const IconComponent = currentLicense.icon;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,13 +79,13 @@ const PurchasePage: React.FC = () => {
     try {
       // 模拟提交购买申请
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       // 这里应该调用实际的购买API
       console.log('购买申请:', {
         licenseType: selectedType,
         ...formData
       });
-      
+
       setSubmitted(true);
     } catch (error) {
       console.error('提交失败:', error);
@@ -142,59 +140,59 @@ const PurchasePage: React.FC = () => {
         {/* 许可证选择 */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold mb-4">选择许可证类型</h2>
-          
+
           {Object.entries(licenseTypes).map(([type, config]) => {
             const IconComp = config.icon;
             const isSelected = selectedType === type;
-            
+
             return (
-              <Card 
+              <div
                 key={type}
-                className={`cursor-pointer transition-all ${
-                  isSelected ? 'border-blue-500 bg-blue-50' : 'hover:border-gray-300'
-                }`}
+                className="cursor-pointer transition-all"
                 onClick={() => setSelectedType(type)}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <IconComp className="h-6 w-6" />
-                      <div>
-                        <h3 className="font-semibold text-lg">{config.name}</h3>
-                        <p className="text-sm text-gray-600">{config.description}</p>
+                <Card className={isSelected ? 'border-blue-500 bg-blue-50' : 'hover:border-gray-300'}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <IconComp className="h-6 w-6" />
+                        <div>
+                          <h3 className="font-semibold text-lg">{config.name}</h3>
+                          <p className="text-sm text-gray-600">{config.description}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">¥{config.price}</div>
+                        <div className="text-sm text-gray-500">/{config.period}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">¥{config.price}</div>
-                      <div className="text-sm text-gray-500">/{config.period}</div>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center gap-4 mb-4">
-                    <Badge variant="outline" className="flex items-center gap-1">
-                      <Users className="h-3 w-3" />
-                      {config.maxUsers === -1 ? '无限用户' : `最多${config.maxUsers}用户`}
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">包含功能：</h4>
-                    <div className="grid grid-cols-1 gap-1">
-                      {config.features.slice(0, 4).map((feature, index) => (
-                        <div key={index} className="flex items-center gap-2 text-sm">
-                          <CheckCircle className="h-3 w-3 text-green-500" />
-                          <span>{feature}</span>
-                        </div>
-                      ))}
-                      {config.features.length > 4 && (
-                        <div className="text-sm text-gray-500">
-                          +{config.features.length - 4} 更多功能...
-                        </div>
-                      )}
+                    <div className="flex items-center gap-4 mb-4">
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Users className="h-3 w-3" />
+                        {config.maxUsers === -1 ? '无限用户' : `最多${config.maxUsers}用户`}
+                      </Badge>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm">包含功能：</h4>
+                      <div className="grid grid-cols-1 gap-1">
+                        {config.features.slice(0, 4).map((feature, index) => (
+                          <div key={index} className="flex items-center gap-2 text-sm">
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                            <span>{feature}</span>
+                          </div>
+                        ))}
+                        {config.features.length > 4 && (
+                          <div className="text-sm text-gray-500">
+                            +{config.features.length - 4} 更多功能...
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             );
           })}
         </div>
@@ -274,9 +272,9 @@ const PurchasePage: React.FC = () => {
                   </AlertDescription>
                 </Alert>
 
-                <Button 
-                  type="submit" 
-                  className="w-full" 
+                <Button
+                  type="submit"
+                  className="w-full"
                   disabled={submitting}
                 >
                   {submitting ? '提交中...' : `申请购买 ${currentLicense.name}`}

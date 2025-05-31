@@ -146,11 +146,11 @@ test_local_build() {
 
     local test_tag="misonote-markdown:test-$(date +%s)"
 
-    if docker build -t "$test_tag" . > /dev/null 2>&1; then
+    if docker build -t "$test_tag" .; then
         log_success "本地构建测试通过"
         docker rmi "$test_tag" > /dev/null 2>&1
     else
-        log_error "本地构建失败"
+        log_error "本地构建失败，请查看上方构建日志了解详细原因"
         return 1
     fi
 }
