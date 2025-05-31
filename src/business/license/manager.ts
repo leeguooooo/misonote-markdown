@@ -5,11 +5,18 @@
 
 import { License, LicenseValidation, LicenseType } from '@/types/business/license';
 import { log } from '@/core/logger';
+import crypto from 'crypto';
+import { SecurityAuditLogger } from './security-audit';
+import { RateLimiter } from './rate-limiter';
+import { HardwareFingerprint } from './hardware-fingerprint';
 
 export class LicenseManager {
   private static instance: LicenseManager;
   private currentLicense: License | null = null;
   private lastValidation: Date | null = null;
+  private auditLogger = SecurityAuditLogger.getInstance();
+  private rateLimiter = RateLimiter.getInstance();
+  private hardwareFingerprint = HardwareFingerprint.getInstance();
   
   static getInstance(): LicenseManager {
     if (!LicenseManager.instance) {
@@ -18,22 +25,36 @@ export class LicenseManager {
     return LicenseManager.instance;
   }
   
-  async validateLicense(licenseKey?: string): Promise<LicenseValidation> {
+  async validateLicense(licenseKey?: string, request?: any): Promise<LicenseValidation> {
     log.info('开始验证许可证');
 
     try {
+      // 速率限制检查
+      const clientId = this.getClientIdentifier(request);
+      const rateLimitResult = this.rateLimiter.checkLimit(clientId, 'license_validation', request);
+
+      if (!rateLimitResult.allowed) {
+        this.auditLogger.logLicenseValidationFailure('速率限制超出', licenseKey, request);
+        return {
+          valid: false,
+          error: `请求过于频繁，请在 ${rateLimitResult.retryAfter} 秒后重试`
+        };
+      }
+
       // 如果没有提供许可证密钥，返回社区版
       if (!licenseKey) {
         log.info('未提供许可证密钥，使用社区版');
         const communityLicense = this.createCommunityLicense();
         this.currentLicense = communityLicense;
         this.lastValidation = new Date();
+        this.auditLogger.logLicenseValidationSuccess('community', 'Community User', request);
         return { valid: true, license: communityLicense };
       }
 
       // 解析许可证密钥
       const parsedLicense = this.parseLicenseKey(licenseKey);
       if (!parsedLicense) {
+        this.auditLogger.logLicenseValidationFailure('许可证格式无效', licenseKey, request);
         return {
           valid: false,
           error: '无效的许可证格式'
@@ -43,6 +64,7 @@ export class LicenseManager {
       // 验证许可证签名
       const signatureValid = await this.verifySignature(parsedLicense);
       if (!signatureValid) {
+        this.auditLogger.logLicenseValidationFailure('签名验证失败', licenseKey, request);
         return {
           valid: false,
           error: '许可证签名验证失败'
@@ -179,5 +201,28 @@ export class LicenseManager {
       log.error('在线验证许可证失败:', error);
       return null;
     }
+  }
+
+  /**
+   * 获取客户端标识符
+   */
+  private getClientIdentifier(request?: any): string {
+    if (!request) return 'unknown';
+
+    // 尝试获取真实IP
+    const forwarded = request.headers?.['x-forwarded-for'];
+    if (forwarded) {
+      return forwarded.split(',')[0].trim();
+    }
+
+    const realIP = request.headers?.['x-real-ip'];
+    if (realIP) {
+      return realIP;
+    }
+
+    return request.ip ||
+           request.connection?.remoteAddress ||
+           request.socket?.remoteAddress ||
+           'unknown';
   }
 }
