@@ -115,6 +115,17 @@ docker-compose*
 docs/
 *.md
 
+# 🚨 SECURITY: 排除商业代码 - 防止企业版代码泄露
+enterprise/
+misonote-license-server/
+docs/商业化架构/
+
+# 🚨 SECURITY: 排除许可证相关敏感文件
+.license-config/
+scripts/license-generator.js
+scripts/test-license-verification.js
+scripts/docker-publish-enterprise.sh
+
 # Development files (排除不需要的脚本，保留 Docker 运行时需要的)
 scripts/test-*.sh
 scripts/safe-build.sh

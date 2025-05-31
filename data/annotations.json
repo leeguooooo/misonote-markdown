@@ -130,5 +130,24 @@
     "timestamp": "2025-05-30T03:18:51.624Z",
     "author": "李四",
     "docPath": "项目文档/管理后台/直播任务管理/complete-api-reference"
+  },
+  {
+    "id": "1748712490502",
+    "text": "有效的",
+    "comment": "",
+    "type": "highlight",
+    "position": {
+      "start": 0,
+      "end": 3,
+      "startContainer": "有效的 API 密钥",
+      "endContainer": "有效的 API 密钥",
+      "xpath": "div[1]/ol[1]/li[2]/p[1]/strong[1]",
+      "textOffset": 191,
+      "contextBefore": "v  # 开发环境\n# 或\npnpm build && pnpm start  # 生产环境\n\n\n\n",
+      "contextAfter": " API 密钥\n\n访问管理后台：http://localhost:3000/admin\n点击蓝色钥匙"
+    },
+    "timestamp": "2025-05-31T17:28:10.502Z",
+    "author": "张三",
+    "docPath": "CURSOR-MCP-SETUP"
   }
 ]
