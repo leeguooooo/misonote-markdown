@@ -53,28 +53,24 @@ check_docker() {
 
 # 检查 Docker Hub 登录状态
 check_docker_login() {
+    log_info "docker info 输出如下："
+    docker info 2>/dev/null | tee /tmp/docker-info.log | grep -E "Username|Registry" || echo "(无 Username 或 Registry 字段)"
+
     log_info "检查 Docker Hub 登录状态..."
 
-    # 尝试获取 Docker 登录信息
-    local docker_info=$(docker info 2>/dev/null)
     local username=""
-
-    if echo "$docker_info" | grep -q "Username:"; then
-        username=$(echo "$docker_info" | grep "Username:" | awk '{print $2}')
+    if docker info 2>/dev/null | grep -q "Username:"; then
+        username=$(docker info 2>/dev/null | grep "Username:" | awk '{print $2}')
         log_success "已登录 Docker Hub，用户名: $username"
+    elif grep -q "index.docker.io" ~/.docker/config.json 2>/dev/null; then
+        log_warning "未检测到 CLI 登录，但 config.json 中存在 Docker Hub 凭据，可能已通过 GUI 登录"
     else
-        # 尝试通过 docker system info 获取
-        if docker system info 2>/dev/null | grep -q "Username:"; then
-            username=$(docker system info 2>/dev/null | grep "Username:" | awk '{print $2}')
-            log_success "已登录 Docker Hub，用户名: $username"
-        else
-            log_error "未登录 Docker Hub，请运行: docker login"
-            return 1
-        fi
+        log_error "未登录 Docker Hub，请运行: docker login"
+        return 1
     fi
 
     # 检查环境变量
-    if [ -z "$DOCKER_USERNAME" ]; then
+    if [ -z "$DOCKER_USERNAME" ] && [ -n "$username" ]; then
         log_warning "DOCKER_USERNAME 环境变量未设置，将使用登录用户名: $username"
         export DOCKER_USERNAME="$username"
     fi

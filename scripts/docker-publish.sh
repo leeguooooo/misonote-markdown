@@ -351,14 +351,17 @@ main() {
         exit 1
     fi
 
-    # 检查是否已登录 Docker Hub
-    local docker_info=$(docker info 2>/dev/null)
-    if ! echo "$docker_info" | grep -q "Username:"; then
-        # 尝试通过 docker system info 获取
-        if ! docker system info 2>/dev/null | grep -q "Username:"; then
-            log_warning "请先登录 Docker Hub: docker login"
-            exit 1
-        fi
+    # 检查是否已登录 Docker Hub（兼容 CLI/GUI 登录）
+    log_info "检查 Docker 登录状态..."
+    docker info 2>/dev/null | grep "Username" || log_info "(docker info 中无 Username 字段)"
+
+    if docker info 2>/dev/null | grep -q "Username:"; then
+        log_success "已登录 Docker Hub"
+    elif grep -q "index.docker.io" ~/.docker/config.json 2>/dev/null; then
+        log_warning "未检测到 CLI 登录，但 config.json 中存在 Docker Hub 凭据，可能已通过 GUI 登录"
+    else
+        log_error "未登录 Docker Hub，请运行: docker login"
+        exit 1
     fi
 
     check_requirements
