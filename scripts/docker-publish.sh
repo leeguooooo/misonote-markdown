@@ -177,11 +177,22 @@ generate_usage_info() {
 ### 1. 标准部署
 
 \`\`\`bash
-# 使用最新版本
+# 使用默认临时密码 (admin123)
 docker run -d -p 3001:3001 --name misonote-markdown $IMAGE_NAME:latest
 
-# 使用特定版本 (v2.0.0)
-docker run -d -p 3001:3001 --name misonote-markdown $IMAGE_NAME:v$VERSION
+# 启动时设置自定义密码（推荐）
+docker run -d \\
+  -p 3001:3001 \\
+  -e ADMIN_PASSWORD=your_secure_password \\
+  --name misonote-markdown \\
+  $IMAGE_NAME:latest
+
+# 使用特定版本
+docker run -d \\
+  -p 3001:3001 \\
+  -e ADMIN_PASSWORD=your_secure_password \\
+  --name misonote-markdown \\
+  $IMAGE_NAME:v$VERSION
 \`\`\`
 
 ### 2. 使用 Docker Compose (标准模式)
@@ -204,8 +215,12 @@ services:
       - ./logs:/app/logs
     environment:
       - NODE_ENV=production
-      # 可选：自定义管理员密码（Base64 编码的 bcrypt 哈希）
-      # - ADMIN_PASSWORD_HASH_BASE64=your_base64_encoded_hash
+      # 设置管理员密码（推荐修改）
+      - ADMIN_PASSWORD=your_secure_password
+      # 可选：自定义 MCP API Key
+      # - MCP_API_KEY=your_custom_mcp_key
+      # 可选：自定义公开访问地址
+      # - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     restart: unless-stopped
     networks:
       - markdown-network
@@ -257,13 +272,13 @@ npm install
 
 #### 步骤 3: 获取 API 密钥
 
-从 Docker 容器中获取 API 密钥：
+从 Docker 容器启动日志中获取自动生成的 API 密钥：
 
 \`\`\`bash
-# 查看容器日志获取 API 密钥
-docker logs misonote-markdown | grep "MCP_API_KEY"
+# 查看容器启动日志获取 MCP API Key
+docker logs misonote-markdown 2>&1 | grep "MCP API Key"
 
-# 或者进入容器查看
+# 或者进入容器查看环境变量
 docker exec misonote-markdown cat /app/.env | grep MCP_API_KEY
 \`\`\`
 
@@ -273,10 +288,11 @@ docker exec misonote-markdown cat /app/.env | grep MCP_API_KEY
 |--------|------|--------|
 | \`NODE_ENV\` | 运行环境 | \`production\` |
 | \`PORT\` | 服务端口 | \`3001\` |
+| \`ADMIN_PASSWORD\` | 管理员密码（明文，启动时自动加密） | \`admin123\` |
 | \`ADMIN_PASSWORD_HASH_BASE64\` | 管理员密码哈希（Base64编码） | 自动生成 |
 | \`JWT_SECRET\` | JWT 密钥 | 自动生成 |
 | \`MCP_API_KEY\` | MCP 客户端 API 密钥 | 自动生成 |
-| \`MCP_SERVER_URL\` | MCP 服务器地址 | \`http://localhost:3000\` |
+| \`MCP_SERVER_URL\` | MCP 服务器地址 | \`http://localhost:3001\` |
 | \`NEXT_PUBLIC_BASE_URL\` | 公开访问地址 | \`http://localhost:3001\` |
 
 ### 5. 数据持久化

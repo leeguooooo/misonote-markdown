@@ -49,17 +49,27 @@
 **无需安装 Node.js，无需克隆代码，一条命令即可运行！**
 
 ```bash
-# 直接运行最新版本
+# 方式一：使用默认临时密码 (admin123)
 docker run -d \
   --name misonote-markdown \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
   leeguo/misonote-markdown:latest
+
+# 方式二：启动时设置自定义密码（推荐）
+docker run -d \
+  --name misonote-markdown \
+  -p 3001:3001 \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -v $(pwd)/docs:/app/docs \
+  -v $(pwd)/data:/app/data \
+  leeguo/misonote-markdown:latest
 ```
 
 **立即访问**: http://localhost:3001
-**管理后台**: http://localhost:3001/admin (默认密码: admin123)
+**管理后台**: http://localhost:3001/admin
+**默认密码**: admin123 (如未设置 ADMIN_PASSWORD)
 
 #### 🔧 常用管理命令
 
@@ -445,15 +455,17 @@ docker run -d \
   leeguo/misonote-markdown:latest
 ```
 
-**Q: 如何修改管理员密码？**
+**Q: 如何设置管理员密码？**
 ```bash
-# 进入容器
-docker exec -it misonote-markdown sh
+# 方式一：启动时设置（推荐）
+docker run -d \
+  -e ADMIN_PASSWORD=your_secure_password \
+  -p 3001:3001 \
+  --name misonote-markdown \
+  leeguo/misonote-markdown:latest
 
-# 运行密码生成工具
-node scripts/generate-password.js
-
-# 重启容器
+# 方式二：启动后修改
+docker exec -it misonote-markdown node scripts/generate-password.js
 docker restart misonote-markdown
 ```
 

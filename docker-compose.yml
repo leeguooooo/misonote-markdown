@@ -19,6 +19,12 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - HOSTNAME=0.0.0.0
+      # 设置管理员密码（推荐修改）
+      - ADMIN_PASSWORD=your_secure_password
+      # 可选：自定义 MCP API Key
+      # - MCP_API_KEY=your_custom_mcp_key
+      # 可选：自定义公开访问地址
+      # - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
