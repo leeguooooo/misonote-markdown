@@ -39,18 +39,16 @@ function parseEnvFile(filePath) {
 // 手动解析 .env 文件
 const envVars = parseEnvFile(path.join(__dirname, '.env'));
 
-console.log('🔧 Next.js 配置加载时的环境变量:');
+console.log('🔧 Next.js 配置加载');
 console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('ADMIN_PASSWORD_HASH:', process.env.ADMIN_PASSWORD_HASH ? '已设置' : '未设置');
-console.log('JWT_SECRET:', process.env.JWT_SECRET ? '已设置' : '未设置');
+console.log('DOCKER_BUILD:', process.env.DOCKER_BUILD);
 
-// 调试：显示完整的哈希值信息
-if (process.env.ADMIN_PASSWORD_HASH) {
-  console.log('🔍 详细调试信息:');
-  console.log('  - 完整哈希值:', process.env.ADMIN_PASSWORD_HASH);
-  console.log('  - 哈希长度:', process.env.ADMIN_PASSWORD_HASH.length);
-  console.log('  - 哈希前10位:', process.env.ADMIN_PASSWORD_HASH.substring(0, 10));
-  console.log('  - 哈希后10位:', process.env.ADMIN_PASSWORD_HASH.substring(-10));
+// 在 Docker 构建时不读取敏感环境变量
+if (process.env.DOCKER_BUILD !== 'true') {
+  console.log('JWT_SECRET:', process.env.JWT_SECRET ? '已设置' : '未设置');
+  console.log('ADMIN_PASSWORD_HASH_BASE64:', process.env.ADMIN_PASSWORD_HASH_BASE64 ? '已设置' : '未设置');
+} else {
+  console.log('Docker 构建模式：跳过敏感环境变量检查');
 }
 
 /** @type {import('next').NextConfig} */
