@@ -115,8 +115,18 @@ docker-compose ps
 
 2. **安装依赖**
    ```bash
+   # 方式一：一键安装（推荐，自动处理构建脚本）
+   pnpm run install:full
+
+   # 方式二：标准安装
    pnpm install
+
+   # 如果看到 better-sqlite3 构建脚本警告，执行以下命令：
+   pnpm approve-builds
+   # 然后选择 better-sqlite3（按空格选择，回车确认）
    ```
+
+   > 💡 **提示**: better-sqlite3 需要编译原生模块，这是正常的。选择批准后即可正常使用。
 
 3. **启动开发服务器**
    ```bash
@@ -151,8 +161,8 @@ pnpm docker:deploy
 git clone https://github.com/leeguooooo/markdown-site
 cd markdown-site
 
-# 安装依赖
-pnpm install
+# 安装依赖（一键安装，自动处理构建脚本）
+pnpm run install:full
 
 # 一键安全构建（自动配置环境变量）
 pnpm build:safe

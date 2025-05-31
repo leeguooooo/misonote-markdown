@@ -1,0 +1,11 @@
+# 自动批准构建脚本，避免用户手动执行 pnpm approve-builds
+auto-install-peers=true
+enable-pre-post-scripts=true
+
+# 自动批准 better-sqlite3 的构建脚本
+# 这样用户在 pnpm install 时不需要手动批准
+scripts-prepend-node-path=true
+
+# 自动批准已知安全的构建脚本
+# better-sqlite3 是数据库驱动，需要编译原生模块
+enable-modules-dir=true

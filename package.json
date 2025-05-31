@@ -11,6 +11,7 @@
     "build:docker": "DOCKER_BUILD=true SKIP_PREBUILD=true next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "[ \"$SKIP_POSTINSTALL\" = \"true\" ] || (echo 'ℹ️  如果看到构建脚本警告，请运行: pnpm approve-builds' && exit 0)",
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:stop": "pm2 stop docs-platform",
     "pm2:restart": "pm2 restart docs-platform",
@@ -30,6 +31,7 @@
     "docker:publish:prepare": "bash scripts/docker-publish-check.sh && echo 'Ready to publish! Run: pnpm docker:publish'",
     "security:setup": "node scripts/generate-password.js",
     "security:verify": "node scripts/verify-password.js",
+    "install:full": "bash scripts/install.sh",
     "clean": "rm -rf .next && rm -rf logs/*.log"
   },
   "dependencies": {
