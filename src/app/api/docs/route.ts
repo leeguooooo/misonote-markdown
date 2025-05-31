@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAllDocs } from '@/lib/docs';
-import { fileSystemManager } from '@/lib/file-operations';
+import { getAllDocs } from '@/core/docs/docs';
+import { fileSystemManager } from '@/core/docs/file-operations';
 
 // 强制动态渲染，确保每次请求都重新读取文件系统
 export const dynamic = 'force-dynamic';

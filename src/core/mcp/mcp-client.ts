@@ -13,7 +13,7 @@ import {
   MCPServerCapabilities,
   MCPApiResponse
 } from '@/types/mcp';
-import { log } from './logger';
+import { log } from '../logger';
 
 export class MCPClient {
   private axiosInstance: AxiosInstance;

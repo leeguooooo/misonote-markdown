@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchDocs } from '@/lib/docs';
+import { searchDocs } from '@/core/docs/docs';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;

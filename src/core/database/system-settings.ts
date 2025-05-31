@@ -3,7 +3,7 @@
  */
 
 import { getDatabase } from './database';
-import { log } from './logger';
+import { log } from '../logger';
 
 export interface SystemSetting {
   key: string;

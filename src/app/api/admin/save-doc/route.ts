@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
-import { fileSystemManager } from '@/lib/file-operations';
+import { authenticateRequest } from '@/core/auth/auth';
+import { fileSystemManager } from '@/core/docs/file-operations';
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
-import { getMCPServerById, updateServerConnectionStatus } from '@/lib/mcp-config';
-import { mcpClientManager } from '@/lib/mcp-client';
-import { addMCPHistoryRecord } from '@/lib/mcp-history';
+import { authenticateRequest } from '@/core/auth/auth';
+import { getMCPServerById, updateServerConnectionStatus } from '@/core/mcp/mcp-config';
+import { mcpClientManager } from '@/core/mcp/mcp-client';
+import { addMCPHistoryRecord } from '@/core/mcp/mcp-history';
 import { MCPDocumentRequest } from '@/types/mcp';
 
 // POST - 推送文档到 MCP 服务器

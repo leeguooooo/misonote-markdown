@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
-import { authenticateApiKey, checkApiPermission } from '@/lib/api-auth';
-import { getDatabase } from '@/lib/database';
+import { authenticateRequest } from '@/core/auth/auth';
+import { authenticateApiKey, checkApiPermission } from '@/core/api/api-auth';
+import { getDatabase } from '@/core/database/database';
 
 /**
  * 验证管理员权限（支持 JWT token 和 API Key）

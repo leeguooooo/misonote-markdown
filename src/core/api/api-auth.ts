@@ -4,7 +4,7 @@
 
 import { NextRequest } from 'next/server';
 import { validateApiKey, hasPermission, isApiKeyExpired, ApiKey } from './api-keys';
-import { log } from './logger';
+import { log } from '../logger';
 
 export interface ApiAuthResult {
   success: boolean;

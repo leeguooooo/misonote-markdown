@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { MCPPushHistory } from '@/types/mcp';
-import { log } from './logger';
+import { log } from '../logger';
 
 const MCP_HISTORY_FILE = path.join(process.cwd(), 'data', 'mcp-history.json');
 const MAX_HISTORY_RECORDS = 100; // 最多保留 100 条历史记录

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAdminPassword, generateToken, getSecurityStatus } from '@/lib/auth';
-import { log } from '@/lib/logger';
+import { verifyAdminPassword, generateToken, getSecurityStatus } from '@/core/auth/auth';
+import { log } from '@/core/logger';
 
 export async function POST(request: NextRequest) {
   const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';

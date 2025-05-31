@@ -1,4 +1,4 @@
-import { getDocBySlug } from '@/lib/docs';
+import { getDocBySlug } from '@/core/docs/docs';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';

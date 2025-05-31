@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateMcpRequest } from '@/lib/api-auth';
+import { authenticateMcpRequest } from '@/core/api/api-auth';
 
 // GET - 获取 MCP 服务器能力
 export async function GET(request: NextRequest) {
