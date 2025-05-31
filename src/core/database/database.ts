@@ -80,6 +80,7 @@ function initializeTablesSync(): void {
   if (!db) return;
 
   try {
+    // 直接执行表创建，不调用企业版功能
     createBaseTables();
     createIndexes();
     log.info('数据库表初始化完成（同步）');
@@ -87,6 +88,248 @@ function initializeTablesSync(): void {
     log.error('数据库表初始化失败:', error);
     throw error;
   }
+}
+
+/**
+ * 创建基础表（同步版本）
+ */
+function createBaseTables(): void {
+  if (!db) return;
+
+  // 系统设置表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS system_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'string',
+      description TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  // API 密钥表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS api_keys (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      key_hash TEXT NOT NULL,
+      key_prefix TEXT NOT NULL,
+      permissions TEXT NOT NULL DEFAULT '[]',
+      is_active INTEGER NOT NULL DEFAULT 1,
+      expires_at DATETIME,
+      last_used_at DATETIME,
+      usage_count INTEGER NOT NULL DEFAULT 0,
+      rate_limit INTEGER NOT NULL DEFAULT 1000,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      created_by TEXT,
+      description TEXT
+    )
+  `);
+
+  // 用户表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
+      email TEXT UNIQUE,
+      display_name TEXT,
+      avatar_url TEXT,
+      user_type TEXT NOT NULL DEFAULT 'admin' CHECK (user_type IN ('admin', 'guest', 'reader')),
+      is_active INTEGER NOT NULL DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_login_at DATETIME,
+      metadata TEXT
+    )
+  `);
+
+  // 文档表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS documents (
+      id TEXT PRIMARY KEY,
+      current_path TEXT NOT NULL UNIQUE,
+      original_path TEXT NOT NULL,
+      title TEXT,
+      content_hash TEXT,
+      author_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      path_history TEXT,
+      metadata TEXT,
+      FOREIGN KEY (author_id) REFERENCES users(id)
+    )
+  `);
+
+  // 评论表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id TEXT PRIMARY KEY,
+      document_id TEXT NOT NULL,
+      document_path TEXT NOT NULL,
+      content TEXT NOT NULL,
+      author_id TEXT,
+      author_name TEXT,
+      author_email TEXT,
+      author_role TEXT DEFAULT 'guest',
+      author_avatar TEXT,
+      likes INTEGER NOT NULL DEFAULT 0,
+      is_approved INTEGER NOT NULL DEFAULT 0,
+      is_deleted INTEGER NOT NULL DEFAULT 0,
+      parent_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      metadata TEXT,
+      ip_address TEXT,
+      user_agent TEXT,
+      FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE,
+      FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
+      FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
+    )
+  `);
+
+  // 标注表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS annotations (
+      id TEXT PRIMARY KEY,
+      document_id TEXT NOT NULL,
+      document_path TEXT NOT NULL,
+      annotation_type TEXT NOT NULL CHECK (annotation_type IN ('highlight', 'note', 'bookmark')),
+      selected_text TEXT NOT NULL,
+      comment_text TEXT,
+      position_data TEXT NOT NULL,
+      author_id TEXT,
+      author_name TEXT,
+      author_email TEXT,
+      author_role TEXT DEFAULT 'guest',
+      likes INTEGER NOT NULL DEFAULT 0,
+      is_approved INTEGER NOT NULL DEFAULT 0,
+      is_deleted INTEGER NOT NULL DEFAULT 0,
+      is_resolved INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      content_hash TEXT,
+      context_before TEXT,
+      context_after TEXT,
+      anchor_confidence REAL DEFAULT 1.0,
+      metadata TEXT,
+      tags TEXT,
+      color TEXT DEFAULT '#ffeb3b',
+      FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
+      FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
+    )
+  `);
+
+  // 收藏表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS bookmarks (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      bookmark_type TEXT NOT NULL CHECK (bookmark_type IN ('document', 'annotation')),
+      target_id TEXT NOT NULL,
+      title TEXT,
+      description TEXT,
+      tags TEXT,
+      is_private INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      metadata TEXT,
+      sort_order INTEGER DEFAULT 0,
+      UNIQUE(user_id, bookmark_type, target_id)
+    )
+  `);
+
+  // 用户会话表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      token_hash TEXT NOT NULL,
+      expires_at DATETIME NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      user_agent TEXT,
+      ip_address TEXT
+    )
+  `);
+
+  // 迁移历史表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS migration_history (
+      id TEXT PRIMARY KEY,
+      migration_name TEXT NOT NULL,
+      migration_version TEXT NOT NULL,
+      source_type TEXT NOT NULL,
+      target_type TEXT NOT NULL,
+      records_migrated INTEGER NOT NULL DEFAULT 0,
+      migration_status TEXT NOT NULL CHECK (migration_status IN ('pending', 'running', 'completed', 'failed')),
+      error_message TEXT,
+      started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      completed_at DATETIME,
+      source_info TEXT,
+      migration_log TEXT
+    )
+  `);
+}
+
+/**
+ * 创建索引（同步版本）
+ */
+function createIndexes(): void {
+  if (!db) return;
+
+  db.exec(`
+    -- 用户表索引
+    CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+    CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+    CREATE INDEX IF NOT EXISTS idx_users_type ON users(user_type);
+    CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active);
+
+    -- 文档表索引
+    CREATE INDEX IF NOT EXISTS idx_documents_path ON documents(current_path);
+    CREATE INDEX IF NOT EXISTS idx_documents_author ON documents(author_id);
+    CREATE INDEX IF NOT EXISTS idx_documents_created_at ON documents(created_at);
+
+    -- 评论表索引
+    CREATE INDEX IF NOT EXISTS idx_comments_document_path ON comments(document_path);
+    CREATE INDEX IF NOT EXISTS idx_comments_document_id ON comments(document_id);
+    CREATE INDEX IF NOT EXISTS idx_comments_author_id ON comments(author_id);
+    CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at);
+    CREATE INDEX IF NOT EXISTS idx_comments_author ON comments(author_name);
+    CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_id);
+    CREATE INDEX IF NOT EXISTS idx_comments_approved ON comments(is_approved);
+
+    -- 标注表索引
+    CREATE INDEX IF NOT EXISTS idx_annotations_document_path ON annotations(document_path);
+    CREATE INDEX IF NOT EXISTS idx_annotations_document_id ON annotations(document_id);
+    CREATE INDEX IF NOT EXISTS idx_annotations_type ON annotations(annotation_type);
+    CREATE INDEX IF NOT EXISTS idx_annotations_author_id ON annotations(author_id);
+    CREATE INDEX IF NOT EXISTS idx_annotations_author ON annotations(author_name);
+    CREATE INDEX IF NOT EXISTS idx_annotations_created_at ON annotations(created_at);
+
+    -- 收藏表索引
+    CREATE INDEX IF NOT EXISTS idx_bookmarks_user ON bookmarks(user_id);
+    CREATE INDEX IF NOT EXISTS idx_bookmarks_type ON bookmarks(bookmark_type);
+    CREATE INDEX IF NOT EXISTS idx_bookmarks_target ON bookmarks(target_id);
+    CREATE INDEX IF NOT EXISTS idx_bookmarks_created_at ON bookmarks(created_at);
+
+    -- 系统设置表索引
+    CREATE INDEX IF NOT EXISTS idx_system_settings_type ON system_settings(type);
+    CREATE INDEX IF NOT EXISTS idx_system_settings_updated_at ON system_settings(updated_at);
+
+    -- API密钥表索引
+    CREATE INDEX IF NOT EXISTS idx_api_keys_prefix ON api_keys(key_prefix);
+    CREATE INDEX IF NOT EXISTS idx_api_keys_active ON api_keys(is_active);
+
+    -- 会话表索引
+    CREATE INDEX IF NOT EXISTS idx_sessions_token ON user_sessions(token_hash);
+    CREATE INDEX IF NOT EXISTS idx_sessions_expires ON user_sessions(expires_at);
+
+    -- 迁移历史表索引
+    CREATE INDEX IF NOT EXISTS idx_migration_status ON migration_history(migration_status);
+    CREATE INDEX IF NOT EXISTS idx_migration_name ON migration_history(migration_name);
+  `);
 }
 
 /**

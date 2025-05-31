@@ -15,7 +15,7 @@ beforeAll(() => {
   }
 
   // 设置测试环境变量
-  process.env.NODE_ENV = 'test'
+  ;(process.env as any).NODE_ENV = 'test'
   process.env.JWT_SECRET = 'test-jwt-secret'
   process.env.ADMIN_PASSWORD_HASH_BASE64 = Buffer.from('$2a$12$test.hash.for.testing').toString('base64')
 })
