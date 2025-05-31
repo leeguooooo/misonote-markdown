@@ -50,10 +50,7 @@ generate_env_config() {
         JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
     fi
 
-    # 生成 MCP API 密钥（如果未提供）
-    if [ -z "$MCP_API_KEY" ]; then
-        MCP_API_KEY="mcp_$(node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")"
-    fi
+
 
     cat > .env << EOF
 # Docker 环境配置
@@ -64,16 +61,12 @@ PORT=${PORT:-3001}
 ADMIN_PASSWORD_HASH_BASE64=$ADMIN_PASSWORD_HASH_BASE64
 JWT_SECRET=$JWT_SECRET
 
-# MCP 配置
-MCP_API_KEY=$MCP_API_KEY
-MCP_SERVER_URL=${MCP_SERVER_URL:-http://localhost:3001}
-
-# 公开访问地址
-NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3001}
+# 公开访问地址（可选，也可在管理后台设置）
+NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-}
 EOF
 
     echo "✅ 环境变量配置已生成"
-    echo "🔑 MCP API Key: $MCP_API_KEY"
+    echo "💡 MCP API Key 需要在管理后台创建"
 }
 
 # 检查并设置环境变量

@@ -217,9 +217,7 @@ services:
       - NODE_ENV=production
       # 设置管理员密码（推荐修改）
       - ADMIN_PASSWORD=your_secure_password
-      # 可选：自定义 MCP API Key
-      # - MCP_API_KEY=your_custom_mcp_key
-      # 可选：自定义公开访问地址
+      # 可选：自定义公开访问地址（也可在管理后台设置）
       # - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     restart: unless-stopped
     networks:
@@ -270,16 +268,19 @@ npm install
 }
 \`\`\`
 
-#### 步骤 3: 获取 API 密钥
+#### 步骤 3: 创建 MCP API 密钥
 
-从 Docker 容器启动日志中获取自动生成的 API 密钥：
+在管理后台创建 MCP API 密钥：
 
 \`\`\`bash
-# 查看容器启动日志获取 MCP API Key
-docker logs misonote-markdown 2>&1 | grep "MCP API Key"
+# 1. 访问管理后台
+open http://localhost:3001/admin
 
-# 或者进入容器查看环境变量
-docker exec misonote-markdown cat /app/.env | grep MCP_API_KEY
+# 2. 登录管理员账号
+# 3. 进入 "API 密钥管理" 页面
+# 4. 点击 "创建新密钥" 按钮
+# 5. 设置密钥名称和权限
+# 6. 复制生成的 API 密钥
 \`\`\`
 
 ### 4. 环境变量配置
@@ -291,9 +292,9 @@ docker exec misonote-markdown cat /app/.env | grep MCP_API_KEY
 | \`ADMIN_PASSWORD\` | 管理员密码（明文，启动时自动加密） | \`admin123\` |
 | \`ADMIN_PASSWORD_HASH_BASE64\` | 管理员密码哈希（Base64编码） | 自动生成 |
 | \`JWT_SECRET\` | JWT 密钥 | 自动生成 |
-| \`MCP_API_KEY\` | MCP 客户端 API 密钥 | 自动生成 |
-| \`MCP_SERVER_URL\` | MCP 服务器地址 | \`http://localhost:3001\` |
-| \`NEXT_PUBLIC_BASE_URL\` | 公开访问地址 | \`http://localhost:3001\` |
+| \`NEXT_PUBLIC_BASE_URL\` | 公开访问地址（可选，也可在管理后台设置） | 空 |
+
+> **注意**: MCP API 密钥需要在管理后台创建，不再通过环境变量配置。
 
 ### 5. 数据持久化
 

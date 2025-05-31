@@ -152,18 +152,9 @@ function initializeDatabase(database: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at);
   `);
 
-  // 插入默认系统设置
-  const insertSetting = database.prepare(`
-    INSERT OR IGNORE INTO system_settings (key, value, type, description)
-    VALUES (?, ?, ?, ?)
-  `);
-
-  insertSetting.run('mcp_webhook_enabled', 'false', 'boolean', '是否启用 MCP Webhook 功能');
-  insertSetting.run('mcp_webhook_secret', '', 'string', 'MCP Webhook 签名密钥');
-  insertSetting.run('mcp_max_retries', '3', 'number', 'MCP 推送最大重试次数');
-  insertSetting.run('mcp_retry_delay', '1000', 'number', 'MCP 推送重试延迟（毫秒）');
-  insertSetting.run('mcp_connection_timeout', '10000', 'number', 'MCP 连接超时时间（毫秒）');
-  insertSetting.run('api_rate_limit_default', '1000', 'number', '默认 API 速率限制（每小时）');
+  // 初始化默认系统设置
+  const { initializeDefaultSettings } = require('./system-settings');
+  initializeDefaultSettings();
 
   log.info('数据库初始化完成');
 }

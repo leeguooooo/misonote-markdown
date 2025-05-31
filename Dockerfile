@@ -17,7 +17,7 @@ RUN npm install -g pnpm
 # 使用一键安装命令（自动处理构建脚本）
 RUN chmod +x scripts/install.sh && \
     SKIP_POSTINSTALL=true pnpm install --frozen-lockfile && \
-    pnpm approve-builds --yes || echo "构建脚本已处理"
+    (echo "a" | pnpm approve-builds || echo "构建脚本已处理")
 
 # 构建阶段
 FROM base AS builder

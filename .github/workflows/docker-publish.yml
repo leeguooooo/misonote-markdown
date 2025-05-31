@@ -17,6 +17,11 @@ env:
   REGISTRY: docker.io
   IMAGE_NAME: misonote-markdown
 
+# 并发控制：同一分支只运行最新的构建
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -28,8 +33,25 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # 设置 Node.js 缓存以加速依赖安装
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    # 设置 pnpm 缓存
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+      with:
+        # 启用更多构建特性
+        driver-opts: |
+          network=host
 
     - name: Log in to Docker Hub
       if: github.event_name != 'pull_request'
@@ -57,12 +79,21 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        platforms: linux/amd64,linux/arm64
+        # PR 只构建 amd64 以节省时间，正式发布构建多架构
+        platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        # 优化缓存策略
+        cache-from: |
+          type=gha
+          type=registry,ref=${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache
+        cache-to: |
+          type=gha,mode=max
+          type=registry,ref=${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+        # 构建参数优化
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
 
     - name: Generate usage documentation
       if: github.event_name != 'pull_request'
@@ -82,11 +113,22 @@ jobs:
         ### 1. 直接运行
 
         ```bash
-        # 使用最新版本
+        # 使用默认临时密码 (admin123)
         docker run -d -p 3001:3001 --name misonote-markdown ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:latest
 
+        # 启动时设置自定义密码（推荐）
+        docker run -d \
+          -p 3001:3001 \
+          -e ADMIN_PASSWORD=your_secure_password \
+          --name misonote-markdown \
+          ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:latest
+
         # 使用特定版本
-        docker run -d -p 3001:3001 --name misonote-markdown ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:v1.0.0
+        docker run -d \
+          -p 3001:3001 \
+          -e ADMIN_PASSWORD=your_secure_password \
+          --name misonote-markdown \
+          ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:v1.0.0
         ```
 
         ### 2. 使用 Docker Compose
@@ -106,6 +148,8 @@ jobs:
               - ./logs:/app/logs
             environment:
               - NODE_ENV=production
+              # 设置管理员密码（推荐修改）
+              - ADMIN_PASSWORD=your_secure_password
             restart: unless-stopped
         ```
 
@@ -115,8 +159,10 @@ jobs:
         |--------|------|--------|
         | `NODE_ENV` | 运行环境 | `production` |
         | `PORT` | 服务端口 | `3001` |
+        | `ADMIN_PASSWORD` | 管理员密码（明文，启动时自动加密） | `admin123` |
         | `ADMIN_PASSWORD_HASH_BASE64` | 管理员密码哈希 | 自动生成 |
         | `JWT_SECRET` | JWT 密钥 | 自动生成 |
+        | `MCP_API_KEY` | MCP 客户端 API 密钥 | 自动生成 |
 
         ### 4. 健康检查
 
