@@ -1,3 +1,6 @@
 [submodule "misonote-mcp-client"]
 	path = misonote-mcp-client
 	url = git@github.com:leeguooooo/misonote-mcp-client.git
+[submodule "enterprise"]
+	path = enterprise
+	url = https://github.com/leeguooooo/misonote-enterprise.git

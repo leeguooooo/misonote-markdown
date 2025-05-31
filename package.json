@@ -32,7 +32,11 @@
     "security:setup": "node scripts/generate-password.js",
     "security:verify": "node scripts/verify-password.js",
     "install:full": "bash scripts/install.sh",
-    "clean": "rm -rf .next && rm -rf logs/*.log"
+    "clean": "rm -rf .next && rm -rf logs/*.log",
+    "build:community": "next build",
+    "build:professional": "npm run build:community && echo \"Professional build completed\"",
+    "build:enterprise": "npm run build:community && echo \"Enterprise build completed\"",
+    "setup:business": "node scripts/setup-business-architecture.js"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.14",
