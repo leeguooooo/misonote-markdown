@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Menu, X, BookOpen } from 'lucide-react';
-import SearchDialog from './SearchDialog';
+import SearchDialog from '@/community/search/SearchDialog';
 import GitHubLink from './GitHubLink';
 import UserManager from './UserManager';
-import { DocFile } from '@/lib/docs';
+import { DocFile } from '@/core/docs/docs';
 
 interface HeaderProps {
   onMenuToggle?: () => void;

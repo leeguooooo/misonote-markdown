@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getAllDocs } from '@/lib/docs'
+import { getAllDocs } from '@/core/docs/docs'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
+import { authenticateRequest } from '@/core/auth/auth';
 import {
   getMCPServerById,
   updateMCPServer,
   deleteMCPServer,
   validateServerConfig
-} from '@/lib/mcp-config';
-import { mcpClientManager } from '@/lib/mcp-client';
+} from '@/core/mcp/mcp-config';
+import { mcpClientManager } from '@/core/mcp/mcp-client';
 
 // GET - 获取单个 MCP 服务器配置
 export async function GET(

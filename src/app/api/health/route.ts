@@ -1,8 +1,8 @@
 // 健康检查 API 路由
 
 import { NextResponse } from 'next/server';
-import { getDatabaseStats } from '@/lib/database';
-import { log } from '@/lib/logger';
+import { getDatabaseStats } from '@/core/database/database';
+import { log } from '@/core/logger';
 
 export async function GET() {
   try {

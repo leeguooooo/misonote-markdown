@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSecurityStatus } from '@/lib/auth';
+import { getSecurityStatus } from '@/core/auth/auth';
 
 export async function GET() {
   try {

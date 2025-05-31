@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
-import type { DocTree } from '@/lib/docs';
+import type { DocTree } from '@/core/docs/docs';
 
 interface DocsLayoutClientProps {
   docTree: DocTree;

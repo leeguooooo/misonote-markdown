@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronRight, ChevronDown, FileText, Folder, FolderOpen, Expand, Minimize } from 'lucide-react';
-import { DocTree } from '@/lib/docs';
+import { DocTree } from '@/core/docs/docs';
 
 interface SidebarProps {
   docTree: DocTree;

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { log } from './logger';
+import { log } from '../logger';
 
 const DEFAULT_ADMIN_PASSWORD = 'admin123'; // 仅用于开发环境
 

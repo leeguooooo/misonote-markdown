@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMCPSettings } from '@/lib/mcp-config';
-import { fileSystemManager } from '@/lib/file-operations';
+import { getMCPSettings } from '@/core/mcp/mcp-config';
+import { fileSystemManager } from '@/core/docs/file-operations';
 import { MCPWebhookPayload, MCPDocumentRequest } from '@/types/mcp';
-import { log } from '@/lib/logger';
+import { log } from '@/core/logger';
 import crypto from 'crypto';
 
 // POST - 接收 AI 编辑器的 webhook 推送

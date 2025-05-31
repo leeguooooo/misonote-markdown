@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
-import { getMCPServerById, updateServerConnectionStatus } from '@/lib/mcp-config';
-import { mcpClientManager } from '@/lib/mcp-client';
+import { authenticateRequest } from '@/core/auth/auth';
+import { getMCPServerById, updateServerConnectionStatus } from '@/core/mcp/mcp-config';
+import { mcpClientManager } from '@/core/mcp/mcp-client';
 
 // POST - 测试 MCP 服务器连接
 export async function POST(

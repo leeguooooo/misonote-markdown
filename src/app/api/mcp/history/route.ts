@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
+import { authenticateRequest } from '@/core/auth/auth';
 import { 
   readMCPHistory, 
   getRecentMCPHistory, 
   getMCPHistoryByServerId,
   getMCPPushStatistics,
   cleanupOldMCPHistory
-} from '@/lib/mcp-history';
+} from '@/core/mcp/mcp-history';
 
 // GET - 获取推送历史
 export async function GET(request: NextRequest) {

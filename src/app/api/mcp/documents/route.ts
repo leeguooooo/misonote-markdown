@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateMcpRequest } from '@/lib/api-auth';
-import { fileSystemManager } from '@/lib/file-operations';
-import { log } from '@/lib/logger';
+import { authenticateMcpRequest } from '@/core/api/api-auth';
+import { fileSystemManager } from '@/core/docs/file-operations';
+import { log } from '@/core/logger';
 
 // GET - 获取文档列表
 export async function GET(request: NextRequest) {

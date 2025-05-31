@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
+import { authenticateRequest } from '@/core/auth/auth';
 import { 
   getAllMCPServers, 
   addMCPServer, 
   validateServerConfig 
-} from '@/lib/mcp-config';
+} from '@/core/mcp/mcp-config';
 import { MCPServerConfig } from '@/types/mcp';
 
 // GET - 获取所有 MCP 服务器配置

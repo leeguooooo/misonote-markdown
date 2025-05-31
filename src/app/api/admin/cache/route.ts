@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
-import { docsCache } from '@/lib/docs-cache';
+import { authenticateRequest } from '@/core/auth/auth';
+import { docsCache } from '@/core/docs/docs-cache';
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';

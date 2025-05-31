@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, FileText, X } from 'lucide-react';
 import Link from 'next/link';
-import { DocFile } from '@/lib/docs';
+import { DocFile } from '@/core/docs/docs';
 
 interface SearchDialogProps {
   isOpen: boolean;

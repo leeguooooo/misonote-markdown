@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { MCPServerConfig, MCPConfigStorage } from '@/types/mcp';
-import { log } from './logger';
+import { log } from '../logger';
 
 const MCP_CONFIG_FILE = path.join(process.cwd(), 'data', 'mcp-config.json');
 

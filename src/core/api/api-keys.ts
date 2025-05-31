@@ -5,8 +5,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { getDatabase } from './database';
-import { log } from './logger';
+import { getDatabase } from '../database/database';
+import { log } from '../logger';
 
 export interface ApiKey {
   id: string;

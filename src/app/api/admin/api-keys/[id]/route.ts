@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateRequest } from '@/lib/auth';
+import { authenticateRequest } from '@/core/auth/auth';
 import { 
   getApiKeyById, 
   updateApiKey, 
   deleteApiKey 
-} from '@/lib/api-keys';
+} from '@/core/api/api-keys';
 
 // GET - 获取单个 API 密钥信息
 export async function GET(
