@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ import {
   CreditCard
 } from 'lucide-react';
 
-const PurchasePage: React.FC = () => {
+const PurchasePageContent: React.FC = () => {
   const searchParams = useSearchParams();
   const [selectedType, setSelectedType] = useState(searchParams.get('type') || 'professional');
   const [formData, setFormData] = useState({
@@ -297,6 +297,21 @@ const PurchasePage: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const PurchasePage: React.FC = () => {
+  return (
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">加载中...</p>
+        </div>
+      </div>
+    }>
+      <PurchasePageContent />
+    </Suspense>
   );
 };
 
