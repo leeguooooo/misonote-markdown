@@ -9,6 +9,8 @@ import crypto from 'crypto';
 import { SecurityAuditLogger } from './security-audit';
 import { RateLimiter } from './rate-limiter';
 import { HardwareFingerprint } from './hardware-fingerprint';
+import { SecurityConfigManager } from './security-config';
+import { trustedTimeService, TimeValidationResult } from './trusted-time';
 
 export class LicenseManager {
   private static instance: LicenseManager;
@@ -17,6 +19,8 @@ export class LicenseManager {
   private auditLogger = SecurityAuditLogger.getInstance();
   private rateLimiter = RateLimiter.getInstance();
   private hardwareFingerprint = HardwareFingerprint.getInstance();
+  private securityConfig = SecurityConfigManager.getInstance();
+  private usedNonces = new Set<string>();
   
   static getInstance(): LicenseManager {
     if (!LicenseManager.instance) {
@@ -71,12 +75,47 @@ export class LicenseManager {
         };
       }
 
-      // 检查许可证是否过期
-      if (parsedLicense.expiresAt && parsedLicense.expiresAt < new Date()) {
+      // 使用可信时间验证许可证有效期
+      const timeValidation = await trustedTimeService.validateLicenseTime(
+        parsedLicense.issuedAt,
+        parsedLicense.expiresAt,
+        24 * 60 * 60 * 1000 // 24小时宽限期
+      );
+
+      if (!timeValidation.isValid) {
+        // 记录时间验证失败的审计日志
+        this.auditLogger.logLicenseValidationFailure(
+          `时间验证失败: ${timeValidation.error}`,
+          this.buildLicenseKey(parsedLicense),
+          { timeSource: timeValidation.source, confidence: timeValidation.confidence }
+        );
+
         return {
           valid: false,
-          error: '许可证已过期'
+          error: timeValidation.error || '许可证时间验证失败'
         };
+      }
+
+      // 如果有时间警告，记录到日志
+      if (timeValidation.warning) {
+        log.warn(`许可证时间警告: ${timeValidation.warning}`);
+
+        // 记录时间警告的审计日志
+        log.info(`许可证时间警告已记录: ${parsedLicense.id}`);
+      }
+
+      // 检查时间源的可信度
+      if (timeValidation.confidence === 'low') {
+        log.warn('许可证验证使用低可信度时间源，可能存在时间篡改风险');
+
+        // 在低可信度情况下，增加额外的验证
+        const timeSyncStatus = trustedTimeService.getTimeSyncStatus();
+        if (!timeSyncStatus.isReliable) {
+          return {
+            valid: false,
+            error: '时间同步不可靠，无法验证许可证有效期'
+          };
+        }
       }
 
       // 在线验证（可选）
@@ -192,14 +231,99 @@ export class LicenseManager {
    */
   private async validateOnline(license: License): Promise<LicenseValidation | null> {
     try {
-      // TODO: 实现在线验证逻辑
-      // 向许可证服务器发送验证请求
+      // 检查是否启用在线验证
+      const securityConfig = this.securityConfig.getConfig();
+      if (!securityConfig.validation.requireOnlineValidation) {
+        log.debug('在线验证已禁用，跳过');
+        return null;
+      }
 
-      // 临时实现：跳过在线验证
-      return null;
+      // 获取许可证服务器URL
+      const serverUrl = this.getLicenseServerUrl();
+      if (!serverUrl) {
+        log.warn('许可证服务器URL未配置，跳过在线验证');
+        return null;
+      }
+
+      log.debug(`开始在线验证许可证: ${license.id}`);
+
+      // 生成设备指纹
+      const deviceFingerprint = await this.generateDeviceFingerprint();
+
+      // 构建验证请求
+      const verifyRequest = {
+        licenseKey: this.buildLicenseKey(license),
+        deviceFingerprint,
+        timestamp: Date.now(),
+        nonce: this.generateNonce()
+      };
+
+      // 发送验证请求
+      const response = await fetch(`${serverUrl}/api/v1/licenses/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'Misonote-Client/1.0'
+        },
+        body: JSON.stringify(verifyRequest),
+        signal: AbortSignal.timeout(securityConfig.validation.onlineValidationTimeout)
+      });
+
+      if (!response.ok) {
+        log.error(`在线验证失败: HTTP ${response.status}`);
+        return {
+          valid: false,
+          error: `在线验证失败: 服务器返回 ${response.status}`
+        };
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        log.error('在线验证失败:', result.error);
+        return {
+          valid: false,
+          error: result.error || '在线验证失败'
+        };
+      }
+
+      // 验证服务器响应签名（如果提供）
+      if (result.signature) {
+        const signatureValid = await this.verifyServerResponseSignature(result);
+        if (!signatureValid) {
+          log.error('服务器响应签名验证失败');
+          return {
+            valid: false,
+            error: '服务器响应签名验证失败'
+          };
+        }
+      }
+
+      log.info('在线验证成功');
+      return { valid: true, license };
+
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        log.error('在线验证超时');
+        return {
+          valid: false,
+          error: '在线验证超时'
+        };
+      }
+
       log.error('在线验证许可证失败:', error);
-      return null;
+
+      // 网络错误时，根据配置决定是否允许离线模式
+      const securityConfig = this.securityConfig.getConfig();
+      if (securityConfig.validation.allowOfflineGracePeriod > 0) {
+        log.warn('在线验证失败，使用离线模式');
+        return null; // 允许继续使用本地验证结果
+      }
+
+      return {
+        valid: false,
+        error: '在线验证失败且不允许离线模式'
+      };
     }
   }
 
@@ -224,5 +348,104 @@ export class LicenseManager {
            request.connection?.remoteAddress ||
            request.socket?.remoteAddress ||
            'unknown';
+  }
+
+  /**
+   * 获取许可证服务器URL
+   */
+  private getLicenseServerUrl(): string | null {
+    // 优先使用环境变量
+    const envUrl = process.env.MISONOTE_LICENSE_SERVER_URL;
+    if (envUrl) {
+      return envUrl;
+    }
+
+    // 根据环境返回默认URL
+    const env = process.env.NODE_ENV || 'development';
+
+    if (env === 'production') {
+      return 'https://license-api.misonote.com';
+    } else if (env === 'development') {
+      // 开发环境也使用自定义域名，方便测试
+      return 'https://license-api.misonote.com';
+    } else {
+      // 测试环境使用自定义域名
+      return 'https://license-api.misonote.com';
+    }
+  }
+
+  /**
+   * 生成设备指纹
+   */
+  private async generateDeviceFingerprint(): Promise<string> {
+    const result = await this.hardwareFingerprint.generateFingerprint();
+    return result.fingerprint;
+  }
+
+  /**
+   * 构建许可证密钥
+   */
+  private buildLicenseKey(license: License): string {
+    const licenseData = {
+      id: license.id,
+      type: license.type,
+      organization: license.organization,
+      email: license.email,
+      maxUsers: license.maxUsers,
+      features: license.features,
+      issuedAt: license.issuedAt.toISOString(),
+      expiresAt: license.expiresAt?.toISOString() || null,
+      signature: license.signature,
+      metadata: license.metadata
+    };
+
+    const encodedData = Buffer.from(JSON.stringify(licenseData)).toString('base64');
+    return `misonote_${encodedData}`;
+  }
+
+  /**
+   * 生成随机nonce
+   */
+  private generateNonce(): string {
+    const nonce = crypto.randomBytes(16).toString('hex');
+
+    // 防重放检查
+    if (this.usedNonces.has(nonce)) {
+      return this.generateNonce(); // 递归生成新的nonce
+    }
+
+    this.usedNonces.add(nonce);
+
+    // 清理过期的nonce（保留最近1000个）
+    if (this.usedNonces.size > 1000) {
+      const noncesArray = Array.from(this.usedNonces);
+      this.usedNonces.clear();
+      noncesArray.slice(-500).forEach(n => this.usedNonces.add(n));
+    }
+
+    return nonce;
+  }
+
+  /**
+   * 验证服务器响应签名
+   */
+  private async verifyServerResponseSignature(response: any): Promise<boolean> {
+    try {
+      // TODO: 实现服务器响应签名验证
+      // 这里应该使用服务器公钥验证响应签名
+
+      // 临时实现：检查签名格式
+      if (!response.signature || typeof response.signature !== 'string') {
+        return false;
+      }
+
+      // 检查签名是否为有效的hex字符串
+      const hexPattern = /^[a-f0-9]{64}$/i;
+      return hexPattern.test(response.signature);
+
+    } catch (error) {
+      log.error('验证服务器响应签名失败:', error);
+      return false;
+    }
   }
 }

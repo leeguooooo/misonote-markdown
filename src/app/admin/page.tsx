@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Plus, FolderPlus, Server, Send, Key } from 'lucide-react';
+import { Upload, Plus, FolderPlus, Server, Send, Key, Shield } from 'lucide-react';
 import AdminAuth from '@/components/auth/AdminAuth';
 import EnhancedFileTree from '@/components/admin/EnhancedFileTree';
 import MarkdownEditor from '@/components/admin/MarkdownEditor';
@@ -10,6 +10,7 @@ import DragDropUpload from '@/components/admin/DragDropUpload';
 import MCPServerManager from '@/components/admin/MCPServerManager';
 import MCPDocumentPusher from '@/components/admin/MCPDocumentPusher';
 import ApiKeyManager from '@/components/admin/ApiKeyManager';
+import SimpleLicenseStatus from '@/components/business/SimpleLicenseStatus';
 
 interface FileItem {
   name: string;
@@ -34,6 +35,7 @@ export default function AdminPage() {
   const [showMCPManager, setShowMCPManager] = useState(false);
   const [showMCPPusher, setShowMCPPusher] = useState(false);
   const [showApiKeyManager, setShowApiKeyManager] = useState(false);
+  const [showLicenseManager, setShowLicenseManager] = useState(false);
 
   // Load existing documents on component mount
   useEffect(() => {
@@ -356,6 +358,13 @@ export default function AdminPage() {
               </h2>
               <div className="flex items-center gap-2">
                 <button
+                  onClick={() => setShowLicenseManager(true)}
+                  className="p-2 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
+                  title="许可证管理"
+                >
+                  <Shield className="w-5 h-5" />
+                </button>
+                <button
                   onClick={() => setShowApiKeyManager(true)}
                   className="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors"
                   title="API 密钥管理"
@@ -485,6 +494,26 @@ export default function AdminPage() {
                   }))}
                   onClose={() => setShowMCPPusher(false)}
                 />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 许可证管理对话框 */}
+        {showLicenseManager && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold">许可证管理</h2>
+                  <button
+                    onClick={() => setShowLicenseManager(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <SimpleLicenseStatus />
               </div>
             </div>
           </div>

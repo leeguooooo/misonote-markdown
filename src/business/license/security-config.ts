@@ -124,8 +124,8 @@ export class SecurityConfigManager {
       },
       
       validation: {
-        requireOnlineValidation: false, // 暂时关闭在线验证
-        onlineValidationTimeout: 5000, // 5秒
+        requireOnlineValidation: true, // 启用在线验证进行测试
+        onlineValidationTimeout: 10000, // 10秒
         allowOfflineGracePeriod: 24, // 24小时
         maxOfflineValidations: 10
       },
