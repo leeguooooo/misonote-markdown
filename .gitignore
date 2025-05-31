@@ -61,7 +61,7 @@ logs/
 # 备份文件
 *.backup
 *.backup.*
-database.ts
+# database.ts  # 注释掉，允许数据库模块文件
 mcp-client/node_modules/*
 
 # MCP 客户端 (独立仓库)
