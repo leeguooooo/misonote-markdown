@@ -23,7 +23,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-push:
+  # 🆓 社区版构建 - 公开发布
+  build-community:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,25 +34,18 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 设置 Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18'
 
-    # 设置 pnpm 缓存（推荐方式）
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: latest
-        cache: true
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-      with:
-        # 启用更多构建特性
-        driver-opts: |
-          network=host
 
     - name: Log in to Docker Hub
       if: github.event_name != 'pull_request'
@@ -61,39 +55,125 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Extract metadata
-      id: meta
+    - name: Extract metadata for Community Edition
+      id: meta-community
       uses: docker/metadata-action@v5
       with:
         images: ${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
         tags: |
-          type=ref,event=branch,suffix=-{{sha}}
-          type=ref,event=pr,suffix=-{{sha}}
-          type=semver,pattern={{version}}
-          type=semver,pattern={{major}}.{{minor}}
-          type=semver,pattern={{major}}
+          type=ref,event=branch,suffix=-community-{{sha}}
+          type=ref,event=pr,suffix=-community-{{sha}}
+          type=semver,pattern={{version}}-community
+          type=semver,pattern={{major}}.{{minor}}-community
+          type=raw,value=community-latest,enable={{is_default_branch}}
           type=raw,value=latest,enable={{is_default_branch}}
-          type=sha,prefix=commit-
 
-    - name: Build and push Docker image
+    # 🚨 SECURITY: 验证企业版代码已被排除
+    - name: Security Check - Verify Enterprise Code Exclusion
+      run: |
+        echo "🔒 验证 .dockerignore 配置..."
+        if ! grep -q "enterprise/" .dockerignore; then
+          echo "❌ .dockerignore 未正确配置！"
+          exit 1
+        fi
+        echo "✅ 安全检查通过"
+
+    - name: Build and push Community Edition
       uses: docker/build-push-action@v5
       with:
         context: .
-        # PR 只构建 amd64 以节省时间，正式发布构建多架构
+        file: ./Dockerfile.community
         platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }}
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        # 优化缓存策略
+        tags: ${{ steps.meta-community.outputs.tags }}
+        labels: ${{ steps.meta-community.outputs.labels }}
         cache-from: |
           type=gha
-          type=registry,ref=${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache
+          type=registry,ref=${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:community-buildcache
         cache-to: |
           type=gha,mode=max
-          type=registry,ref=${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
-        # 构建参数优化
+          type=registry,ref=${{ env.REGISTRY }}/${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:community-buildcache,mode=max
         build-args: |
           BUILDKIT_INLINE_CACHE=1
+          MISONOTE_EDITION=community
+
+  # 🏢 企业版构建 - 私有发布（仅在特定条件下触发）
+  build-enterprise:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[enterprise]')
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # 企业版需要完整的代码历史
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: latest
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    # 🔒 SECURITY: 验证企业版代码存在
+    - name: Security Check - Verify Enterprise Code Exists
+      run: |
+        echo "🔒 验证企业版代码..."
+        if [ ! -d "enterprise" ]; then
+          echo "❌ 企业版代码目录不存在！"
+          exit 1
+        fi
+        if [ ! -f "enterprise/types/features.ts" ]; then
+          echo "❌ 企业版功能定义不存在！"
+          exit 1
+        fi
+        echo "✅ 企业版代码验证通过"
+
+    - name: Log in to Private Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ secrets.PRIVATE_REGISTRY }}
+        username: ${{ secrets.PRIVATE_REGISTRY_USERNAME }}
+        password: ${{ secrets.PRIVATE_REGISTRY_PASSWORD }}
+
+    - name: Extract metadata for Enterprise Edition
+      id: meta-enterprise
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.PRIVATE_REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=semver,pattern={{version}}-enterprise
+          type=semver,pattern={{major}}.{{minor}}-enterprise
+          type=raw,value=enterprise-latest,enable={{is_default_branch}}
+
+    - name: Build and push Enterprise Edition
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.enterprise
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta-enterprise.outputs.tags }}
+        labels: ${{ steps.meta-enterprise.outputs.labels }}
+        cache-from: |
+          type=gha
+          type=registry,ref=${{ secrets.PRIVATE_REGISTRY }}/${{ env.IMAGE_NAME }}:enterprise-buildcache
+        cache-to: |
+          type=gha,mode=max
+          type=registry,ref=${{ secrets.PRIVATE_REGISTRY }}/${{ env.IMAGE_NAME }}:enterprise-buildcache,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+          MISONOTE_EDITION=enterprise
 
     - name: Generate usage documentation
       if: github.event_name != 'pull_request'

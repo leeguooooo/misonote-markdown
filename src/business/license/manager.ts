@@ -11,6 +11,7 @@ import { RateLimiter } from './rate-limiter';
 import { HardwareFingerprint } from './hardware-fingerprint';
 import { SecurityConfigManager } from './security-config';
 import { trustedTimeService, TimeValidationResult } from './trusted-time';
+// 企业版功能将通过动态导入加载
 
 export class LicenseManager {
   private static instance: LicenseManager;
@@ -21,14 +22,14 @@ export class LicenseManager {
   private hardwareFingerprint = HardwareFingerprint.getInstance();
   private securityConfig = SecurityConfigManager.getInstance();
   private usedNonces = new Set<string>();
-  
+
   static getInstance(): LicenseManager {
     if (!LicenseManager.instance) {
       LicenseManager.instance = new LicenseManager();
     }
     return LicenseManager.instance;
   }
-  
+
   async validateLicense(licenseKey?: string, request?: any): Promise<LicenseValidation> {
     log.info('开始验证许可证');
 
@@ -139,19 +140,69 @@ export class LicenseManager {
       };
     }
   }
-  
+
   getCurrentLicense(): License | null {
     return this.currentLicense;
   }
-  
+
+  /**
+   * 检查功能是否可用（向后兼容的简单版本）
+   */
   hasFeature(feature: string): boolean {
     return this.currentLicense?.features.includes(feature) ?? false;
   }
-  
+
+  /**
+   * 检查功能标志是否可用（企业版功能，社区版中返回false）
+   * 注意：此方法在企业版中会被重写
+   */
+  isFeatureEnabled(_feature: any): boolean {
+    // 社区版中，企业版功能标志都不可用
+    return false;
+  }
+
+  /**
+   * 获取当前许可证支持的所有功能（企业版功能）
+   * 注意：此方法在企业版中会被重写
+   */
+  getAvailableFeatures(): any[] {
+    // 社区版中，只返回基础功能
+    return ['comments', 'annotations', 'bookmarks', 'basic_search'];
+  }
+
+  /**
+   * 获取功能要求信息（企业版功能）
+   * 注意：此方法在企业版中会被重写
+   */
+  getFeatureRequirement(_feature: any): any {
+    // 社区版中，返回空对象
+    return {};
+  }
+
+  /**
+   * 检查功能并返回详细信息（企业版功能）
+   * 注意：此方法在企业版中会被重写
+   */
+  checkFeatureAccess(_feature: any): {
+    enabled: boolean;
+    reason?: string;
+    upgradeUrl?: string;
+    requiredLicense?: string[];
+    missingDependencies?: any[];
+  } {
+    // 社区版中，企业版功能都不可用
+    return {
+      enabled: false,
+      reason: '此功能需要企业版许可证',
+      upgradeUrl: '/pricing',
+      requiredLicense: ['professional', 'enterprise']
+    };
+  }
+
   getMaxUsers(): number {
     return this.currentLicense?.maxUsers ?? 1;
   }
-  
+
   getLicenseType(): LicenseType {
     return (this.currentLicense?.type as LicenseType) ?? LicenseType.COMMUNITY;
   }
@@ -215,15 +266,156 @@ export class LicenseManager {
    */
   private async verifySignature(license: License): Promise<boolean> {
     try {
-      // TODO: 实现实际的签名验证逻辑
-      // 这里应该使用公钥验证许可证签名
+      // 检查签名是否存在
+      if (!license.signature || license.signature.length === 0) {
+        log.error('许可证签名为空');
+        return false;
+      }
 
-      // 临时实现：检查签名是否存在
-      return !!(license.signature && license.signature.length > 0);
+      // 开发环境的测试签名
+      if (process.env.NODE_ENV === 'development' && license.signature === 'test_signature_placeholder') {
+        log.warn('使用开发环境测试签名');
+        return true;
+      }
+
+      // 获取公钥
+      const publicKey = await this.getPublicKey();
+      if (!publicKey) {
+        log.error('无法获取RSA公钥');
+        return false;
+      }
+
+      // 构建待验证的数据
+      const dataToVerify = this.buildSignatureData(license);
+
+      // 解码签名
+      const signatureBuffer = this.decodeSignature(license.signature);
+      if (!signatureBuffer) {
+        log.error('签名格式无效');
+        return false;
+      }
+
+      // 验证RSA-PSS签名
+      const isValid = await crypto.subtle.verify(
+        {
+          name: 'RSA-PSS',
+          saltLength: 32
+        },
+        publicKey,
+        signatureBuffer,
+        dataToVerify
+      );
+
+      if (isValid) {
+        log.debug('许可证签名验证成功');
+      } else {
+        log.error('许可证签名验证失败');
+      }
+
+      return isValid;
     } catch (error) {
       log.error('验证许可证签名失败:', error);
       return false;
     }
+  }
+
+  /**
+   * 获取RSA公钥
+   */
+  private async getPublicKey(): Promise<CryptoKey | null> {
+    try {
+      // 从环境变量或配置文件获取公钥
+      const publicKeyPem = process.env.MISONOTE_LICENSE_PUBLIC_KEY || this.getDefaultPublicKey();
+
+      if (!publicKeyPem) {
+        log.error('未配置许可证公钥');
+        return null;
+      }
+
+      // 将PEM格式转换为Uint8Array
+      const publicKeyBuffer = this.pemToUint8Array(publicKeyPem);
+
+      // 导入公钥
+      const publicKey = await crypto.subtle.importKey(
+        'spki',
+        publicKeyBuffer,
+        {
+          name: 'RSA-PSS',
+          hash: 'SHA-256'
+        },
+        false,
+        ['verify']
+      );
+
+      return publicKey;
+    } catch (error) {
+      log.error('导入RSA公钥失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 构建签名验证数据
+   */
+  private buildSignatureData(license: License): Uint8Array {
+    // 构建标准化的签名数据
+    const signatureData = {
+      id: license.id,
+      type: license.type,
+      organization: license.organization,
+      email: license.email,
+      maxUsers: license.maxUsers,
+      features: license.features.sort(), // 排序确保一致性
+      issuedAt: license.issuedAt.toISOString(),
+      expiresAt: license.expiresAt?.toISOString() || null
+    };
+
+    const dataString = JSON.stringify(signatureData);
+    return new TextEncoder().encode(dataString);
+  }
+
+  /**
+   * 解码签名
+   */
+  private decodeSignature(signature: string): Uint8Array | null {
+    try {
+      // 假设签名是Base64编码的
+      return new Uint8Array(Buffer.from(signature, 'base64'));
+    } catch (error) {
+      log.error('解码签名失败:', error);
+      return null;
+    }
+  }
+
+  /**
+   * 将PEM格式转换为Uint8Array
+   */
+  private pemToUint8Array(pem: string): Uint8Array {
+    // 移除PEM头尾和换行符
+    const pemContents = pem
+      .replace(/-----BEGIN PUBLIC KEY-----/, '')
+      .replace(/-----END PUBLIC KEY-----/, '')
+      .replace(/\s/g, '');
+
+    // Base64解码
+    return new Uint8Array(Buffer.from(pemContents, 'base64'));
+  }
+
+  /**
+   * 获取默认公钥（用于开发和测试）
+   */
+  private getDefaultPublicKey(): string {
+    // 这是生成的真实公钥，对应的私钥用于许可证签名
+    // 生产环境应该通过环境变量 MISONOTE_LICENSE_PUBLIC_KEY 配置
+    return `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuyX/SyrpOuBBH+U2P4Ob
+SLaBsNj6eYRMUm0Jm3wt8smT28PDAxxlcvdjaA7e5td4zd14J4hV7JlEmPOxBe4O
+qz5U8wKqHeyiB/uUYa5zWzVWko8XrT9GM4d5f1T85o4SqLkMk0CY0ntGUU2kc/ns
+BCZ51tR3oTu183e2ptmuN+jNT3fuQDJ1r0IoV3l0TwCHd6XRzu3Y5Q+n7Kcs0LsK
+L20zWSmDlbrY5lDNHBOpGg/NK69VCF51qpMZyM2znV6qlLxIAUpMkfRLCsihtMIU
+V8wpOLgmwXxS9Q8s1sbm72ZTY08Tls+V40YGsOVG6HBismBxOFncAh1x7gVzOitH
+9QIDAQAB
+-----END PUBLIC KEY-----`;
   }
 
   /**
