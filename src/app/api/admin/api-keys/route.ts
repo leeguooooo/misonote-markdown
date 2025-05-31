@@ -1,21 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/auth';
-import { 
-  createApiKey, 
-  getAllApiKeys, 
+import { authenticateApiKey, checkApiPermission } from '@/lib/api-auth';
+import {
+  createApiKey,
+  getAllApiKeys,
   deleteApiKey,
   cleanupExpiredApiKeys,
-  CreateApiKeyRequest 
+  CreateApiKeyRequest
 } from '@/lib/api-keys';
+
+/**
+ * 验证管理员权限（支持 JWT token 和 API Key）
+ */
+function authenticateAdmin(request: NextRequest): { success: boolean; error?: string } {
+  // 首先尝试 JWT token 认证
+  const user = authenticateRequest(request);
+  if (user && user.role === 'admin') {
+    return { success: true };
+  }
+
+  // 然后尝试 API Key 认证
+  const apiAuthResult = authenticateApiKey(request);
+  if (apiAuthResult.success && apiAuthResult.apiKey) {
+    // 检查是否有管理员权限
+    if (checkApiPermission(apiAuthResult.apiKey, 'admin')) {
+      return { success: true };
+    }
+    return { success: false, error: 'API Key 缺少管理员权限' };
+  }
+
+  return { success: false, error: '需要管理员权限' };
+}
 
 // GET - 获取所有 API 密钥
 export async function GET(request: NextRequest) {
   try {
     // 验证管理员认证
-    const user = authenticateRequest(request);
-    if (!user || user.role !== 'admin') {
+    const authResult = authenticateAdmin(request);
+    if (!authResult.success) {
       return NextResponse.json(
-        { error: '需要管理员权限' },
+        { error: authResult.error || '需要管理员权限' },
         { status: 403 }
       );
     }
@@ -48,10 +72,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 验证管理员认证
-    const user = authenticateRequest(request);
-    if (!user || user.role !== 'admin') {
+    const authResult = authenticateAdmin(request);
+    if (!authResult.success) {
       return NextResponse.json(
-        { error: '需要管理员权限' },
+        { error: authResult.error || '需要管理员权限' },
         { status: 403 }
       );
     }
@@ -73,7 +97,7 @@ export async function POST(request: NextRequest) {
       expiresAt: requestData.expiresAt ? new Date(requestData.expiresAt) : undefined,
       rateLimit: requestData.rateLimit || 1000,
       description: requestData.description?.trim(),
-      createdBy: user.username,
+      createdBy: 'api-key-admin', // API Key 认证时使用默认值
     };
 
     // 验证权限格式
@@ -126,10 +150,10 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // 验证管理员认证
-    const user = authenticateRequest(request);
-    if (!user || user.role !== 'admin') {
+    const authResult = authenticateAdmin(request);
+    if (!authResult.success) {
       return NextResponse.json(
-        { error: '需要管理员权限' },
+        { error: authResult.error || '需要管理员权限' },
         { status: 403 }
       );
     }
