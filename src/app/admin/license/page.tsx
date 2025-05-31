@@ -1,20 +1,20 @@
 'use client';
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import LicenseStatus from '@/components/LicenseStatus';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Shield,
-  Star,
+  BarChart3,
   Crown,
+  ExternalLink,
   Key,
   Settings,
-  BarChart3,
-  ExternalLink
+  Shield,
+  Star
 } from 'lucide-react';
-import LicenseStatus from '@/components/LicenseStatus';
+import React from 'react';
 
 const LicenseManagementPage: React.FC = () => {
   return (
@@ -202,8 +202,8 @@ const LicenseManagementPage: React.FC = () => {
                   </ul>
                 </div>
 
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() => window.open('/DOCKER_COMMERCIAL_GUIDE.md', '_blank')}
                 >
@@ -230,8 +230,8 @@ const LicenseManagementPage: React.FC = () => {
                       <div className="flex items-center justify-between mb-1">
                         <code className="font-semibold text-blue-600">{env.name}</code>
                         <Badge variant="outline" className="text-xs">
-                          {env.name.includes('LICENSE_KEY') ? '商业版' : 
-                           env.name === 'ADMIN_PASSWORD' ? '必需' : '可选'}
+                          {env.name.includes('LICENSE_KEY') ? '商业版' :
+                            env.name === 'ADMIN_PASSWORD' ? '必需' : '可选'}
                         </Badge>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">{env.description}</p>
@@ -259,8 +259,8 @@ const LicenseManagementPage: React.FC = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-20 flex-col"
                     onClick={() => window.open('/admin/license-generator', '_blank')}
                   >
@@ -268,8 +268,8 @@ const LicenseManagementPage: React.FC = () => {
                     许可证生成器
                   </Button>
 
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="h-20 flex-col"
                     onClick={() => window.open('/admin/license-stats', '_blank')}
                   >

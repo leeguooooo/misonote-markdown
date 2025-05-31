@@ -1,23 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
-  Shield,
-  Users,
-  Star,
-  Crown,
-  CheckCircle,
   AlertCircle,
-  Key,
+  Building,
   Calendar,
-  Building
+  CheckCircle,
+  Crown,
+  Key,
+  Shield,
+  Star,
+  Users
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface LicenseInfo {
   hasLicense: boolean;
@@ -42,7 +42,7 @@ const LicenseStatus: React.FC = () => {
       setLoading(true);
       const response = await fetch('/api/license/status');
       const data = await response.json();
-      
+
       if (data.success) {
         setLicenseInfo(data.data);
       } else {
@@ -65,7 +65,7 @@ const LicenseStatus: React.FC = () => {
     try {
       setValidating(true);
       setError(null);
-      
+
       const response = await fetch('/api/license/status', {
         method: 'POST',
         headers: {
@@ -73,9 +73,9 @@ const LicenseStatus: React.FC = () => {
         },
         body: JSON.stringify({ licenseKey }),
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setLicenseInfo(data.data);
         setLicenseKey('');
@@ -243,7 +243,7 @@ const LicenseStatus: React.FC = () => {
               disabled={validating}
             />
           </div>
-          
+
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -251,8 +251,8 @@ const LicenseStatus: React.FC = () => {
             </Alert>
           )}
 
-          <Button 
-            onClick={validateLicense} 
+          <Button
+            onClick={validateLicense}
             disabled={validating || !licenseKey.trim()}
             className="w-full"
           >
@@ -274,13 +274,12 @@ const LicenseStatus: React.FC = () => {
             {Object.entries(licenseConfig).map(([type, config]) => {
               const IconComp = config.icon;
               const isCurrent = licenseInfo?.licenseType === type;
-              
+
               return (
                 <div
                   key={type}
-                  className={`border rounded-lg p-4 ${
-                    isCurrent ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-                  }`}
+                  className={`border rounded-lg p-4 ${isCurrent ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                    }`}
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <IconComp className="h-5 w-5" />
@@ -291,11 +290,11 @@ const LicenseStatus: React.FC = () => {
                   </div>
                   <p className="text-sm text-gray-600 mb-2">{config.description}</p>
                   <p className="font-bold text-lg mb-3">{config.price}</p>
-                  
+
                   {!isCurrent && (
-                    <Button 
+                    <Button
                       variant={type === 'community' ? 'outline' : 'default'}
-                      size="sm" 
+                      size="sm"
                       className="w-full"
                       onClick={() => {
                         if (type === 'community') {
