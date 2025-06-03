@@ -1,8 +1,18 @@
 # 多阶段构建 Dockerfile for Misonote Markdown System
 FROM node:18-alpine AS base
 
-# 安装必要的系统依赖
-RUN apk add --no-cache libc6-compat
+# 安装必要的系统依赖和构建工具（移除 SQLite，添加 PostgreSQL 客户端）
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    gcc \
+    musl-dev \
+    postgresql-client \
+    pkgconfig \
+    git
 
 # 设置工作目录
 WORKDIR /app
@@ -14,9 +24,17 @@ COPY scripts/install.sh ./scripts/
 # 安装 pnpm
 RUN npm install -g pnpm
 
+# 设置构建环境变量
+ENV PYTHON=/usr/bin/python3
+ENV npm_config_build_from_source=false
+ENV MAKEFLAGS="-j$(nproc)"
+ENV npm_config_target_platform=linux
+ENV npm_config_target_arch=x64
+ENV npm_config_cache=/tmp/.npm
+
 # 使用一键安装命令（自动处理构建脚本）
 RUN chmod +x scripts/install.sh && \
-    SKIP_POSTINSTALL=true pnpm install --frozen-lockfile && \
+    SKIP_POSTINSTALL=true pnpm install --frozen-lockfile --prefer-offline && \
     (echo "a" | pnpm approve-builds || echo "构建脚本已处理")
 
 # 构建阶段
@@ -45,8 +63,11 @@ RUN pnpm prebuild:docker && pnpm build:docker
 # 生产运行阶段
 FROM node:18-alpine AS runner
 
-# 安装必要的系统依赖
-RUN apk add --no-cache libc6-compat bash
+# 安装必要的系统依赖（添加 PostgreSQL 客户端）
+RUN apk add --no-cache \
+    libc6-compat \
+    bash \
+    postgresql-client
 
 # 创建非 root 用户
 RUN addgroup --system --gid 1001 nodejs

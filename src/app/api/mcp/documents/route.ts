@@ -7,7 +7,7 @@ import { log } from '@/core/logger';
 export async function GET(request: NextRequest) {
   try {
     // 验证 API 密钥
-    const authResult = authenticateMcpRequest(request);
+    const authResult = await authenticateMcpRequest(request);
     if (!authResult.success) {
       return NextResponse.json(
         {
@@ -221,7 +221,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 验证 API 密钥
-    const authResult = authenticateMcpRequest(request);
+    const authResult = await authenticateMcpRequest(request);
     if (!authResult.success) {
       return NextResponse.json(
         {
@@ -369,7 +369,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // 验证 API 密钥
-    const authResult = authenticateMcpRequest(request);
+    const authResult = await authenticateMcpRequest(request);
     if (!authResult.success) {
       return NextResponse.json(
         {

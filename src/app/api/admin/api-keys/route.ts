@@ -12,7 +12,7 @@ import {
 /**
  * 验证管理员权限（支持 JWT token 和 API Key）
  */
-function authenticateAdmin(request: NextRequest): { success: boolean; error?: string } {
+async function authenticateAdmin(request: NextRequest): Promise<{ success: boolean; error?: string }> {
   // 首先尝试 JWT token 认证
   const user = authenticateRequest(request);
   if (user && user.role === 'admin') {
@@ -20,7 +20,7 @@ function authenticateAdmin(request: NextRequest): { success: boolean; error?: st
   }
 
   // 然后尝试 API Key 认证
-  const apiAuthResult = authenticateApiKey(request);
+  const apiAuthResult = await authenticateApiKey(request);
   if (apiAuthResult.success && apiAuthResult.apiKey) {
     // 检查是否有管理员权限
     if (checkApiPermission(apiAuthResult.apiKey, 'admin')) {
@@ -36,7 +36,7 @@ function authenticateAdmin(request: NextRequest): { success: boolean; error?: st
 export async function GET(request: NextRequest) {
   try {
     // 验证管理员认证
-    const authResult = authenticateAdmin(request);
+    const authResult = await authenticateAdmin(request);
     if (!authResult.success) {
       return NextResponse.json(
         { error: authResult.error || '需要管理员权限' },
@@ -44,8 +44,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const apiKeys = getAllApiKeys();
-    
+    const apiKeys = await getAllApiKeys();
+
     // 隐藏敏感信息
     const safeApiKeys = apiKeys.map(key => ({
       ...key,
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 验证管理员认证
-    const authResult = authenticateAdmin(request);
+    const authResult = await authenticateAdmin(request);
     if (!authResult.success) {
       return NextResponse.json(
         { error: authResult.error || '需要管理员权限' },
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     const requestData = await request.json();
-    
+
     // 验证必需字段
     if (!requestData.name || typeof requestData.name !== 'string') {
       return NextResponse.json(
@@ -124,8 +124,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = createApiKey(createRequest);
-    
+    const result = await createApiKey(createRequest);
+
     return NextResponse.json({
       success: true,
       data: {
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // 验证管理员认证
-    const authResult = authenticateAdmin(request);
+    const authResult = await authenticateAdmin(request);
     if (!authResult.success) {
       return NextResponse.json(
         { error: authResult.error || '需要管理员权限' },
@@ -163,8 +163,8 @@ export async function DELETE(request: NextRequest) {
 
     if (action === 'cleanup') {
       // 清理过期的 API 密钥
-      const cleanedCount = cleanupExpiredApiKeys();
-      
+      const cleanedCount = await cleanupExpiredApiKeys();
+
       return NextResponse.json({
         success: true,
         data: { cleanedCount },

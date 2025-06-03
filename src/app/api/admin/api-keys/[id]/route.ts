@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/core/auth/auth';
-import { 
-  getApiKeyById, 
-  updateApiKey, 
-  deleteApiKey 
+import {
+  getApiKeyById,
+  updateApiKey,
+  deleteApiKey
 } from '@/core/api/api-keys';
 
 // GET - 获取单个 API 密钥信息
@@ -22,8 +22,8 @@ export async function GET(
     }
 
     const { id } = await params;
-    const apiKey = getApiKeyById(id);
-    
+    const apiKey = await getApiKeyById(id);
+
     if (!apiKey) {
       return NextResponse.json(
         { error: 'API 密钥不存在' },
@@ -70,7 +70,7 @@ export async function PUT(
     const updateData = await request.json();
 
     // 检查 API 密钥是否存在
-    const existingApiKey = getApiKeyById(id);
+    const existingApiKey = await getApiKeyById(id);
     if (!existingApiKey) {
       return NextResponse.json(
         { error: 'API 密钥不存在' },
@@ -134,8 +134,8 @@ export async function PUT(
       updates.description = updateData.description?.trim();
     }
 
-    const success = updateApiKey(id, updates);
-    
+    const success = await updateApiKey(id, updates);
+
     if (!success) {
       return NextResponse.json(
         { error: '更新 API 密钥失败' },
@@ -144,7 +144,7 @@ export async function PUT(
     }
 
     // 获取更新后的数据
-    const updatedApiKey = getApiKeyById(id);
+    const updatedApiKey = await getApiKeyById(id);
     const safeApiKey = {
       ...updatedApiKey,
       keyHash: undefined,
@@ -180,9 +180,9 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    
+
     // 检查 API 密钥是否存在
-    const existingApiKey = getApiKeyById(id);
+    const existingApiKey = await getApiKeyById(id);
     if (!existingApiKey) {
       return NextResponse.json(
         { error: 'API 密钥不存在' },
@@ -190,8 +190,8 @@ export async function DELETE(
       );
     }
 
-    const success = deleteApiKey(id);
-    
+    const success = await deleteApiKey(id);
+
     if (!success) {
       return NextResponse.json(
         { error: '删除 API 密钥失败' },

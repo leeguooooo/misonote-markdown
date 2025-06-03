@@ -61,8 +61,8 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // 在构建时忽略 TypeScript 错误（如果需要）
-    // ignoreBuildErrors: true,
+    // 在 Docker 构建时忽略 TypeScript 错误，因为企业版模块可能不存在
+    ignoreBuildErrors: process.env.DOCKER_BUILD === 'true',
   },
 
   // Docker 环境配置

@@ -7,13 +7,18 @@ import { useUser } from './UserManager';
 interface Comment {
   id: string;
   content: string;
-  author: string;
+  authorName: string;        // 匹配后端 API
   authorRole?: 'admin' | 'user' | 'guest';
-  avatar?: string;
-  timestamp: Date;
+  authorEmail?: string;
+  authorAvatar?: string;
+  createdAt: Date;          // 匹配后端 API
+  updatedAt: Date;
   likes: number;
   replies: Comment[];
   isLiked?: boolean;
+  isApproved?: boolean;
+  isDeleted?: boolean;
+  documentPath?: string;
 }
 
 interface RightSidebarCommentsProps {
@@ -45,23 +50,37 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
         const response = await fetch(`/api/comments?docPath=${encodeURIComponent(docPath)}`);
         if (response.ok) {
           const data = await response.json();
-          setComments(data.comments || []);
+          // 转换后端数据格式为前端格式
+          const comments = (data.comments || []).map((comment: any) => ({
+            ...comment,
+            createdAt: new Date(comment.createdAt),
+            updatedAt: new Date(comment.updatedAt),
+            replies: (comment.replies || []).map((reply: any) => ({
+              ...reply,
+              createdAt: new Date(reply.createdAt),
+              updatedAt: new Date(reply.updatedAt)
+            }))
+          }));
+          setComments(comments);
         } else {
+          console.error('Failed to load comments:', response.status, response.statusText);
           // 如果 API 失败，使用模拟数据
           const mockComments: Comment[] = [
             {
               id: '1',
               content: '这个文档写得很详细！',
-              author: '张三',
-              timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+              authorName: '张三',
+              createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+              updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
               likes: 5,
               replies: []
             },
             {
               id: '2',
               content: 'Mermaid 图表功能很棒',
-              author: '李四',
-              timestamp: new Date(Date.now() - 30 * 60 * 1000),
+              authorName: '李四',
+              createdAt: new Date(Date.now() - 30 * 60 * 1000),
+              updatedAt: new Date(Date.now() - 30 * 60 * 1000),
               likes: 3,
               replies: []
             }
@@ -98,9 +117,16 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
 
       if (response.ok) {
         const data = await response.json();
+        // 转换后端数据格式
+        const newCommentData = {
+          ...data.comment,
+          createdAt: new Date(data.comment.createdAt),
+          updatedAt: new Date(data.comment.updatedAt),
+          replies: []
+        };
         // 使用 startTransition 来标记非紧急的状态更新
         startTransition(() => {
-          setComments(prev => [data.comment, ...prev]);
+          setComments(prev => [newCommentData, ...prev]);
         });
         setNewComment('');
       } else {
@@ -108,9 +134,10 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
         const comment: Comment = {
           id: Date.now().toString(),
           content: newComment,
-          author: user.name,
+          authorName: user.name,
           authorRole: user.role,
-          timestamp: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
           likes: 0,
           replies: []
         };
@@ -125,9 +152,10 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
       const comment: Comment = {
         id: Date.now().toString(),
         content: newComment,
-        author: user.name,
+        authorName: user.name,
         authorRole: user.role,
-        timestamp: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         likes: 0,
         replies: []
       };
@@ -162,11 +190,18 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
 
       if (response.ok) {
         const data = await response.json();
+        // 转换后端数据格式
+        const newReplyData = {
+          ...data.comment,
+          createdAt: new Date(data.comment.createdAt),
+          updatedAt: new Date(data.comment.updatedAt),
+          replies: []
+        };
         // 使用 startTransition 来标记非紧急的状态更新
         startTransition(() => {
           setComments(prev => prev.map(comment =>
             comment.id === parentId
-              ? { ...comment, replies: [...comment.replies, data.comment] }
+              ? { ...comment, replies: [...comment.replies, newReplyData] }
               : comment
           ));
         });
@@ -175,9 +210,10 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
         const reply: Comment = {
           id: `${parentId}-${Date.now()}`,
           content: replyContent,
-          author: user.name,
+          authorName: user.name,
           authorRole: user.role,
-          timestamp: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
           likes: 0,
           replies: []
         };
@@ -390,16 +426,16 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
       <div className={`${isReply ? 'ml-6 mt-3' : 'mb-4'} bg-gray-50   rounded-lg p-3`}>
         <div className="flex items-start gap-2">
           <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${getUserBadgeColor(comment.authorRole)}`}>
-            {comment.author[0]}
+            {comment.authorName[0]}
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <span className="font-medium text-gray-900   text-sm">{comment.author}</span>
+              <span className="font-medium text-gray-900   text-sm">{comment.authorName}</span>
               {getRoleIcon(comment.authorRole)}
               <span className="text-xs text-gray-500   flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                {formatTime(comment.timestamp)}
+                {formatTime(comment.createdAt)}
               </span>
             </div>
 
@@ -456,7 +492,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
                     setLocalValue(value);
                     setReplyContent(value);
                   }}
-                  placeholder={`回复 ${comment.author}...`}
+                  placeholder={`回复 ${comment.authorName}...`}
                   className="w-full p-2 text-sm border border-gray-300   rounded resize-none bg-white   text-gray-900   placeholder-gray-500   focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   rows={2}
                 />
@@ -493,7 +529,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
             {comment.replies.length > 0 && (
               <div className="mt-3">
                 {comment.replies
-                  .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+                  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .map(reply => (
                     <CommentItem
                       key={reply.id}
@@ -601,7 +637,7 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
               </div>
             ) : (
               comments
-                .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+                .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                 .map(comment => (
                   <CommentItem key={comment.id} comment={comment} />
                 ))

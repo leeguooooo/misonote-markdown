@@ -1,7 +1,7 @@
 // 健康检查 API 路由
 
 import { NextResponse } from 'next/server';
-import { getDatabaseStats } from '@/core/database/database';
+import { getDatabaseStats } from '@/core/database';
 import { log } from '@/core/logger';
 
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
     let dbStats = null;
 
     try {
-      dbStats = getDatabaseStats();
+      dbStats = await getDatabaseStats();
       dbStatus = 'healthy';
     } catch (error) {
       dbStatus = 'error';

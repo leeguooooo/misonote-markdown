@@ -1,9 +1,36 @@
 services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: misonote-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: misonote
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./lib/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d misonote"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - markdown-network
+
+  # Misonote 应用
   misonote-markdown:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: misonote-markdown
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "3001:3001"
     volumes:
@@ -19,13 +46,21 @@ services:
       - NODE_ENV=production
       - PORT=3001
       - HOSTNAME=0.0.0.0
+      # 数据库配置
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=misonote
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-password}
       # 设置管理员密码（推荐修改）
-      - ADMIN_PASSWORD=your_secure_password
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-your_secure_password}
+      # JWT 密钥
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
       # 可选：自定义公开访问地址（也可在管理后台设置）
       # - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      test: ["CMD", "node", "healthcheck.js"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -57,6 +92,11 @@ networks:
     driver: bridge
 
 volumes:
+  postgres_data:
+    driver: local
   docs_data:
+    driver: local
   app_data:
+    driver: local
   logs_data:
+    driver: local

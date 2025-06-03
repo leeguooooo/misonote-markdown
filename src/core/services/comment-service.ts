@@ -1,11 +1,11 @@
 /**
- * 评论服务 - 数据库版本
- * 替代原有的文件存储方式
+ * 评论服务 - PostgreSQL 简化版本
+ * 专注于解决构建问题
  */
 
-import { getDatabase } from '../database/database';
-import { log } from '../logger';
 import { v4 as uuidv4 } from 'uuid';
+import { getDatabase } from '../database';
+import { log } from '../logger';
 
 // 评论接口
 export interface Comment {
@@ -23,9 +23,6 @@ export interface Comment {
   createdAt: Date;
   updatedAt: Date;
   metadata?: any;
-  ipAddress?: string;
-  userAgent?: string;
-  // 关联数据
   replies?: Comment[];
 }
 
@@ -39,8 +36,6 @@ export interface CreateCommentRequest {
   authorAvatar?: string;
   parentId?: string;
   metadata?: any;
-  ipAddress?: string;
-  userAgent?: string;
 }
 
 // 更新评论请求
@@ -53,7 +48,7 @@ export interface UpdateCommentRequest {
 /**
  * 创建评论
  */
-export function createComment(request: CreateCommentRequest): Comment {
+export async function createComment(request: CreateCommentRequest): Promise<Comment> {
   const db = getDatabase();
   const id = uuidv4();
   const now = new Date();
@@ -62,11 +57,11 @@ export function createComment(request: CreateCommentRequest): Comment {
     INSERT INTO comments (
       id, document_path, content, author_name, author_email, author_role,
       author_avatar, likes, is_approved, is_deleted, parent_id,
-      created_at, updated_at, metadata, ip_address, user_agent
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      created_at, updated_at, metadata
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
   `);
 
-  stmt.run(
+  await stmt.run([
     id,
     request.documentPath,
     request.content,
@@ -75,113 +70,117 @@ export function createComment(request: CreateCommentRequest): Comment {
     request.authorRole || 'guest',
     request.authorAvatar,
     0, // 初始点赞数
-    request.authorRole === 'admin' ? 1 : 0, // 管理员评论自动审核
-    0, // 未删除
+    true, // 所有评论默认自动审核通过
+    false, // 未删除
     request.parentId,
     now.toISOString(),
     now.toISOString(),
-    request.metadata ? JSON.stringify(request.metadata) : null,
-    request.ipAddress,
-    request.userAgent
-  );
+    request.metadata ? JSON.stringify(request.metadata) : null
+  ]);
 
-  log.info('创建评论', { id, documentPath: request.documentPath, author: request.authorName });
+  log.info('创建评论', {
+    id,
+    documentPath: request.documentPath,
+    author: request.authorName,
+    parentId: request.parentId
+  });
 
-  return getCommentById(id)!;
+  return (await getCommentById(id))!;
 }
 
 /**
  * 根据ID获取评论
  */
-export function getCommentById(id: string): Comment | null {
+export async function getCommentById(id: string): Promise<Comment | null> {
   const db = getDatabase();
-  
+
   const stmt = db.prepare(`
-    SELECT * FROM comments 
-    WHERE id = ? AND is_deleted = 0
+    SELECT * FROM comments
+    WHERE id = $1 AND is_deleted = false
   `);
 
-  const row = stmt.get(id) as any;
-  
+  const row = await stmt.get([id]) as any;
+
   if (!row) return null;
 
   return mapRowToComment(row);
 }
 
 /**
- * 获取文档的所有评论（包括回复）
+ * 获取文档的所有评论
  */
-export function getCommentsByDocument(documentPath: string, includeUnapproved: boolean = false): Comment[] {
+export async function getCommentsByDocument(
+  documentPath: string,
+  includeUnapproved: boolean = false
+): Promise<Comment[]> {
   const db = getDatabase();
-  
+
   let sql = `
-    SELECT * FROM comments 
-    WHERE document_path = ? AND is_deleted = 0
+    SELECT * FROM comments
+    WHERE document_path = $1 AND is_deleted = false
   `;
-  
+
   if (!includeUnapproved) {
-    sql += ' AND is_approved = 1';
+    sql += ' AND is_approved = true';
   }
-  
+
   sql += ' ORDER BY created_at ASC';
 
   const stmt = db.prepare(sql);
-  const rows = stmt.all(documentPath) as any[];
+  const rows = await stmt.all([documentPath]) as any[];
+
+  const comments = rows.map(mapRowToComment);
 
   // 构建评论树结构
-  const comments = rows.map(mapRowToComment);
-  const commentMap = new Map<string, Comment>();
-  const rootComments: Comment[] = [];
+  return buildCommentTree(comments);
+}
 
-  // 第一遍：创建所有评论对象
-  for (const comment of comments) {
-    comment.replies = [];
-    commentMap.set(comment.id, comment);
-  }
+/**
+ * 获取用户的评论
+ */
+export async function getCommentsByUser(authorName: string): Promise<Comment[]> {
+  const db = getDatabase();
 
-  // 第二遍：构建树结构
-  for (const comment of comments) {
-    if (comment.parentId) {
-      const parent = commentMap.get(comment.parentId);
-      if (parent) {
-        parent.replies!.push(comment);
-      }
-    } else {
-      rootComments.push(comment);
-    }
-  }
+  const stmt = db.prepare(`
+    SELECT * FROM comments
+    WHERE author_name = $1 AND is_deleted = false
+    ORDER BY created_at DESC
+  `);
 
-  return rootComments;
+  const rows = await stmt.all([authorName]) as any[];
+
+  return rows.map(mapRowToComment);
 }
 
 /**
  * 更新评论
  */
-export function updateComment(id: string, request: UpdateCommentRequest): boolean {
+export async function updateComment(id: string, request: UpdateCommentRequest): Promise<boolean> {
   const db = getDatabase();
-  
-  const updates: string[] = ['updated_at = ?'];
+
+  const updates: string[] = ['updated_at = $1'];
   const values: any[] = [new Date().toISOString()];
+  let paramIndex = 2;
 
   if (request.content !== undefined) {
-    updates.push('content = ?');
+    updates.push(`content = $${paramIndex++}`);
     values.push(request.content);
   }
 
   if (request.isApproved !== undefined) {
-    updates.push('is_approved = ?');
-    values.push(request.isApproved ? 1 : 0);
+    updates.push(`is_approved = $${paramIndex++}`);
+    values.push(request.isApproved);
   }
 
   if (request.metadata !== undefined) {
-    updates.push('metadata = ?');
+    updates.push(`metadata = $${paramIndex++}`);
     values.push(request.metadata ? JSON.stringify(request.metadata) : null);
   }
 
   values.push(id);
 
-  const sql = `UPDATE comments SET ${updates.join(', ')} WHERE id = ?`;
-  const result = db.prepare(sql).run(...values);
+  const sql = `UPDATE comments SET ${updates.join(', ')} WHERE id = $${paramIndex}`;
+  const result = await db.prepare(sql).run(values);
 
   if (result.changes > 0) {
     log.info('更新评论', { id });
@@ -194,16 +193,16 @@ export function updateComment(id: string, request: UpdateCommentRequest): boolea
 /**
  * 删除评论（软删除）
  */
-export function deleteComment(id: string): boolean {
+export async function deleteComment(id: string): Promise<boolean> {
   const db = getDatabase();
-  
+
   const stmt = db.prepare(`
-    UPDATE comments 
-    SET is_deleted = 1, updated_at = ? 
-    WHERE id = ?
+    UPDATE comments
+    SET is_deleted = true, updated_at = $1
+    WHERE id = $2
   `);
 
-  const result = stmt.run(new Date().toISOString(), id);
+  const result = await stmt.run([new Date().toISOString(), id]);
 
   if (result.changes > 0) {
     log.info('删除评论', { id });
@@ -216,16 +215,16 @@ export function deleteComment(id: string): boolean {
 /**
  * 点赞评论
  */
-export function likeComment(id: string): boolean {
+export async function likeComment(id: string): Promise<boolean> {
   const db = getDatabase();
-  
+
   const stmt = db.prepare(`
-    UPDATE comments 
-    SET likes = likes + 1, updated_at = ? 
-    WHERE id = ? AND is_deleted = 0
+    UPDATE comments
+    SET likes = likes + 1, updated_at = $1
+    WHERE id = $2 AND is_deleted = false
   `);
 
-  const result = stmt.run(new Date().toISOString(), id);
+  const result = await stmt.run([new Date().toISOString(), id]);
 
   if (result.changes > 0) {
     log.info('点赞评论', { id });
@@ -236,106 +235,112 @@ export function likeComment(id: string): boolean {
 }
 
 /**
- * 取消点赞评论
+ * 搜索评论
  */
-export function unlikeComment(id: string): boolean {
+export async function searchComments(
+  query: string,
+  documentPath?: string
+): Promise<Comment[]> {
   const db = getDatabase();
-  
-  const stmt = db.prepare(`
-    UPDATE comments 
-    SET likes = MAX(0, likes - 1), updated_at = ? 
-    WHERE id = ? AND is_deleted = 0
-  `);
 
-  const result = stmt.run(new Date().toISOString(), id);
+  let sql = `
+    SELECT * FROM comments
+    WHERE is_deleted = false AND is_approved = true
+    AND content ILIKE $1
+  `;
 
-  if (result.changes > 0) {
-    log.info('取消点赞评论', { id });
-    return true;
+  const params: any[] = [`%${query}%`];
+
+  if (documentPath) {
+    sql += ' AND document_path = $2';
+    params.push(documentPath);
   }
 
-  return false;
-}
+  sql += ' ORDER BY created_at DESC';
 
-/**
- * 获取待审核的评论
- */
-export function getPendingComments(): Comment[] {
-  const db = getDatabase();
-  
-  const stmt = db.prepare(`
-    SELECT * FROM comments 
-    WHERE is_approved = 0 AND is_deleted = 0
-    ORDER BY created_at DESC
-  `);
+  const stmt = db.prepare(sql);
+  const rows = await stmt.all(params) as any[];
 
-  const rows = stmt.all() as any[];
   return rows.map(mapRowToComment);
-}
-
-/**
- * 批量审核评论
- */
-export function approveComments(ids: string[]): number {
-  if (ids.length === 0) return 0;
-
-  const db = getDatabase();
-  const placeholders = ids.map(() => '?').join(',');
-  
-  const stmt = db.prepare(`
-    UPDATE comments 
-    SET is_approved = 1, updated_at = ? 
-    WHERE id IN (${placeholders}) AND is_deleted = 0
-  `);
-
-  const result = stmt.run(new Date().toISOString(), ...ids);
-
-  log.info('批量审核评论', { count: result.changes, ids });
-  return result.changes;
 }
 
 /**
  * 获取评论统计信息
  */
-export function getCommentStats(): {
+export async function getCommentStats(): Promise<{
   total: number;
-  approved: number;
-  pending: number;
   byDocument: { documentPath: string; count: number }[];
-} {
+  pending: number;
+  recent: Comment[];
+}> {
   const db = getDatabase();
 
   // 总数统计
-  const totalStmt = db.prepare('SELECT COUNT(*) as count FROM comments WHERE is_deleted = 0');
-  const total = (totalStmt.get() as any).count;
-
-  // 已审核统计
-  const approvedStmt = db.prepare('SELECT COUNT(*) as count FROM comments WHERE is_approved = 1 AND is_deleted = 0');
-  const approved = (approvedStmt.get() as any).count;
-
-  // 待审核统计
-  const pendingStmt = db.prepare('SELECT COUNT(*) as count FROM comments WHERE is_approved = 0 AND is_deleted = 0');
-  const pending = (pendingStmt.get() as any).count;
+  const totalStmt = db.prepare('SELECT COUNT(*) as count FROM comments WHERE is_deleted = false');
+  const total = (await totalStmt.get() as any).count;
 
   // 按文档统计
   const byDocumentStmt = db.prepare(`
-    SELECT document_path, COUNT(*) as count 
-    FROM comments 
-    WHERE is_deleted = 0 
-    GROUP BY document_path 
+    SELECT document_path, COUNT(*) as count
+    FROM comments
+    WHERE is_deleted = false
+    GROUP BY document_path
     ORDER BY count DESC
+    LIMIT 10
   `);
-  const byDocument = byDocumentStmt.all() as any[];
+  const byDocument = await byDocumentStmt.all() as any[];
+
+  // 待审核统计
+  const pendingStmt = db.prepare('SELECT COUNT(*) as count FROM comments WHERE is_approved = false AND is_deleted = false');
+  const pending = (await pendingStmt.get() as any).count;
+
+  // 最近评论
+  const recentStmt = db.prepare(`
+    SELECT * FROM comments
+    WHERE is_deleted = false AND is_approved = true
+    ORDER BY created_at DESC
+    LIMIT 5
+  `);
+  const recentRows = await recentStmt.all() as any[];
+  const recent = recentRows.map(mapRowToComment);
 
   return {
     total,
-    approved,
-    pending,
     byDocument: byDocument.map(row => ({
       documentPath: row.document_path,
       count: row.count
-    }))
+    })),
+    pending,
+    recent
   };
+}
+
+/**
+ * 构建评论树结构
+ */
+function buildCommentTree(comments: Comment[]): Comment[] {
+  const commentMap = new Map<string, Comment>();
+  const rootComments: Comment[] = [];
+
+  // 创建评论映射
+  comments.forEach(comment => {
+    comment.replies = [];
+    commentMap.set(comment.id, comment);
+  });
+
+  // 构建树结构
+  comments.forEach(comment => {
+    if (comment.parentId) {
+      const parent = commentMap.get(comment.parentId);
+      if (parent) {
+        parent.replies!.push(comment);
+      }
+    } else {
+      rootComments.push(comment);
+    }
+  });
+
+  return rootComments;
 }
 
 /**
@@ -356,8 +361,6 @@ function mapRowToComment(row: any): Comment {
     parentId: row.parent_id,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
-    metadata: row.metadata ? JSON.parse(row.metadata) : undefined,
-    ipAddress: row.ip_address,
-    userAgent: row.user_agent
+    metadata: row.metadata ? JSON.parse(row.metadata) : undefined
   };
 }

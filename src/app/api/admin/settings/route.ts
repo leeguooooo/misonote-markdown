@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/core/auth/auth';
 import { authenticateApiKey, checkApiPermission } from '@/core/api/api-auth';
-import { getDatabase } from '@/core/database/database';
+import { getDatabase } from '@/core/database';
 
 /**
  * 验证管理员权限（支持 JWT token 和 API Key）
  */
-function authenticateAdmin(request: NextRequest): { success: boolean; error?: string } {
+async function authenticateAdmin(request: NextRequest): Promise<{ success: boolean; error?: string }> {
   // 首先尝试 JWT token 认证
   const user = authenticateRequest(request);
   if (user && user.role === 'admin') {
@@ -14,7 +14,7 @@ function authenticateAdmin(request: NextRequest): { success: boolean; error?: st
   }
 
   // 然后尝试 API Key 认证
-  const apiAuthResult = authenticateApiKey(request);
+  const apiAuthResult = await authenticateApiKey(request);
   if (apiAuthResult.success && apiAuthResult.apiKey) {
     // 检查是否有管理员权限
     if (checkApiPermission(apiAuthResult.apiKey, 'admin')) {
@@ -30,7 +30,7 @@ function authenticateAdmin(request: NextRequest): { success: boolean; error?: st
 export async function GET(request: NextRequest) {
   try {
     // 验证管理员认证
-    const authResult = authenticateAdmin(request);
+    const authResult = await authenticateAdmin(request);
     if (!authResult.success) {
       return NextResponse.json(
         { error: authResult.error || '需要管理员权限' },
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
     }
 
     const db = getDatabase();
-    const settings = db.prepare(`
-      SELECT key, value, type, description, updated_at 
-      FROM system_settings 
+    const settings = await db.prepare(`
+      SELECT key, value, type, description, updated_at
+      FROM system_settings
       ORDER BY key
     `).all();
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     const settingsObj: Record<string, any> = {};
     settings.forEach((setting: any) => {
       let value = setting.value;
-      
+
       // 根据类型转换值
       switch (setting.type) {
         case 'boolean':
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
           // string 类型保持原样
           break;
       }
-      
+
       settingsObj[setting.key] = {
         value,
         type: setting.type,
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // 验证管理员认证
-    const authResult = authenticateAdmin(request);
+    const authResult = await authenticateAdmin(request);
     if (!authResult.success) {
       return NextResponse.json(
         { error: authResult.error || '需要管理员权限' },
@@ -115,41 +115,6 @@ export async function POST(request: NextRequest) {
     }
 
     const db = getDatabase();
-    
-    // 开始事务
-    const updateSetting = db.prepare(`
-      INSERT OR REPLACE INTO system_settings (key, value, type, description, updated_at)
-      VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `);
-
-    const transaction = db.transaction((settingsToUpdate: Array<{key: string, value: any, type: string, description?: string}>) => {
-      for (const setting of settingsToUpdate) {
-        let valueStr = setting.value;
-        
-        // 根据类型转换值为字符串
-        switch (setting.type) {
-          case 'boolean':
-            valueStr = setting.value ? 'true' : 'false';
-            break;
-          case 'number':
-            valueStr = setting.value.toString();
-            break;
-          case 'json':
-            valueStr = JSON.stringify(setting.value);
-            break;
-          default:
-            valueStr = String(setting.value);
-            break;
-        }
-        
-        updateSetting.run(
-          setting.key,
-          valueStr,
-          setting.type,
-          setting.description || ''
-        );
-      }
-    });
 
     // 准备更新的设置
     const settingsToUpdate = Object.entries(settings).map(([key, config]: [string, any]) => ({
@@ -159,7 +124,44 @@ export async function POST(request: NextRequest) {
       description: config.description || ''
     }));
 
-    transaction(settingsToUpdate);
+    // 使用 PostgreSQL 的 UPSERT 语法
+    const updateSetting = db.prepare(`
+      INSERT INTO system_settings (key, value, type, description, updated_at)
+      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+      ON CONFLICT (key) DO UPDATE SET
+        value = EXCLUDED.value,
+        type = EXCLUDED.type,
+        description = EXCLUDED.description,
+        updated_at = CURRENT_TIMESTAMP
+    `);
+
+    // 逐个更新设置
+    for (const setting of settingsToUpdate) {
+      let valueStr = setting.value;
+
+      // 根据类型转换值为字符串
+      switch (setting.type) {
+        case 'boolean':
+          valueStr = setting.value ? 'true' : 'false';
+          break;
+        case 'number':
+          valueStr = setting.value.toString();
+          break;
+        case 'json':
+          valueStr = JSON.stringify(setting.value);
+          break;
+        default:
+          valueStr = String(setting.value);
+          break;
+      }
+
+      await updateSetting.run([
+        setting.key,
+        valueStr,
+        setting.type,
+        setting.description || ''
+      ]);
+    }
 
     return NextResponse.json({
       success: true,

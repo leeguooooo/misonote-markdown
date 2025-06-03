@@ -166,7 +166,33 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
         const response = await fetch(`/api/annotations?docPath=${encodeURIComponent(docPath)}`);
         if (response.ok) {
           const data = await response.json();
-          const loadedAnnotations = data.annotations || [];
+          const rawAnnotations = data.annotations || [];
+
+          // 转换数据库格式为前端格式
+          const loadedAnnotations: Annotation[] = rawAnnotations.map((annotation: any) => ({
+            id: annotation.id,
+            text: annotation.selectedText,
+            comment: annotation.commentText || '',
+            type: annotation.annotationType,
+            position: {
+              start: annotation.positionData?.start || 0,
+              end: annotation.positionData?.end || 0,
+              startContainer: annotation.positionData?.startContainer || '',
+              endContainer: annotation.positionData?.endContainer || '',
+              xpath: annotation.positionData?.xpath,
+              textOffset: annotation.positionData?.textOffset,
+              contextBefore: annotation.positionData?.contextBefore,
+              contextAfter: annotation.positionData?.contextAfter
+            },
+            timestamp: new Date(annotation.createdAt),
+            author: annotation.authorName,
+            authorRole: annotation.authorRole,
+            likes: annotation.likes || 0,
+            isLiked: false,
+            replies: [],
+            isResolved: annotation.isResolved || false
+          }));
+
           setAnnotations(loadedAnnotations);
 
           // 延迟应用标注样式，确保 DOM 已渲染
@@ -400,17 +426,47 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...annotation,
-          docPath
+          text: annotation.text,
+          comment: annotation.comment,
+          type: annotation.type,
+          position: annotation.position,
+          docPath,
+          author: annotation.author
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        setAnnotations(prev => [...prev, data.annotation]);
+        // 转换服务器返回的数据格式
+        const serverAnnotation = data.annotation;
+        const convertedAnnotation: Annotation = {
+          id: serverAnnotation.id,
+          text: serverAnnotation.selectedText,
+          comment: serverAnnotation.commentText || '',
+          type: serverAnnotation.annotationType,
+          position: {
+            start: serverAnnotation.positionData?.start || annotation.position.start,
+            end: serverAnnotation.positionData?.end || annotation.position.end,
+            startContainer: serverAnnotation.positionData?.startContainer || annotation.position.startContainer,
+            endContainer: serverAnnotation.positionData?.endContainer || annotation.position.endContainer,
+            xpath: serverAnnotation.positionData?.xpath || annotation.position.xpath,
+            textOffset: serverAnnotation.positionData?.textOffset || annotation.position.textOffset,
+            contextBefore: serverAnnotation.positionData?.contextBefore || annotation.position.contextBefore,
+            contextAfter: serverAnnotation.positionData?.contextAfter || annotation.position.contextAfter
+          },
+          timestamp: new Date(serverAnnotation.createdAt),
+          author: serverAnnotation.authorName,
+          authorRole: serverAnnotation.authorRole,
+          likes: serverAnnotation.likes || 0,
+          isLiked: false,
+          replies: [],
+          isResolved: serverAnnotation.isResolved || false
+        };
+
+        setAnnotations(prev => [...prev, convertedAnnotation]);
 
         // 应用样式到选中文本
-        applyAnnotationStyle(selectionRange, data.annotation);
+        applyAnnotationStyle(selectionRange, convertedAnnotation);
       } else {
         // 如果保存失败，仍然本地添加
         setAnnotations(prev => [...prev, annotation]);

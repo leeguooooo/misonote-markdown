@@ -48,7 +48,7 @@ function extractApiKey(request: NextRequest): string | null {
 /**
  * 验证 API 密钥认证
  */
-export function authenticateApiKey(request: NextRequest): ApiAuthResult {
+export async function authenticateApiKey(request: NextRequest): Promise<ApiAuthResult> {
   try {
     const apiKeyValue = extractApiKey(request);
 
@@ -59,7 +59,7 @@ export function authenticateApiKey(request: NextRequest): ApiAuthResult {
       };
     }
 
-    const apiKey = validateApiKey(apiKeyValue);
+    const apiKey = await validateApiKey(apiKeyValue);
 
     if (!apiKey) {
       log.warn('无效的 API 密钥', {
@@ -155,7 +155,7 @@ export function requireApiAuth(requiredPermission?: string) {
     const originalMethod = descriptor.value;
 
     descriptor.value = async function(request: NextRequest, ...args: any[]) {
-      const authResult = authenticateApiKey(request);
+      const authResult = await authenticateApiKey(request);
 
       if (!authResult.success) {
         return createAuthErrorResponse(authResult.error || '认证失败');
@@ -213,8 +213,8 @@ export function logApiUsage(apiKey: ApiKey, request: NextRequest, response?: Res
 /**
  * MCP 专用的认证函数
  */
-export function authenticateMcpRequest(request: NextRequest): ApiAuthResult {
-  const authResult = authenticateApiKey(request);
+export async function authenticateMcpRequest(request: NextRequest): Promise<ApiAuthResult> {
+  const authResult = await authenticateApiKey(request);
 
   if (!authResult.success) {
     return authResult;

@@ -1,70 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/core/auth/auth';
-import fs from 'fs';
-import path from 'path';
+import {
+  createComment,
+  getCommentsByDocument,
+  updateComment,
+  deleteComment,
+  likeComment,
+  type Comment,
+  type CreateCommentRequest
+} from '@/core/services/comment-service';
 
-interface Comment {
-  id: string;
-  content: string;
-  author: string;
-  authorRole?: 'admin' | 'user' | 'guest';
-  avatar?: string;
-  timestamp: Date;
-  likes: number;
-  replies: Comment[];
-  docPath: string;
-}
-
-const COMMENTS_FILE = path.join(process.cwd(), 'data', 'comments.json');
-
-// 确保数据目录存在
-function ensureDataDirectory() {
-  const dataDir = path.dirname(COMMENTS_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-}
-
-// 读取评论数据
-function readComments(): Comment[] {
-  ensureDataDirectory();
-
-  if (!fs.existsSync(COMMENTS_FILE)) {
-    // 创建初始数据文件
-    const initialComments: Comment[] = [];
-    writeComments(initialComments);
-    return initialComments;
-  }
-
-  try {
-    const data = fs.readFileSync(COMMENTS_FILE, 'utf-8');
-    const comments = JSON.parse(data);
-    // 确保时间戳是 Date 对象
-    return comments.map((comment: any) => ({
-      ...comment,
-      timestamp: new Date(comment.timestamp),
-      replies: comment.replies.map((reply: any) => ({
-        ...reply,
-        timestamp: new Date(reply.timestamp)
-      }))
-    }));
-  } catch (error) {
-    console.error('Error reading comments:', error);
-    return [];
-  }
-}
-
-// 写入评论数据
-function writeComments(comments: Comment[]) {
-  ensureDataDirectory();
-
-  try {
-    fs.writeFileSync(COMMENTS_FILE, JSON.stringify(comments, null, 2));
-  } catch (error) {
-    console.error('Error writing comments:', error);
-    throw new Error('Failed to save comments');
-  }
-}
+// 数据库操作已移至 comment-service
 
 // GET - 获取评论
 export async function GET(request: NextRequest) {
@@ -79,10 +25,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const comments = readComments();
-    const docComments = comments.filter(comment => comment.docPath === docPath);
+    const comments = await getCommentsByDocument(docPath); // 只显示已审核的评论（现在默认都会审核通过）
 
-    return NextResponse.json({ comments: docComments });
+    return NextResponse.json({ comments });
   } catch (error) {
     console.error('Error fetching comments:', error);
     return NextResponse.json(
@@ -113,36 +58,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const comments = readComments();
-
-    const newComment: Comment = {
-      id: Date.now().toString(),
+    const commentRequest: CreateCommentRequest = {
+      documentPath: docPath,
       content,
-      author,
+      authorName: author,
       authorRole,
-      timestamp: new Date(),
-      likes: 0,
-      replies: [],
-      docPath
+      parentId
     };
 
-    if (parentId) {
-      // 这是一个回复
-      const parentComment = comments.find(c => c.id === parentId);
-      if (parentComment) {
-        parentComment.replies.push(newComment);
-      } else {
-        return NextResponse.json(
-          { error: 'Parent comment not found' },
-          { status: 404 }
-        );
-      }
-    } else {
-      // 这是一个新评论
-      comments.push(newComment);
-    }
-
-    writeComments(comments);
+    const newComment = await createComment(commentRequest);
 
     return NextResponse.json({
       success: true,
@@ -160,53 +84,21 @@ export async function POST(request: NextRequest) {
 // PUT - 更新评论（点赞等）
 export async function PUT(request: NextRequest) {
   try {
-    const { commentId, action, docPath } = await request.json();
+    const { commentId, action } = await request.json();
 
-    if (!commentId || !action || !docPath) {
+    if (!commentId || !action) {
       return NextResponse.json(
-        { error: 'commentId, action, and docPath are required' },
+        { error: 'commentId and action are required' },
         { status: 400 }
       );
     }
 
-    const comments = readComments();
-
-    // 查找评论（包括回复）
-    let targetComment: Comment | null = null;
-
-    for (const comment of comments) {
-      if (comment.docPath === docPath) {
-        if (comment.id === commentId) {
-          targetComment = comment;
-          break;
-        }
-
-        // 检查回复
-        for (const reply of comment.replies) {
-          if (reply.id === commentId) {
-            targetComment = reply;
-            break;
-          }
-        }
-
-        if (targetComment) break;
-      }
-    }
-
-    if (!targetComment) {
-      return NextResponse.json(
-        { error: 'Comment not found' },
-        { status: 404 }
-      );
-    }
+    let success = false;
 
     // 执行操作
     switch (action) {
       case 'like':
-        targetComment.likes += 1;
-        break;
-      case 'unlike':
-        targetComment.likes = Math.max(0, targetComment.likes - 1);
+        success = await likeComment(commentId);
         break;
       default:
         return NextResponse.json(
@@ -215,11 +107,15 @@ export async function PUT(request: NextRequest) {
         );
     }
 
-    writeComments(comments);
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Comment not found' },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
-      success: true,
-      comment: targetComment
+      success: true
     });
   } catch (error) {
     console.error('Error updating comment:', error);
@@ -244,52 +140,22 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const commentId = searchParams.get('commentId');
-    const docPath = searchParams.get('docPath');
 
-    if (!commentId || !docPath) {
+    if (!commentId) {
       return NextResponse.json(
-        { error: 'commentId and docPath are required' },
+        { error: 'commentId is required' },
         { status: 400 }
       );
     }
 
-    const comments = readComments();
+    const success = await deleteComment(commentId);
 
-    // 删除评论或回复
-    let deleted = false;
-
-    for (let i = comments.length - 1; i >= 0; i--) {
-      const comment = comments[i];
-
-      if (comment.docPath === docPath) {
-        // 检查是否是主评论
-        if (comment.id === commentId) {
-          comments.splice(i, 1);
-          deleted = true;
-          break;
-        }
-
-        // 检查回复
-        for (let j = comment.replies.length - 1; j >= 0; j--) {
-          if (comment.replies[j].id === commentId) {
-            comment.replies.splice(j, 1);
-            deleted = true;
-            break;
-          }
-        }
-
-        if (deleted) break;
-      }
-    }
-
-    if (!deleted) {
+    if (!success) {
       return NextResponse.json(
         { error: 'Comment not found' },
         { status: 404 }
       );
     }
-
-    writeComments(comments);
 
     return NextResponse.json({ success: true });
   } catch (error) {

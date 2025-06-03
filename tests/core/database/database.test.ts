@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { getDatabase, getDatabaseStats, backupDatabase, cleanupExpiredData } from '@/core/database/database'
+import { getDatabase, getDatabaseStats, cleanupExpiredData } from '@/core/database'
 import { cleanTestDatabase, getTableCount, insertTestData, resetTestDatabase } from '../../utils/test-database'
 import fs from 'fs'
 import path from 'path'
@@ -28,15 +28,15 @@ describe('数据库功能测试', () => {
 
     it('应该在测试环境中使用测试数据库', () => {
       expect(process.env.NODE_ENV).toBe('test')
-      
+
       const db = getDatabase()
-      
+
       // 验证是否是测试数据库（通过检查表是否存在）
       const tables = db.prepare(`
-        SELECT name FROM sqlite_master 
+        SELECT name FROM sqlite_master
         WHERE type='table' AND name IN ('api_keys', 'system_settings')
       `).all()
-      
+
       expect(tables.length).toBeGreaterThan(0)
     })
   })
@@ -123,7 +123,7 @@ describe('数据库功能测试', () => {
       }
 
       const backupPath = path.join(backupDir, 'test-backup.db')
-      
+
       const resultPath = backupDatabase(backupPath)
 
       expect(resultPath).toBe(backupPath)

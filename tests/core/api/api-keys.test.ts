@@ -13,7 +13,7 @@ import {
   revokeApiKey,
   updateApiKeyUsage,
 } from '@/core/api/api-keys'
-import { cleanTestDatabase, getDatabase } from '@/core/database/database'
+import { cleanTestDatabase, getDatabase } from '@/core/database'
 
 // 辅助函数：获取表中的记录数
 function getTableCount(tableName: string): number {

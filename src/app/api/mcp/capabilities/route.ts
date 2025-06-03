@@ -7,10 +7,10 @@ export async function GET(request: NextRequest) {
     // 验证 API 密钥（可选，某些情况下可能需要公开访问）
     const authHeader = request.headers.get('authorization');
     if (authHeader) {
-      const authResult = authenticateMcpRequest(request);
+      const authResult = await authenticateMcpRequest(request);
       if (!authResult.success) {
         return NextResponse.json(
-          { 
+          {
             success: false,
             error: authResult.error,
             timestamp: new Date().toISOString()
@@ -157,9 +157,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('获取 MCP 能力信息失败:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         success: false,
         error: '获取服务器能力信息失败',
         timestamp: new Date().toISOString()
