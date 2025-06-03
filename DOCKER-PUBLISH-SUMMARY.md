@@ -96,14 +96,14 @@ pnpm docker:compose           # Docker Compose
 
 ### 1. 直接运行
 ```bash
-docker run -d -p 3001:3001 your-username/misonote-markdown:latest
+docker run -d -p 3001:3001 leeguo/misonote-markdown:latest
 ```
 
 ### 2. Docker Compose
 ```yaml
 services:
   misonote-markdown:
-    image: your-username/misonote-markdown:latest
+    image: leeguo/misonote-markdown:latest
     ports:
       - "3001:3001"
     volumes:
@@ -117,7 +117,7 @@ docker run -d \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
   -e ADMIN_PASSWORD_HASH_BASE64=your_hash \
-  your-username/misonote-markdown:latest
+  leeguo/misonote-markdown:latest
 ```
 
 ## 🔧 技术特性
@@ -175,7 +175,7 @@ docker run -d \
   --name misonote-markdown \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
-  your-username/misonote-markdown:latest
+  leeguo/misonote-markdown:latest
 
 # 访问应用
 open http://localhost:3001
@@ -186,7 +186,7 @@ open http://localhost:3001
 # docker-compose.yml
 services:
   misonote-markdown:
-    image: your-username/misonote-markdown:v0.1.0
+    image: leeguo/misonote-markdown:v0.1.0
     container_name: misonote-markdown
     ports:
       - "3001:3001"

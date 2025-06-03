@@ -199,14 +199,14 @@ jobs:
         # 启动时设置自定义密码（推荐）
         docker run -d \
           -p 3001:3001 \
-          -e ADMIN_PASSWORD=your_secure_password \
+          -e ADMIN_PASSWORD=admin123 \
           --name misonote-markdown \
           ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:latest
 
         # 使用特定版本
         docker run -d \
           -p 3001:3001 \
-          -e ADMIN_PASSWORD=your_secure_password \
+          -e ADMIN_PASSWORD=admin123 \
           --name misonote-markdown \
           ${{ secrets.DOCKER_USERNAME }}/misonote-markdown:v1.0.0
         ```
@@ -229,7 +229,7 @@ jobs:
             environment:
               - NODE_ENV=production
               # 设置管理员密码（推荐修改）
-              - ADMIN_PASSWORD=your_secure_password
+              - ADMIN_PASSWORD=admin123
             restart: unless-stopped
         ```
 

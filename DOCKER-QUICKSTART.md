@@ -233,10 +233,10 @@ docker run -d \
 
 ## 📚 更多资源
 
-- [项目主页](https://github.com/leeguooooo/markdown-site)
+- [项目主页](https://github.com/leeguooooo/misonote-markdown)
 - [Docker Hub](https://hub.docker.com/r/leeguo/misonote-markdown)
-- [完整文档](https://github.com/leeguooooo/markdown-site/blob/main/README.md)
-- [问题反馈](https://github.com/leeguooooo/markdown-site/issues)
+- [完整文档](https://github.com/leeguooooo/misonote-markdown/blob/main/README.md)
+- [问题反馈](https://github.com/leeguooooo/misonote-markdown/issues)
 
 ---
 

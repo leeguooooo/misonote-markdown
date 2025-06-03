@@ -13,7 +13,7 @@
 
 ### 方法一：使用自动化脚本（推荐）
 
-在你的服务器上 (`/srv/docs/markdown-site/`) 执行以下操作：
+在你的服务器上 (`/srv/docs/misonote-markdown/`) 执行以下操作：
 
 ```bash
 # 1. 上传更新的文件到服务器

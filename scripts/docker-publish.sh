@@ -183,14 +183,14 @@ docker run -d -p 3001:3001 --name misonote-markdown $IMAGE_NAME:latest
 # 启动时设置自定义密码（推荐）
 docker run -d \\
   -p 3001:3001 \\
-  -e ADMIN_PASSWORD=your_secure_password \\
+  -e ADMIN_PASSWORD=admin123 \\
   --name misonote-markdown \\
   $IMAGE_NAME:latest
 
 # 使用特定版本
 docker run -d \\
   -p 3001:3001 \\
-  -e ADMIN_PASSWORD=your_secure_password \\
+  -e ADMIN_PASSWORD=admin123 \\
   --name misonote-markdown \\
   $IMAGE_NAME:v$VERSION
 \`\`\`
@@ -216,7 +216,7 @@ services:
     environment:
       - NODE_ENV=production
       # 设置管理员密码（推荐修改）
-      - ADMIN_PASSWORD=your_secure_password
+      - ADMIN_PASSWORD=admin123
       # 可选：自定义公开访问地址（也可在管理后台设置）
       # - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     restart: unless-stopped
@@ -347,9 +347,10 @@ docker restart misonote-markdown
 
 ## 📚 更多信息
 
-- [项目主页](https://github.com/your-username/misonote-markdown)
+- [项目主页](https://github.com/leeguooooo/misonote-markdown)
 - [Docker Hub](https://hub.docker.com/r/$DOCKER_USERNAME/misonote-markdown)
-- [使用文档](./README.md)
+- [使用文档](https://github.com/leeguooooo/misonote-markdown#readme)
+- [问题反馈](https://github.com/leeguooooo/misonote-markdown/issues)
 EOF
 
     log_success "使用说明已生成: DOCKER-USAGE.md"

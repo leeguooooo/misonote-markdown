@@ -101,8 +101,8 @@ echo "📱 访问: http://localhost:3001"
 ### 超简单部署
 ```bash
 # 用户只需要三条命令
-git clone https://github.com/leeguooooo/markdown-site.git
-cd markdown-site
+git clone https://github.com/leeguooooo/misonote-markdown.git
+cd misonote-markdown
 pnpm docker:deploy
 ```
 

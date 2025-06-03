@@ -13,8 +13,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/leeguooooo/markdown-site
-cd markdown-site
+git clone https://github.com/leeguooooo/misonote-markdown
+cd misonote-markdown
 ```
 
 ### 2. 安装依赖
@@ -286,12 +286,12 @@ NODE_ENV=production
 
 ## 💬 获取帮助
 
-- 🐛 [提交 Issue](https://github.com/leeguooooo/markdown-site/issues)
-- 💡 [功能建议](https://github.com/leeguooooo/markdown-site/discussions)
+- 🐛 [提交 Issue](https://github.com/leeguooooo/misonote-markdown/issues)
+- 💡 [功能建议](https://github.com/leeguooooo/misonote-markdown/discussions)
 - 📧 联系作者: [leeguoo](https://github.com/leeguooooo)
 
 ---
 
 **祝你使用愉快！** 🎊
 
-如果这个项目对你有帮助，请给个 ⭐ [Star](https://github.com/leeguooooo/markdown-site) 支持一下！
+如果这个项目对你有帮助，请给个 ⭐ [Star](https://github.com/leeguooooo/misonote-markdown) 支持一下！

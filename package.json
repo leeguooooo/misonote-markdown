@@ -40,6 +40,7 @@
     "docker:publish:enterprise": "bash misonote-license-server/scripts/docker-publish-enterprise.sh",
     "docker:publish:check": "bash scripts/docker-publish-check.sh",
     "docker:publish:prepare": "bash scripts/docker-publish-check.sh && echo 'Ready to publish! Run: pnpm docker:publish:community'",
+    "docker:update-readme": "bash scripts/update-docker-hub-readme.sh",
     "license:generate-keys": "node misonote-license-server/scripts/license-generator.js generate-keys",
     "license:generate": "node misonote-license-server/scripts/license-generator.js generate",
     "license:verify": "node misonote-license-server/scripts/license-generator.js verify",

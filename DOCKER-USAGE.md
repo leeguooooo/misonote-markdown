@@ -176,6 +176,6 @@ docker restart misonote-markdown
 
 ## 📚 更多信息
 
-- [项目主页](https://github.com/your-username/misonote-markdown)
-- [Docker Hub](https://hub.docker.com/r/leeguo/misonote-markdown)
+- [项目主页](https://github.com/leeguooooo/misonote-markdown)
+- [Docker Hub](https://hub.docker.com/r/leeguooooo/misonote-markdown)
 - [使用文档](./README.md)

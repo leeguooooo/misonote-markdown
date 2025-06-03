@@ -17,7 +17,7 @@ Misonote 支持三种许可证类型，每种都可以通过Docker轻松部署�
 docker run -d \
   --name misonote-community \
   -p 3001:3001 \
-  -e ADMIN_PASSWORD=your_secure_password \
+  -e ADMIN_PASSWORD=admin123 \
   -v misonote-data:/app/data \
   misonote/markdown
 
@@ -32,7 +32,7 @@ open http://localhost:3001
 docker run -d \
   --name misonote-professional \
   -p 3001:3001 \
-  -e ADMIN_PASSWORD=your_secure_password \
+  -e ADMIN_PASSWORD=admin123 \
   -e MISONOTE_LICENSE_KEY=misonote_your_professional_license_key \
   -v misonote-data:/app/data \
   misonote/markdown
@@ -45,7 +45,7 @@ docker run -d \
 docker run -d \
   --name misonote-enterprise \
   -p 3001:3001 \
-  -e ADMIN_PASSWORD=your_secure_password \
+  -e ADMIN_PASSWORD=admin123 \
   -e MISONOTE_LICENSE_KEY=misonote_your_enterprise_license_key \
   -e MISONOTE_LICENSE_SERVER_URL=https://license-api.misonote.com \
   -v misonote-data:/app/data \
@@ -115,7 +115,7 @@ docker run -d \
 ### 必需变量
 ```bash
 # 管理员密码 (强烈推荐设置)
-ADMIN_PASSWORD=your_secure_password
+ADMIN_PASSWORD=admin123
 
 # 许可证密钥 (专业版/企业版)
 MISONOTE_LICENSE_KEY=misonote_your_license_key
@@ -159,7 +159,7 @@ docker run -d \
 server {
     listen 80;
     server_name your-domain.com;
-    
+
     location / {
         proxy_pass http://localhost:3001;
         proxy_set_header Host $host;
@@ -181,7 +181,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - ADMIN_PASSWORD=your_secure_password
+      - ADMIN_PASSWORD=admin123
       - MISONOTE_LICENSE_KEY=misonote_your_license_key
       - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     volumes:

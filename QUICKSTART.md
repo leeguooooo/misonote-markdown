@@ -12,8 +12,8 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/leeguooooo/markdown-site.git
-cd markdown-site
+git clone https://github.com/leeguooooo/misonote-markdown.git
+cd misonote-markdown
 
 # 2. 一键 Docker 部署
 pnpm docker:deploy
@@ -29,8 +29,8 @@ pnpm docker:deploy
 
 ```bash
 # 克隆项目
-git clone https://github.com/leeguooooo/markdown-site.git
-cd markdown-site
+git clone https://github.com/leeguooooo/misonote-markdown.git
+cd misonote-markdown
 
 # 安装依赖
 pnpm install
@@ -130,7 +130,7 @@ pnpm build:safe
 
 - 📖 查看 [完整文档](./README.md)
 - 🔧 查看 [详细设置指南](./SETUP.md)
-- 💬 [提交问题](https://github.com/leeguooooo/markdown-site/issues)
+- 💬 [提交问题](https://github.com/leeguooooo/misonote-markdown/issues)
 
 ---
 

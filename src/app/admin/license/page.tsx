@@ -220,7 +220,7 @@ const LicenseManagementPage: React.FC = () => {
               <CardContent>
                 <div className="space-y-3">
                   {[
-                    { name: 'ADMIN_PASSWORD', description: '管理员密码 (必需)', example: 'your_secure_password' },
+                    { name: 'ADMIN_PASSWORD', description: '管理员密码 (必需)', example: 'admin123' },
                     { name: 'MISONOTE_LICENSE_KEY', description: '许可证密钥 (专业版/企业版)', example: 'misonote_your_license_key' },
                     { name: 'MISONOTE_LICENSE_SERVER_URL', description: '许可证服务器URL (可选)', example: 'https://license-api.misonote.com' },
                     { name: 'PORT', description: '应用端口 (默认: 3001)', example: '3001' },

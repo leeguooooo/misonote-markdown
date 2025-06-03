@@ -9,7 +9,7 @@
 ### 步骤 1: 安装 dotenv 依赖
 
 ```bash
-cd /srv/docs/markdown-site
+cd /srv/docs/misonote-markdown
 pnpm add dotenv
 ```
 

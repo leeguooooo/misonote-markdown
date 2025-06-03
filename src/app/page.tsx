@@ -616,7 +616,7 @@ export default function Home() {
                 <Link href="/admin" className="text-gray-600 hover:text-blue-600 transition-colors">
                   ⚙️ 管理后台
                 </Link>
-                <a href="https://github.com/leeguooooo/markdown-site" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">
+                <a href="https://github.com/leeguooooo/misonote-markdown" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">
                   🚀 GitHub 仓库
                 </a>
                 <a href="https://github.com/leeguooooo" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-blue-600 transition-colors">

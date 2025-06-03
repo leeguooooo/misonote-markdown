@@ -8,7 +8,7 @@
 
 ### 步骤 1: 上传文件到服务器
 
-将以下文件上传到你的服务器 (`/srv/docs/markdown-site/`)：
+将以下文件上传到你的服务器 (`/srv/docs/misonote-markdown/`)：
 
 - `ecosystem.config.js` (已更新，移除硬编码)
 - `update-security.sh` (自动化安全配置脚本)
@@ -18,7 +18,7 @@
 
 ```bash
 # 进入项目目录
-cd /srv/docs/markdown-site
+cd /srv/docs/misonote-markdown
 
 # 给脚本添加执行权限
 chmod +x update-security.sh

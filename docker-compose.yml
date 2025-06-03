@@ -20,7 +20,7 @@ services:
       - PORT=3001
       - HOSTNAME=0.0.0.0
       # 设置管理员密码（推荐修改）
-      - ADMIN_PASSWORD=your_secure_password
+      - ADMIN_PASSWORD=admin123
       # 可选：自定义公开访问地址（也可在管理后台设置）
       # - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     restart: unless-stopped

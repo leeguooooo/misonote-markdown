@@ -11,7 +11,7 @@
 ### 方法1: 使用 Git 更新（推荐）
 
 ```bash
-cd /srv/docs/markdown-site
+cd /srv/docs/misonote-markdown
 
 # 1. 备份当前配置
 cp .env .env.backup
@@ -30,7 +30,7 @@ bash scripts/security/update-security.sh
 ### 方法2: 手动修复（如果无法使用 Git）
 
 ```bash
-cd /srv/docs/markdown-site
+cd /srv/docs/misonote-markdown
 
 # 1. 安装 dotenv
 pnpm add dotenv
@@ -87,7 +87,7 @@ curl -X POST http://localhost:3001/api/auth/login \
 如果你想要整理项目目录结构：
 
 ```bash
-cd /srv/docs/markdown-site
+cd /srv/docs/misonote-markdown
 
 # 1. 创建目录结构
 mkdir -p scripts/{deployment,security,development}
@@ -128,7 +128,7 @@ pm2 show docs-platform | grep -A 10 "env:"
    ```bash
    # 如果有新的脚本工具
    bash scripts/security/update-security.sh
-   
+
    # 或手动生成新密码
    node -e "console.log(require('bcryptjs').hashSync('your-new-password', 12))"
    ```

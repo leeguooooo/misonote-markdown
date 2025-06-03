@@ -32,7 +32,7 @@
 ## 🚀 开源项目
 
 ### 现代化 Markdown 文档系统
-- **GitHub**: [markdown-site](https://github.com/leeguooooo/markdown-site)
+- **GitHub**: [misonote-markdown](https://github.com/leeguooooo/misonote-markdown)
 - **技术栈**: Next.js 14, TypeScript, Tailwind CSS
 - **特色功能**: Mermaid 图表、全局搜索、拖拽管理
 - **安全特性**: 生产级安全防护、速率限制、路径验证

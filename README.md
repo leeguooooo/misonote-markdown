@@ -1,8 +1,8 @@
 # Misonote Markdown - 现代化文档预览系统
 
-[![GitHub stars](https://img.shields.io/github/stars/leeguooooo/markdown-site?style=social)](https://github.com/leeguooooo/markdown-site)
-[![GitHub forks](https://img.shields.io/github/forks/leeguooooo/markdown-site?style=social)](https://github.com/leeguooooo/markdown-site)
-[![GitHub license](https://img.shields.io/github/license/leeguooooo/markdown-site)](https://github.com/leeguooooo/markdown-site/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/leeguooooo/misonote-markdown?style=social)](https://github.com/leeguooooo/misonote-markdown)
+[![GitHub forks](https://img.shields.io/github/forks/leeguooooo/misonote-markdown?style=social)](https://github.com/leeguooooo/misonote-markdown)
+[![GitHub license](https://img.shields.io/github/license/leeguooooo/misonote-markdown)](https://github.com/leeguooooo/misonote-markdown/blob/main/LICENSE)
 [![Made by leeguoo](https://img.shields.io/badge/Made%20by-leeguoo-blue)](https://github.com/leeguooooo)
 
 [English](./README.en.md) | [日本語](./README.ja.md) | 中文
@@ -13,7 +13,7 @@
 
 **🐳 Docker 一键运行 | 📱 响应式设计 | 🔐 安全认证 | 💬 评论系统**
 
-[![一键运行](https://img.shields.io/badge/🐳_Docker_一键运行-立即开始-success?style=for-the-badge)](https://github.com/leeguooooo/markdown-site#-一键运行推荐)
+[![一键运行](https://img.shields.io/badge/🐳_Docker_一键运行-立即开始-success?style=for-the-badge)](https://github.com/leeguooooo/misonote-markdown#-一键运行推荐)
 [![Docker Hub](https://img.shields.io/badge/Docker_Hub-leeguo/misonote--markdown-blue?style=for-the-badge&logo=docker)](https://hub.docker.com/r/leeguo/misonote-markdown)
 [![快速指南](https://img.shields.io/badge/📖_快速指南-Docker_教程-green?style=for-the-badge)](./DOCKER-QUICKSTART.md)
 [![在线演示](https://img.shields.io/badge/在线演示-立即体验-orange?style=for-the-badge)](https://your-demo-url.com)
@@ -61,7 +61,7 @@ docker run -d \
 docker run -d \
   --name misonote-markdown \
   -p 3001:3001 \
-  -e ADMIN_PASSWORD=your_secure_password \
+  -e ADMIN_PASSWORD=admin123 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
   leeguo/misonote-markdown:latest
@@ -97,7 +97,7 @@ docker rm -f misonote-markdown
 
 ```bash
 # 下载配置文件
-curl -O https://raw.githubusercontent.com/leeguooooo/markdown-site/main/docker-compose.yml
+curl -O https://raw.githubusercontent.com/leeguooooo/misonote-markdown/main/docker-compose.yml
 
 # 启动服务
 docker-compose up -d
@@ -119,8 +119,8 @@ docker-compose ps
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/leeguooooo/markdown-site
-   cd markdown-site
+   git clone https://github.com/leeguooooo/misonote-markdown
+   cd misonote-markdown
    ```
 
 2. **安装依赖**
@@ -155,8 +155,8 @@ docker-compose ps
 
 ```bash
 # 克隆项目
-git clone https://github.com/leeguooooo/markdown-site
-cd markdown-site
+git clone https://github.com/leeguooooo/misonote-markdown
+cd misonote-markdown
 
 # 一键 Docker 部署
 pnpm docker:deploy
@@ -168,8 +168,8 @@ pnpm docker:deploy
 
 ```bash
 # 克隆项目
-git clone https://github.com/leeguooooo/markdown-site
-cd markdown-site
+git clone https://github.com/leeguooooo/misonote-markdown
+cd misonote-markdown
 
 # 安装依赖（一键安装，自动处理构建脚本）
 pnpm run install:full
@@ -459,7 +459,7 @@ docker run -d \
 ```bash
 # 方式一：启动时设置（推荐）
 docker run -d \
-  -e ADMIN_PASSWORD=your_secure_password \
+  -e ADMIN_PASSWORD=admin123 \
   -p 3001:3001 \
   --name misonote-markdown \
   leeguo/misonote-markdown:latest

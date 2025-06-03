@@ -13,7 +13,7 @@ docker run -d \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
-  your-username/misonote-markdown:latest
+  leeguo/misonote-markdown:latest
 ```
 
 ### 使用 Docker Compose
@@ -25,7 +25,7 @@ version: '3.8'
 
 services:
   misonote-markdown:
-    image: your-username/misonote-markdown:latest
+    image: leeguo/misonote-markdown:latest
     container_name: misonote-markdown
     ports:
       - "3001:3001"
@@ -138,7 +138,7 @@ docker run -d \
   --name misonote-markdown \
   -p 3001:3001 \
   -e ADMIN_PASSWORD_HASH_BASE64=your_base64_hash \
-  your-username/misonote-markdown:latest
+  leeguo/misonote-markdown:latest
 ```
 
 ## 🏗️ 支持的架构
@@ -154,14 +154,19 @@ docker run -d \
 
 ## 🔗 相关链接
 
-- **GitHub 仓库**: [https://github.com/your-username/misonote-markdown](https://github.com/your-username/misonote-markdown)
-- **问题反馈**: [GitHub Issues](https://github.com/your-username/misonote-markdown/issues)
-- **文档**: [项目文档](https://github.com/your-username/misonote-markdown#readme)
+- **GitHub 仓库**: [https://github.com/leeguooooo/misonote-markdown](https://github.com/leeguooooo/misonote-markdown)
+- **问题反馈**: [GitHub Issues](https://github.com/leeguooooo/misonote-markdown/issues)
+- **文档**: [项目文档](https://github.com/leeguooooo/misonote-markdown#readme)
+- **Docker Hub**: [leeguo/misonote-markdown](https://hub.docker.com/r/leeguo/misonote-markdown)
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 查看 [LICENSE](https://github.com/your-username/misonote-markdown/blob/main/LICENSE) 文件了解详情。
+本项目采用 MIT 许可证 - 查看 [LICENSE](https://github.com/leeguooooo/misonote-markdown/blob/main/LICENSE) 文件了解详情。
 
 ## 🤝 贡献
 
-欢迎提交 Pull Request 和 Issue！请查看 [贡献指南](https://github.com/your-username/misonote-markdown/blob/main/CONTRIBUTING.md) 了解详情。
+欢迎提交 Pull Request 和 Issue！请查看 [贡献指南](https://github.com/leeguooooo/misonote-markdown/blob/main/CONTRIBUTING.md) 了解详情。
+
+## 👨‍💻 作者
+
+**leeguoo** - [GitHub](https://github.com/leeguooooo)
