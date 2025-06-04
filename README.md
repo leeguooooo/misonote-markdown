@@ -51,7 +51,6 @@
 ```bash
 # 方式一：使用默认临时密码 (admin123)
 docker run -d \
-  --name misonote-markdown \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
@@ -61,7 +60,7 @@ docker run -d \
 docker run -d \
   --name misonote-markdown \
   -p 3001:3001 \
-  -e ADMIN_PASSWORD=your_secure_password \
+  -e ADMIN_PASSWORD=admin123 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \
   leeguo/misonote-markdown:latest
@@ -459,7 +458,7 @@ docker run -d \
 ```bash
 # 方式一：启动时设置（推荐）
 docker run -d \
-  -e ADMIN_PASSWORD=your_secure_password \
+  -e ADMIN_PASSWORD=admin123 \
   -p 3001:3001 \
   --name misonote-markdown \
   leeguo/misonote-markdown:latest

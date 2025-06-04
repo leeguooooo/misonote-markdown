@@ -38,7 +38,6 @@ docker run -d -p 8080:3001 leeguo/misonote-markdown:latest
 ```bash
 # 持久化文档和数据
 docker run -d \
-  --name misonote-markdown \
   -p 3001:3001 \
   -v $(pwd)/docs:/app/docs \
   -v $(pwd)/data:/app/data \

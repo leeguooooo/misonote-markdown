@@ -23,11 +23,26 @@
 ### 1. 标准部署
 
 ```bash
-# 使用最新版本
-docker run -d -p 3001:3001 --name misonote-markdown leeguo/misonote-markdown:latest
+# 使用默认临时密码 (admin123)
+docker run -d \
+  -p 3001:3001 \
+  -v $(pwd)/docs:/app/docs \
+  -v $(pwd)/data:/app/data \
+  leeguo/misonote-markdown:latest
 
-# 使用特定版本 (v2.0.0)
-docker run -d -p 3001:3001 --name misonote-markdown leeguo/misonote-markdown:v2.0.1
+# 启动时设置自定义密码（推荐）
+docker run -d \
+  -p 3001:3001 \
+  -e ADMIN_PASSWORD=admin123 \
+  --name misonote-markdown \
+  leeguo/misonote-markdown:latest
+
+# 使用特定版本
+docker run -d \
+  -p 3001:3001 \
+  -e ADMIN_PASSWORD=admin123 \
+  --name misonote-markdown \
+  leeguo/misonote-markdown:v3.0.0
 ```
 
 ### 2. 使用 Docker Compose (标准模式)
@@ -50,8 +65,10 @@ services:
       - ./logs:/app/logs
     environment:
       - NODE_ENV=production
-      # 可选：自定义管理员密码（Base64 编码的 bcrypt 哈希）
-      # - ADMIN_PASSWORD_HASH_BASE64=your_base64_encoded_hash
+      # 设置管理员密码（推荐修改）
+      - ADMIN_PASSWORD=admin123
+      # 可选：自定义公开访问地址（也可在管理后台设置）
+      # - NEXT_PUBLIC_BASE_URL=https://your-domain.com
     restart: unless-stopped
     networks:
       - markdown-network
@@ -101,16 +118,19 @@ npm install
 }
 ```
 
-#### 步骤 3: 获取 API 密钥
+#### 步骤 3: 创建 MCP API 密钥
 
-从 Docker 容器中获取 API 密钥：
+在管理后台创建 MCP API 密钥：
 
 ```bash
-# 查看容器日志获取 API 密钥
-docker logs misonote-markdown | grep "MCP_API_KEY"
+# 1. 访问管理后台
+open http://localhost:3001/admin
 
-# 或者进入容器查看
-docker exec misonote-markdown cat /app/.env | grep MCP_API_KEY
+# 2. 登录管理员账号
+# 3. 进入 "API 密钥管理" 页面
+# 4. 点击 "创建新密钥" 按钮
+# 5. 设置密钥名称和权限
+# 6. 复制生成的 API 密钥
 ```
 
 ### 4. 环境变量配置
@@ -119,11 +139,12 @@ docker exec misonote-markdown cat /app/.env | grep MCP_API_KEY
 |--------|------|--------|
 | `NODE_ENV` | 运行环境 | `production` |
 | `PORT` | 服务端口 | `3001` |
+| `ADMIN_PASSWORD` | 管理员密码（明文，启动时自动加密） | `admin123` |
 | `ADMIN_PASSWORD_HASH_BASE64` | 管理员密码哈希（Base64编码） | 自动生成 |
 | `JWT_SECRET` | JWT 密钥 | 自动生成 |
-| `MCP_API_KEY` | MCP 客户端 API 密钥 | 自动生成 |
-| `MCP_SERVER_URL` | MCP 服务器地址 | `http://localhost:3000` |
-| `NEXT_PUBLIC_BASE_URL` | 公开访问地址 | `http://localhost:3001` |
+| `NEXT_PUBLIC_BASE_URL` | 公开访问地址（可选，也可在管理后台设置） | 空 |
+
+> **注意**: MCP API 密钥需要在管理后台创建，不再通过环境变量配置。
 
 ### 5. 数据持久化
 
@@ -150,8 +171,8 @@ curl http://localhost:3001/api/mcp/capabilities
 ## 📋 可用标签
 
 - `latest` - 最新稳定版本
-- `v2.0.1` - 当前版本
-- `8ea81bc` - Git 提交版本
+- `v3.0.0` - 当前版本
+- `2da3584` - Git 提交版本
 
 
 ## 🔧 故障排除
