@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { path: docPath, content, name } = await request.json();
+    const { path: docPath, content, title } = await request.json();
 
     if (!docPath || content === undefined) {
       return NextResponse.json(
@@ -30,9 +30,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 使用安全的文件写入方法
+    // 确保路径以.md结尾
     const filePath = docPath.endsWith('.md') ? docPath : `${docPath}.md`;
-    await fileSystemManager.writeFile(filePath, content);
+
+    // 构建完整内容（包含frontmatter）
+    let fullContent = content;
+    if (title) {
+      const matter = require('gray-matter');
+      const { data: existingFrontmatter, content: existingContent } = matter(content);
+
+      const newFrontmatter = {
+        ...existingFrontmatter,
+        title,
+        updated: new Date().toISOString()
+      };
+
+      fullContent = matter.stringify(existingContent, newFrontmatter);
+    }
+
+    // 使用文件系统管理器保存（临时方案）
+    await fileSystemManager.writeFile(filePath, fullContent);
 
     return NextResponse.json({
       success: true,
@@ -42,7 +59,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Save document error:', error);
     return NextResponse.json(
-      { error: 'Failed to save document' },
+      { error: error instanceof Error ? error.message : 'Failed to save document' },
       { status: 500 }
     );
   }
