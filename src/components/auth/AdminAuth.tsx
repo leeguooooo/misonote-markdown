@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Lock, AlertTriangle, Shield, CheckCircle } from 'lucide-react';
+import UnifiedLogin from '@/components/auth/UnifiedLogin';
+import { useAuthState } from '@/core/auth/useAuthState';
 
 interface AdminAuthProps {
   children: React.ReactNode;
@@ -21,13 +23,9 @@ interface AuthUser {
 }
 
 export default function AdminAuth({ children }: AdminAuthProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const { isAuthenticated, user, isLoading, verifyAuth } = useAuthState();
   const [securityStatus, setSecurityStatus] = useState<SecurityStatus | null>(null);
+  const [showUnifiedLogin, setShowUnifiedLogin] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
@@ -35,71 +33,27 @@ export default function AdminAuth({ children }: AdminAuthProps) {
 
   const checkAuthStatus = async () => {
     try {
-      const token = localStorage.getItem('admin-token');
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
+      const isValid = await verifyAuth();
+      if (isValid) {
+        // 获取安全状态
+        const response = await fetch('/api/auth/verify', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
+          },
+        });
 
-      const response = await fetch('/api/auth/verify', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setIsAuthenticated(true);
-        setUser(data.user);
-        setSecurityStatus(data.securityStatus);
-      } else {
-        localStorage.removeItem('admin-token');
+        if (response.ok) {
+          const data = await response.json();
+          setSecurityStatus(data.securityStatus);
+        }
       }
     } catch (error) {
       console.error('认证检查失败:', error);
-      localStorage.removeItem('admin-token');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('admin-token', data.token);
-        setIsAuthenticated(true);
-        setUser(data.user);
-        setSecurityStatus(data.securityStatus);
-        setError('');
-      } else {
-        setError(data.error || '登录失败');
-      }
-    } catch (error) {
-      console.error('登录错误:', error);
-      setError('网络错误，请重试');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('admin-token');
-    setIsAuthenticated(false);
-    setUser(null);
+    // 登出逻辑现在由useAuthState处理
     setSecurityStatus(null);
   };
 
@@ -113,58 +67,36 @@ export default function AdminAuth({ children }: AdminAuthProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-blue-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              管理员登录
-            </h1>
-            <p className="text-gray-600">
-              请输入管理员密码以访问文档管理功能
-            </p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                密码
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="请输入管理员密码"
-                required
-                disabled={isSubmitting}
-              />
-            </div>
-
-            {error && (
-              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-                {error}
+      <>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-blue-600" />
               </div>
-            )}
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                管理员登录
+              </h1>
+              <p className="text-gray-600 mb-6">
+                请登录以访问文档管理功能
+              </p>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors"
-            >
-              {isSubmitting ? '登录中...' : '登录'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
-              开发环境默认密码：admin123
-            </p>
+              <button
+                onClick={() => setShowUnifiedLogin(true)}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                登录
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+
+        <UnifiedLogin
+          isOpen={showUnifiedLogin}
+          onClose={() => setShowUnifiedLogin(false)}
+          purpose="admin"
+        />
+      </>
     );
   }
 

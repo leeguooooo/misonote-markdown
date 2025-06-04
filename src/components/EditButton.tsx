@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Edit3, Lock } from 'lucide-react';
 import Link from 'next/link';
+import UnifiedLogin from '@/components/auth/UnifiedLogin';
 
 interface EditButtonProps {
   docPath: string;
@@ -11,6 +12,7 @@ interface EditButtonProps {
 
 export default function EditButton({ docPath, className = '' }: EditButtonProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showUnifiedLogin, setShowUnifiedLogin] = useState(false);
 
   useEffect(() => {
     // 检查是否已登录管理员
@@ -50,14 +52,23 @@ export default function EditButton({ docPath, className = '' }: EditButtonProps)
 
   if (!isAuthenticated) {
     return (
-      <Link
-        href="/admin"
-        className={`inline-flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200   text-gray-700 rounded-lg transition-colors ${className}`}
-        title="需要管理员权限"
-      >
-        <Lock className="w-4 h-4" />
-        管理员登录
-      </Link>
+      <>
+        <button
+          onClick={() => setShowUnifiedLogin(true)}
+          className={`inline-flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors ${className}`}
+          title="需要管理员权限"
+        >
+          <Lock className="w-4 h-4" />
+          管理员登录
+        </button>
+
+        <UnifiedLogin
+          isOpen={showUnifiedLogin}
+          onClose={() => setShowUnifiedLogin(false)}
+          purpose="edit"
+          redirectTo={`/admin?edit=${encodeURIComponent(docPath)}`}
+        />
+      </>
     );
   }
 
