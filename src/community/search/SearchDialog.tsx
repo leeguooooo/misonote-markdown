@@ -102,7 +102,7 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-4 sm:pt-16 px-2 sm:px-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
@@ -110,30 +110,30 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
       />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-2xl bg-white rounded-lg shadow-xl border border-gray-200  ">
+      <div className="search-dialog relative w-full max-w-2xl bg-white rounded-lg sm:rounded-lg shadow-xl border border-gray-200 max-h-[90vh] sm:max-h-none">
         {/* Header */}
-        <div className="flex items-center gap-3 p-4 border-b border-gray-200  ">
-          <Search className="w-5 h-5 text-gray-400" />
+        <div className="flex items-center gap-3 p-4 border-b border-gray-200">
+          <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
           <input
             ref={inputRef}
             type="text"
             placeholder="搜索文档..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-500"
+            className="search-input flex-1 bg-transparent border-none outline-none text-gray-900 placeholder-gray-500 text-base sm:text-sm"
           />
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-600  "
+            className="p-2 text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Results */}
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-96 sm:max-h-96 overflow-y-auto scroll-container">
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">
+            <div className="p-6 sm:p-8 text-center text-gray-500">
               <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2" />
               搜索中...
             </div>
@@ -144,18 +144,18 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
                   key={doc.id}
                   href={`/docs/${doc.slug.join('/')}`}
                   onClick={onClose}
-                  className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="block p-3 sm:p-3 rounded-lg hover:bg-gray-50 transition-colors min-h-[60px] sm:min-h-auto"
                 >
                   <div className="flex items-start gap-3">
                     <FileText className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 truncate">
+                      <h3 className="font-medium text-gray-900 truncate text-sm sm:text-base">
                         {highlightText(doc.title, query)}
                       </h3>
                       <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                         {highlightText(getContentPreview(doc.content, query), query)}
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-gray-500 mt-1 truncate">
                         /{doc.slug.join('/')}
                       </p>
                     </div>
@@ -180,7 +180,8 @@ export default function SearchDialog({ isOpen, onClose, onSearch }: SearchDialog
 
         {/* Footer */}
         <div className="p-3 border-t border-gray-200 text-xs text-gray-500 flex items-center justify-between">
-          <span>使用 ↑↓ 导航，Enter 选择</span>
+          <span className="hidden sm:inline">使用 ↑↓ 导航，Enter 选择</span>
+          <span className="sm:hidden">点击选择文档</span>
           <span>ESC 关闭</span>
         </div>
       </div>
