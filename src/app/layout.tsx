@@ -5,7 +5,6 @@ import StructuredData from "@/components/StructuredData";
 import { UserProvider } from "@/components/UserManager";
 import { ImmersiveProvider } from "@/components/ImmersiveReader";
 import { ToastProvider } from "@/contexts/ToastContext";
-import AuthDataCleanupProvider from "@/components/AuthDataCleanupProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -103,9 +102,7 @@ export default function RootLayout({
         <ToastProvider>
           <UserProvider>
             <ImmersiveProvider>
-              <AuthDataCleanupProvider>
-                {children}
-              </AuthDataCleanupProvider>
+              {children}
             </ImmersiveProvider>
           </UserProvider>
         </ToastProvider>

@@ -99,7 +99,7 @@ importers:
         specifier: ^8.11.3
         version: 8.16.0
       react:
-        specifier: link:@@tiptap/react
+        specifier: ^19.0.0
         version: 19.1.0
       react-dom:
         specifier: ^19.0.0
@@ -147,9 +147,6 @@ importers:
       '@types/bcryptjs':
         specifier: ^3.0.0
         version: 3.0.0
-      '@types/better-sqlite3':
-        specifier: ^7.6.13
-        version: 7.6.13
       '@types/jsonwebtoken':
         specifier: ^9.0.9
         version: 9.0.9
@@ -1482,9 +1479,6 @@ packages:
   '@types/bcryptjs@3.0.0':
     resolution: {integrity: sha512-WRZOuCuaz8UcZZE4R5HXTco2goQSI2XxjGY3hbM/xDvwmqFWd4ivooImsMx65OKM6CtNKbnZ5YL+YwAwK7c1dg==}
     deprecated: This is a stub types definition. bcryptjs provides its own type definitions, so you do not need this installed.
-
-  '@types/better-sqlite3@7.6.13':
-    resolution: {integrity: sha512-NMv9ASNARoKksWtsq/SHakpYAYnhBrQgGD8zkLYk/jaK8jUGn08CfEdTRgYhMypUQAfzSP8W6gNLe0q19/t4VA==}
 
   '@types/d3-array@3.2.1':
     resolution: {integrity: sha512-Y2Jn2idRrLzUfAKV2LyRImR+y4oa2AntrgID95SHJxuMUrkNXmanDSed71sRNZysveJVt1hLLemQZIady0FpEg==}
@@ -5615,10 +5609,6 @@ snapshots:
   '@types/bcryptjs@3.0.0':
     dependencies:
       bcryptjs: 3.0.2
-
-  '@types/better-sqlite3@7.6.13':
-    dependencies:
-      '@types/node': 20.17.57
 
   '@types/d3-array@3.2.1': {}
 
