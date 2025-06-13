@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Shield, Users, Crown, Zap, ArrowRight, CheckCircle, X, AlertTriangle } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Lock, Shield, Users, Crown, Zap, ArrowRight, CheckCircle, X } from 'lucide-react';
 import { useUser } from '@/components/UserManager';
 import { useAuthState } from '@/core/auth/useAuthState';
 
@@ -49,43 +50,16 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
   const [userForm, setUserForm] = useState({ name: '', role: 'user' as 'user' | 'admin' });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDataCleanup, setShowDataCleanup] = useState(false);
-  const [authDiagnosis, setAuthDiagnosis] = useState<any>(null);
-
   useEffect(() => {
     if (isOpen) {
-      // 检查认证数据兼容性
-      checkAuthCompatibility();
+      // 自动清理异常数据，无需提示
+      const diagnosis = diagnose();
+      if (diagnosis.recommendations.length > 0) {
+        clearAllData();
+      }
       fetchVersionInfo();
     }
   }, [isOpen]);
-
-  const checkAuthCompatibility = () => {
-    const diagnosis = diagnose();
-    setAuthDiagnosis(diagnosis);
-
-    // 如果有兼容性问题，显示清理选项
-    if (diagnosis.recommendations.length > 0) {
-      console.warn('检测到认证数据兼容性问题:', diagnosis);
-      setShowDataCleanup(true);
-      setError('检测到旧的认证数据，可能影响登录。建议清理数据后重试。');
-    }
-  };
-
-  const handleDataCleanup = async () => {
-    try {
-      clearAllData();
-      setShowDataCleanup(false);
-      setError('');
-      setAuthDiagnosis(null);
-
-      // 强制刷新页面以确保状态完全重置
-      window.location.reload();
-    } catch (error) {
-      console.error('清理数据失败:', error);
-      setError('清理数据失败，请手动清除浏览器缓存');
-    }
-  };
 
   useEffect(() => {
     if (versionInfo) {
@@ -190,13 +164,20 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
     }
   };
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* 头部 */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          {/* 头部 */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <Shield className="w-6 h-6 text-blue-600" />
@@ -294,37 +275,6 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
               {error && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
                   {error}
-                </div>
-              )}
-
-              {/* 数据清理提示 */}
-              {showDataCleanup && authDiagnosis && (
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                      <h4 className="font-medium text-yellow-800 mb-2">检测到兼容性问题</h4>
-                      <div className="text-sm text-yellow-700 space-y-1">
-                        <p>认证系统版本: {authDiagnosis.version} → 3.0.0</p>
-                        <p>Token有效性: {authDiagnosis.hasValidToken ? '✅ 有效' : '❌ 无效'}</p>
-                        <p>数据年龄: {Math.round(authDiagnosis.stateAge / 1000 / 60)} 分钟</p>
-                      </div>
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          onClick={handleDataCleanup}
-                          className="px-3 py-1 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700 transition-colors"
-                        >
-                          清理数据
-                        </button>
-                        <button
-                          onClick={() => setShowDataCleanup(false)}
-                          className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300 transition-colors"
-                        >
-                          忽略
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -465,7 +415,9 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
             <p className="text-gray-600">无法加载版本信息</p>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

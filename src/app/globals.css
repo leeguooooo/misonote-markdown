@@ -909,6 +909,29 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   }
 }
 
+/* 移动端 Header 优化 */
+@media (max-width: 640px) {
+  /* 确保 header 在移动端不会太高 */
+  header {
+    height: 56px;
+  }
+  
+  header > div {
+    height: 56px;
+  }
+
+  /* 优化搜索按钮在移动端的显示 */
+  .search-button-mobile {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 防止用户头像在移动端被挤压 */
+  .user-avatar {
+    min-width: 24px;
+    min-height: 24px;
+  }
+}
+
 /* 移动端滚动条优化 */
 @media (max-width: 768px) {
   .custom-scrollbar::-webkit-scrollbar {

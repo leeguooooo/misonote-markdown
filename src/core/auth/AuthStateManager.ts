@@ -112,10 +112,13 @@ export class AuthStateManager {
         const parsedState = JSON.parse(savedState);
 
         // 检查状态是否过期（超过1小时自动清理）
-        const stateAge = Date.now() - (parsedState.lastVerified || 0);
-        if (stateAge > 60 * 60 * 1000) {
-          safeLog.info('认证状态已过期，清理数据');
+        const now = Date.now();
+        const stateAge = parsedState.lastVerified ? now - parsedState.lastVerified : -1;
+        
+        // 检查异常的时间值（负数或超过1年）- 直接清理，不提示
+        if (stateAge < 0 || stateAge > 365 * 24 * 60 * 60 * 1000 || stateAge > 60 * 60 * 1000) {
           this.clearAllAuthData();
+          localStorage.setItem(this.AUTH_VERSION_KEY, this.CURRENT_AUTH_VERSION);
           return;
         }
 
@@ -394,7 +397,7 @@ export class AuthStateManager {
     const diagnosis = {
       hasValidToken: token ? this.isTokenValid(token) : false,
       tokenAge: 0,
-      stateAge: now - this.authState.lastVerified,
+      stateAge: this.authState.lastVerified ? now - this.authState.lastVerified : -1,
       version: savedVersion || 'unknown',
       recommendations: [] as string[]
     };
@@ -402,18 +405,25 @@ export class AuthStateManager {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        diagnosis.tokenAge = now - (payload.iat * 1000);
+        diagnosis.tokenAge = payload.iat ? now - (payload.iat * 1000) : -1;
       } catch (error) {
         diagnosis.recommendations.push('Token格式无效，建议清理');
       }
+    } else {
+      diagnosis.recommendations.push('未找到认证Token');
     }
 
     if (savedVersion !== this.CURRENT_AUTH_VERSION) {
-      diagnosis.recommendations.push('认证系统版本不匹配，建议清理');
+      diagnosis.recommendations.push(`认证系统版本不匹配（当前: ${savedVersion}, 期望: ${this.CURRENT_AUTH_VERSION}），建议清理`);
     }
 
     if (diagnosis.stateAge > 60 * 60 * 1000) {
       diagnosis.recommendations.push('认证状态过期，建议刷新');
+    }
+
+    // 检查异常的时间值
+    if (diagnosis.stateAge < 0 || diagnosis.stateAge > 365 * 24 * 60 * 60 * 1000) {
+      diagnosis.recommendations.push('检测到异常的认证状态时间，建议清理所有认证数据');
     }
 
     return diagnosis;
