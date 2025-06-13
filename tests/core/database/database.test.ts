@@ -33,8 +33,9 @@ describe('数据库功能测试', () => {
 
       // 验证是否是测试数据库（通过检查表是否存在）
       const tables = db.prepare(`
-        SELECT name FROM sqlite_master
-        WHERE type='table' AND name IN ('api_keys', 'system_settings')
+        SELECT table_name FROM information_schema.tables
+        WHERE table_schema = 'public' 
+        AND table_name IN ('api_keys', 'system_settings')
       `).all()
 
       expect(tables.length).toBeGreaterThan(0)
