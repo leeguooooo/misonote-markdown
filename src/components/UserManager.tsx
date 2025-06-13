@@ -28,6 +28,21 @@ export default function UserManager() {
     setIsMounted(true);
   }, []);
 
+  // 点击外部关闭菜单
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.relative')) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showUserMenu]);
+
 
 
   const handleLogout = () => {
@@ -80,9 +95,9 @@ export default function UserManager() {
   // 避免 hydration 错误
   if (!isMounted) {
     return (
-      <button className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900   transition-colors">
+      <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors min-h-[44px] touch-feedback">
         <User className="w-4 h-4" />
-        登录
+        <span className="hidden sm:inline">登录</span>
       </button>
     );
   }
@@ -92,10 +107,11 @@ export default function UserManager() {
       <>
         <button
           onClick={() => setShowUnifiedLogin(true)}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors min-h-[44px] touch-feedback"
+          aria-label="登录"
         >
           <User className="w-4 h-4" />
-          登录
+          <span className="hidden sm:inline">登录</span>
         </button>
 
         <UnifiedLogin
@@ -111,18 +127,19 @@ export default function UserManager() {
     <div className="relative">
       <button
         onClick={() => setShowUserMenu(!showUserMenu)}
-        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+        className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors min-h-[44px] touch-feedback"
+        aria-label="用户菜单"
       >
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium ${getUserBadgeColor(user?.role)}`}>
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${getUserBadgeColor(user?.role)}`}>
           {user && getUserAvatar(user)}
         </div>
-        <span>{user?.name}</span>
-        {isAdmin && <Crown className="w-3 h-3 text-yellow-500" />}
+        <span className="hidden sm:inline">{user?.name}</span>
+        {isAdmin && <Crown className="w-3 h-3 text-yellow-500 hidden sm:inline-block" />}
       </button>
 
       {/* User Menu */}
       {showUserMenu && (
-        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 safe-area-right">
           <div className="px-4 py-2 border-b border-gray-200">
             <div className="font-medium text-gray-900">{user?.name}</div>
             <div className="flex items-center gap-1 text-sm text-gray-500">

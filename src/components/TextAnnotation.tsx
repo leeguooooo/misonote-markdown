@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MessageSquare, Bookmark, Highlighter, X } from 'lucide-react';
 import { useUser } from './UserManager';
+import { GlobalModal, ModalBody, ModalFooter } from './ui/GlobalModal';
 
 interface Reply {
   id: string;
@@ -732,116 +733,107 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
       )}
 
       {/* 评论对话框 */}
-      {showCommentDialog && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9999
-          }}
-        >
-          <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] max-h-[80vh] overflow-y-auto"
-            style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900  ">
-              添加笔记
-            </h3>
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">选中文本：</p>
-              <div className="p-3 bg-gray-100 rounded-lg text-sm">
-                "{selectedText}"
-              </div>
-            </div>
-            <textarea
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="输入你的笔记..."
-              className="w-full p-3 border border-gray-300 rounded-lg resize-none bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              rows={4}
-            />
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => {
-                  setShowCommentDialog(false);
-                  setShowAnnotationMenu(false);
-                  setCommentText('');
-                }}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800  "
-              >
-                取消
-              </button>
-              <button
-                onClick={() => createAnnotation(annotationType)}
-                disabled={!commentText.trim()}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                保存笔记
-              </button>
+      <GlobalModal
+        isOpen={showCommentDialog}
+        onClose={() => {
+          setShowCommentDialog(false);
+          setShowAnnotationMenu(false);
+          setCommentText('');
+        }}
+        title="添加笔记"
+        width="sm"
+      >
+        <ModalBody>
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-2">选中文本：</p>
+            <div className="p-3 bg-gray-100 rounded-lg text-sm">
+              "{selectedText}"
             </div>
           </div>
-        </div>
-      )}
+          <textarea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="输入你的笔记..."
+            className="w-full p-3 border border-gray-300 rounded-lg resize-none bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            rows={4}
+          />
+        </ModalBody>
+        <ModalFooter>
+          <button
+            onClick={() => {
+              setShowCommentDialog(false);
+              setShowAnnotationMenu(false);
+              setCommentText('');
+            }}
+            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+          >
+            取消
+          </button>
+          <button
+            onClick={() => createAnnotation(annotationType)}
+            disabled={!commentText.trim()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            保存笔记
+          </button>
+        </ModalFooter>
+      </GlobalModal>
 
       {/* 标注详情对话框 */}
-      {showAnnotationDetail && selectedAnnotation && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9999
-          }}
-        >
-          <div className="bg-white rounded-lg p-6 w-96 max-w-[90vw] max-h-[80vh] overflow-y-auto"
-            style={{ maxWidth: 'calc(100vw - 40px)', maxHeight: 'calc(100vh - 40px)' }}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                {selectedAnnotation.type === 'highlight' && <Highlighter className="w-5 h-5 text-yellow-600" />}
-                {selectedAnnotation.type === 'note' && <MessageSquare className="w-5 h-5 text-blue-600" />}
-                {selectedAnnotation.type === 'bookmark' && <Bookmark className="w-5 h-5 text-green-600" />}
-                <h3 className="text-lg font-semibold text-gray-900  ">
-                  {selectedAnnotation.type === 'highlight' ? '高亮标注' :
-                    selectedAnnotation.type === 'note' ? '笔记标注' : '书签标注'}
-                </h3>
+      <GlobalModal
+        isOpen={showAnnotationDetail && !!selectedAnnotation}
+        onClose={() => setShowAnnotationDetail(false)}
+        width="sm"
+        showCloseButton={false}
+      >
+        {selectedAnnotation && (
+          <>
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {selectedAnnotation.type === 'highlight' && <Highlighter className="w-5 h-5 text-yellow-600" />}
+                  {selectedAnnotation.type === 'note' && <MessageSquare className="w-5 h-5 text-blue-600" />}
+                  {selectedAnnotation.type === 'bookmark' && <Bookmark className="w-5 h-5 text-green-600" />}
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {selectedAnnotation.type === 'highlight' ? '高亮标注' :
+                      selectedAnnotation.type === 'note' ? '笔记标注' : '书签标注'}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowAnnotationDetail(false)}
+                  className="p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                onClick={() => setShowAnnotationDetail(false)}
-                className="p-1 text-gray-400 hover:text-gray-600  "
-              >
-                <X className="w-5 h-5" />
-              </button>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700  ">选中文本：</label>
-                <div className="mt-1 p-3 bg-gray-100 rounded-lg text-sm text-gray-900  ">
-                  "{selectedAnnotation.text}"
-                </div>
-              </div>
-
-              {selectedAnnotation.comment && (
+            <ModalBody>
+              <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700  ">备注内容：</label>
-                  <div className="mt-1 p-3 bg-gray-100 rounded-lg text-sm text-gray-900  ">
-                    {selectedAnnotation.comment}
+                  <label className="text-sm font-medium text-gray-700">选中文本：</label>
+                  <div className="mt-1 p-3 bg-gray-100 rounded-lg text-sm text-gray-900">
+                    "{selectedAnnotation.text}"
                   </div>
                 </div>
-              )}
 
-              <div className="flex items-center justify-between text-sm text-gray-500  ">
-                <span>作者：{selectedAnnotation.author}</span>
-                <span>创建时间：{new Date(selectedAnnotation.timestamp).toLocaleString('zh-CN')}</span>
+                {selectedAnnotation.comment && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">备注内容：</label>
+                    <div className="mt-1 p-3 bg-gray-100 rounded-lg text-sm text-gray-900">
+                      {selectedAnnotation.comment}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <span>作者：{selectedAnnotation.author}</span>
+                  <span>创建时间：{new Date(selectedAnnotation.timestamp).toLocaleString('zh-CN')}</span>
+                </div>
               </div>
-            </div>
+            </ModalBody>
 
-            <div className="flex justify-end gap-2 mt-6">
+            <ModalFooter>
               {/* 只有作者或管理员可以删除 */}
               {(selectedAnnotation.author === user?.name || user?.isRealAdmin) && (
                 <button
@@ -864,10 +856,10 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
               >
                 关闭
               </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </ModalFooter>
+          </>
+        )}
+      </GlobalModal>
 
       {/* 标注列表 */}
       {annotations.length > 0 && (
