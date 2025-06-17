@@ -4,7 +4,7 @@ import LicenseStatus from '@/components/LicenseStatus';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   BarChart3,
   Crown,
@@ -18,11 +18,7 @@ import React from 'react';
 
 const LicenseManagementPage: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2">许可证管理</h1>
-        <p className="text-gray-600">管理您的 Misonote 许可证和功能权限</p>
-      </div>
+    <div className="px-6 space-y-6">
 
       <Tabs defaultValue="status" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">

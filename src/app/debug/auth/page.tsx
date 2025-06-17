@@ -212,7 +212,7 @@ export default function AuthDebugPage() {
               'authState',
               'authVersion'
             ].map(key => {
-              const value = localStorage.getItem(key);
+              const value = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
               return (
                 <div key={key} className="border rounded p-3">
                   <div className="font-medium text-gray-700">{key}:</div>

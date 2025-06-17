@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(rg:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm test:run:*)",
+      "Bash(git checkout:*)",
+      "Bash(pnpm test:*)",
+      "Bash(git add:*)",
+      "Bash(find:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm install:*)",
+      "Bash(git commit:*)",
+      "Bash(pnpm docker:build:*)",
+      "Bash(echo:*)",
+      "Bash(docker run:*)",
+      "Bash(docker stats:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker-compose:*)",
+      "Bash(pnpm add:*)",
+      "Bash(gh project item-list:*)",
+      "Bash(cp:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm dev:*)"
+    ],
+    "deny": []
+  }
+}

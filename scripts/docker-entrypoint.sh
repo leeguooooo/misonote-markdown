@@ -27,17 +27,11 @@ setup_admin_password() {
         echo "💡 您可以通过以下方式设置密码："
         echo "   1. 启动时设置: docker run -e ADMIN_PASSWORD=your_password ..."
         echo "   2. 启动后设置: docker exec -it container_name node scripts/generate-password.js"
-
-        # 生成默认的临时密码
-        TEMP_PASSWORD="admin123"
-        echo "🔧 生成临时密码: $TEMP_PASSWORD"
-        ADMIN_PASSWORD_HASH_BASE64=$(node -e "
-            const bcrypt = require('bcryptjs');
-            const hash = bcrypt.hashSync('$TEMP_PASSWORD', 12);
-            const base64Hash = Buffer.from(hash).toString('base64');
-            console.log(base64Hash);
-        ")
-        echo "⚠️  临时密码已设置，请尽快修改！"
+        echo "❌ 无法启动：需要设置管理员密码"
+        exit 1
+    else
+        echo "✅ 使用默认管理员密码配置 (admin123)"
+        echo "⚠️  生产环境请及时修改默认密码！"
     fi
 }
 

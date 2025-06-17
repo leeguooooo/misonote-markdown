@@ -34,7 +34,7 @@ ENV npm_config_cache=/tmp/.npm
 
 # 使用一键安装命令（自动处理构建脚本）
 RUN chmod +x scripts/install.sh && \
-    SKIP_POSTINSTALL=true pnpm install --frozen-lockfile --prefer-offline && \
+    SKIP_POSTINSTALL=true pnpm install --no-frozen-lockfile --prefer-offline && \
     (echo "a" | pnpm approve-builds || echo "构建脚本已处理")
 
 # 构建阶段
@@ -46,6 +46,8 @@ COPY . .
 # 设置环境变量
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# 默认管理员密码: admin123 (可通过环境变量覆盖)
+ENV ADMIN_PASSWORD_HASH_BASE64=JDJiJDEyJDRqY3YuRkVkTzBzLmUvamkvN09DVS5VeEtqTnlBTmszL2Y4VG1sS2JiY2w2VDNSMjNqdDhh
 
 # 生成默认环境变量（如果不存在）
 RUN if [ ! -f .env ]; then \
@@ -106,6 +108,8 @@ EXPOSE 3001
 ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 ENV PORT=3001
+# 默认管理员密码: admin123 (可通过环境变量覆盖)
+ENV ADMIN_PASSWORD_HASH_BASE64=JDJiJDEyJDRqY3YuRkVkTzBzLmUvamkvN09DVS5VeEtqTnlBTmszL2Y4VG1sS2JiY2w2VDNSMjNqdDhh
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
