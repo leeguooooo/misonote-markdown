@@ -1,0 +1,36 @@
+# 使用官方 Node.js 镜像
+FROM --platform=linux/amd64 node:18-alpine
+
+# 安装必要的依赖
+RUN apk add --no-cache \
+    libc6-compat \
+    bash \
+    postgresql-client
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制依赖文件
+COPY package.json pnpm-lock.yaml* ./
+
+# 安装 pnpm 并安装依赖
+RUN npm install -g pnpm && \
+    pnpm install --frozen-lockfile --prod
+
+# 复制应用代码
+COPY . .
+
+# 设置环境变量
+ENV NODE_ENV=production
+ENV PORT=3001
+ENV HOSTNAME="0.0.0.0"
+ENV ADMIN_PASSWORD_HASH_BASE64=JDJiJDEyJDRqY3YuRkVkTzBzLmUvamkvN09DVS5VeEtqTnlBTmszL2Y4VG1sS2JiY2w2VDNSMjNqdDhh
+
+# 构建应用
+RUN pnpm build
+
+# 暴露端口
+EXPOSE 3001
+
+# 启动应用
+CMD ["pnpm", "start"]

@@ -5,6 +5,7 @@ import StructuredData from "@/components/StructuredData";
 import { UserProvider } from "@/components/UserManager";
 import { ImmersiveProvider } from "@/components/ImmersiveReader";
 import { ToastProvider } from "@/contexts/ToastContext";
+import ApiInterceptorProvider from "@/components/ApiInterceptorProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -99,13 +100,15 @@ export default function RootLayout({
             url: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'
           }}
         />
-        <ToastProvider>
-          <UserProvider>
-            <ImmersiveProvider>
-              {children}
-            </ImmersiveProvider>
-          </UserProvider>
-        </ToastProvider>
+        <ApiInterceptorProvider>
+          <ToastProvider>
+            <UserProvider>
+              <ImmersiveProvider>
+                {children}
+              </ImmersiveProvider>
+            </UserProvider>
+          </ToastProvider>
+        </ApiInterceptorProvider>
       </body>
     </html>
   );

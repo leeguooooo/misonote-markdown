@@ -85,6 +85,13 @@ MISONOTE_LICENSE_SERVER_URL=${MISONOTE_LICENSE_SERVER_URL:-https://license-api.m
 
 # 公开访问地址（可选，也可在管理后台设置）
 NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-}
+
+# 数据库配置
+DB_HOST=${DB_HOST:-127.0.0.1}
+DB_PORT=${DB_PORT:-5432}
+DB_NAME=${DB_NAME:-misonote}
+DB_USER=${DB_USER:-postgres}
+DB_PASSWORD=${DB_PASSWORD:-password}
 EOF
 
     echo "✅ 环境变量配置已生成"

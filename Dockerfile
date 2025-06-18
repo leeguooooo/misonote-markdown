@@ -91,6 +91,9 @@ COPY --from=builder /app/ecosystem.config.js ./ecosystem.config.js
 
 # MCP 客户端不包含在镜像中，用户需要本地安装
 
+# 安装运行时必需的依赖（bcryptjs 用于密码处理）
+RUN pnpm add bcryptjs
+
 # 设置启动脚本权限
 RUN chmod +x scripts/docker-entrypoint.sh
 

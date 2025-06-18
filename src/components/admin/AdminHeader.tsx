@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import {
@@ -22,6 +22,12 @@ const AdminHeader: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin-token');
+    router.push('/admin');
+  };
 
   // 根据路径生成面包屑
   const getBreadcrumbs = () => {
@@ -190,7 +196,10 @@ const AdminHeader: React.FC = () => {
                     账户设置
                   </Link>
                   <div className="border-t border-gray-100"></div>
-                  <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <button 
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
                     <LogOut className="h-4 w-4 mr-3" />
                     退出登录
                   </button>
