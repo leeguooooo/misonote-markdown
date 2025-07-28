@@ -2,7 +2,7 @@
 
 import React from 'react';
 import ApiKeyManager from '@/components/admin/ApiKeyManager';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Key, Shield, Globe, Zap, AlertTriangle, Info } from 'lucide-react';
 
 export default function ApiKeysPage() {

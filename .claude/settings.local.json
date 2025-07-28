@@ -28,7 +28,17 @@
       "Bash(gh project item-list:*)",
       "Bash(cp:*)",
       "Bash(pnpm typecheck:*)",
-      "Bash(pnpm dev:*)"
+      "Bash(pnpm dev:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm db:create:*)",
+      "Bash(pnpm db:init:*)",
+      "Bash(pnpm db:migrate:*)",
+      "Bash(pnpm db:status:*)",
+      "Bash(pkill:*)",
+      "Bash(open:*)",
+      "Bash(docker:*)",
+      "Bash(sed:*)",
+      "Bash(pnpm docker:push:*)"
     ],
     "deny": []
   }

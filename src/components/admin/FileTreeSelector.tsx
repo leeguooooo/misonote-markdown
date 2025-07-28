@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, Check, Square, CheckSquare, MinusSquare } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface FileItem {

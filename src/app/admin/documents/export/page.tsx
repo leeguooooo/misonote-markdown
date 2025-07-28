@@ -2,7 +2,7 @@
 
 import React from 'react';
 import DocumentExport from '@/components/admin/DocumentExport';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download, FileText, Package, Zap } from 'lucide-react';
 
 export default function DocumentExportPage() {

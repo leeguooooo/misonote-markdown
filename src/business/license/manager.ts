@@ -623,17 +623,23 @@ V8wpOLgmwXxS9Q8s1sbm72ZTY08Tls+V40YGsOVG6HBismBxOFncAh1x7gVzOitH
    */
   private async verifyServerResponseSignature(response: any): Promise<boolean> {
     try {
-      // TODO: 实现服务器响应签名验证
-      // 这里应该使用服务器公钥验证响应签名
-
-      // 临时实现：检查签名格式
-      if (!response.signature || typeof response.signature !== 'string') {
+      // 检查必要的字段
+      if (!response.signature || !response.data || typeof response.signature !== 'string') {
         return false;
       }
 
-      // 检查签名是否为有效的hex字符串
-      const hexPattern = /^[a-f0-9]{64}$/i;
-      return hexPattern.test(response.signature);
+      // 服务器使用SHA-256哈希签名数据
+      // 按照服务器的方式对data进行字符串化
+      const dataString = JSON.stringify(response.data);
+      
+      // 计算数据的SHA-256哈希
+      const computedHash = crypto
+        .createHash('sha256')
+        .update(dataString)
+        .digest('hex');
+      
+      // 比较计算的哈希值与提供的签名
+      return computedHash === response.signature;
 
     } catch (error) {
       log.error('验证服务器响应签名失败:', error);

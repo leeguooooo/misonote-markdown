@@ -64,16 +64,32 @@ export default function CollaborativeEditor({
     const ydoc = new Y.Doc();
     ydocRef.current = ydoc;
     
+    // 获取认证令牌
+    const getAuthToken = () => {
+      // 从 cookie 或 localStorage 获取令牌
+      const cookies = document.cookie.split(';');
+      const tokenCookie = cookies.find(c => c.trim().startsWith('token='));
+      if (tokenCookie) {
+        return tokenCookie.split('=')[1];
+      }
+      return localStorage.getItem('token') || '';
+    };
+    
     // 创建WebSocket提供者
-    const wsUrl = process.env.NODE_ENV === 'development' 
-      ? 'ws://localhost:3001/collaboration'
-      : `wss://${window.location.host}/collaboration`;
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsHost = process.env.NODE_ENV === 'development' 
+      ? 'localhost:3002'
+      : window.location.host.replace(':3001', ':3002'); // 生产环境也需要使用3002端口
+    
+    const token = getAuthToken();
+    const wsUrl = `${wsProtocol}//${wsHost}/${documentId}?token=${encodeURIComponent(token)}`;
     
     const provider = new WebsocketProvider(wsUrl, documentId, ydoc, {
       params: {
         userId: user.id,
         userName: user.name,
-        userColor: user.color
+        userColor: user.color,
+        token: token // 备用：也在params中传递token
       }
     });
     providerRef.current = provider;
@@ -81,6 +97,24 @@ export default function CollaborativeEditor({
     // 监听连接状态
     provider.on('status', (event: { status: string }) => {
       setConnectionStatus(event.status === 'connected' ? 'connected' : 'disconnected');
+    });
+    
+    // 监听连接错误
+    provider.on('connection-error', (event: any) => {
+      console.error('WebSocket连接错误:', event);
+      if (event.code === 1008) {
+        // 认证失败
+        alert('认证失败，请重新登录');
+        window.location.href = '/login';
+      }
+    });
+    
+    // 监听连接关闭
+    provider.on('connection-close', (event: any) => {
+      if (event.code === 1008) {
+        // 认证相关的关闭
+        console.error('认证失败，连接被关闭');
+      }
     });
     
     // 监听在线用户变化

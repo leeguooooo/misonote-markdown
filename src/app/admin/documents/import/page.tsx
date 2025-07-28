@@ -2,7 +2,7 @@
 
 import React from 'react';
 import DocumentImport from '@/components/admin/DocumentImport';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, FileText, Package, Shield, AlertTriangle } from 'lucide-react';
 
 export default function DocumentImportPage() {

@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { Upload, Plus, FolderPlus, Shield, FileText, Search, Filter, Download } from 'lucide-react';
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import EnhancedFileTree from '@/components/admin/EnhancedFileTree';
 import MarkdownEditor from '@/components/admin/MarkdownEditor';
 import CreateFileDialog from '@/components/admin/CreateFileDialog';

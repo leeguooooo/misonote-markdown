@@ -5,7 +5,7 @@
 
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { getDatabase } from '../database';
+import { getDatabase } from '../database/postgres-adapter';
 import { log } from '../logger';
 
 // 类型定义

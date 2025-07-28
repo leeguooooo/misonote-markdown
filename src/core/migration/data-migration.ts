@@ -6,7 +6,7 @@
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { getDatabase } from '../database';
+import { getDatabase } from '../database/postgres-adapter';
 import { log } from '../logger';
 
 // 迁移状态枚举
