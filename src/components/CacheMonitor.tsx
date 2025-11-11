@@ -17,11 +17,7 @@ export default function CacheMonitor() {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/cache', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await fetch('/api/admin/cache');
 
       if (response.ok) {
         const data = await response.json();
@@ -46,9 +42,6 @@ export default function CacheMonitor() {
     try {
       const response = await fetch('/api/admin/cache', {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
       });
 
       if (response.ok) {

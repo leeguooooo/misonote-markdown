@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 3001",
+    "dev": "node scripts/dev-with-env-check.js",
     "ws:dev": "tsx lib/websocket/simple-server.ts",
     "dev:all": "concurrently \"pnpm dev\" \"pnpm ws:dev\"",
     "prebuild": "node scripts/pre-build-check.js",

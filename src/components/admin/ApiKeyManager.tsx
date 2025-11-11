@@ -51,11 +51,7 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
 
   const loadApiKeys = async () => {
     try {
-      const response = await fetch('/api/admin/api-keys', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
-      });
+      const response = await fetch('/api/admin/api-keys');
 
       if (response.ok) {
         const data = await response.json();
@@ -72,10 +68,7 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
     try {
       const response = await fetch('/api/admin/api-keys', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(keyData),
       });
 
@@ -99,10 +92,7 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
     try {
       const response = await fetch(`/api/admin/api-keys/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
 
@@ -127,9 +117,6 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
     try {
       const response = await fetch(`/api/admin/api-keys/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
       });
 
       if (response.ok) {

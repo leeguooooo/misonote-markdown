@@ -24,9 +24,10 @@ const AdminHeader: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
     localStorage.removeItem('admin-token');
-    router.push('/admin');
+    router.push('/');
   };
 
   // 根据路径生成面包屑

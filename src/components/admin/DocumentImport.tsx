@@ -65,20 +65,10 @@ const DocumentImport: React.FC = () => {
   const [isLoadingFolders, setIsLoadingFolders] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('admin-token');
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    };
-  };
-
   const loadFolders = async () => {
     setIsLoadingFolders(true);
     try {
-      const response = await fetch('/api/admin/docs', {
-        headers: getAuthHeaders()
-      });
+      const response = await fetch('/api/admin/docs');
       if (response.ok) {
         const data = await response.json();
         // 加载所有项目以显示完整的目录结构
@@ -174,9 +164,6 @@ const DocumentImport: React.FC = () => {
 
       const response = await fetch('/api/admin/import', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
         body: formData
       });
 
@@ -193,7 +180,7 @@ const DocumentImport: React.FC = () => {
         setError(errorData.error || '导入失败');
       }
     } catch (err) {
-      setError('导入过程中发生错误');
+      setError(err instanceof Error ? err.message : '导入过程中发生错误');
     } finally {
       setIsUploading(false);
       setTimeout(() => setUploadProgress(0), 1000);

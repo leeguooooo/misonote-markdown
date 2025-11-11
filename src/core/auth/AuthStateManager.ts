@@ -126,13 +126,6 @@ export class AuthStateManager {
         safeLog.info('恢复认证状态成功');
       }
 
-      // 检查token有效性
-      const token = localStorage.getItem(this.ADMIN_TOKEN_KEY);
-      if (token && !this.isTokenValid(token)) {
-        safeLog.warn('检测到无效token，清理认证数据');
-        this.clearAllAuthData();
-      }
-
     } catch (error) {
       safeLog.error('初始化认证状态失败，清理所有数据:', error);
       this.clearAllAuthData();
@@ -243,22 +236,14 @@ export class AuthStateManager {
    */
   private async performVerification(): Promise<boolean> {
     try {
-      const token = localStorage.getItem(this.ADMIN_TOKEN_KEY);
-
-      if (!token || !this.isTokenValid(token)) {
-        this.clearAllAuthData();
-        return false;
-      }
-
-      // 向服务器验证token
+      // 依赖 HttpOnly Cookie 验证
       const response = await fetch('/api/auth/verify', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
+        const token = localStorage.getItem(this.ADMIN_TOKEN_KEY);
 
         // 更新认证状态
         this.authState = {
@@ -288,16 +273,21 @@ export class AuthStateManager {
   /**
    * 设置认证状态
    */
-  public setAuthState(user: any, token: string): void {
+  public setAuthState(user: any, token?: string | null): void {
     this.authState = {
       isAuthenticated: true,
       user: user,
-      token: token,
+      token: token || null,
       lastVerified: Date.now()
     };
 
-    // 保存到localStorage
-    localStorage.setItem(this.ADMIN_TOKEN_KEY, token);
+    // 持久化可选的token（供协同编辑或旧逻辑使用）
+    if (token) {
+      localStorage.setItem(this.ADMIN_TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(this.ADMIN_TOKEN_KEY);
+    }
+
     this.saveAuthState();
     this.notifyListeners();
 

@@ -586,14 +586,8 @@ export default function TextAnnotation({ children, docPath, className = '' }: Te
 
       if (isAdminDelete && user?.isRealAdmin) {
         // 管理员删除
-        const headers: Record<string, string> = {};
-        if (user?.token) {
-          headers['Authorization'] = `Bearer ${user.token}`;
-        }
-
         response = await fetch(`/api/admin/delete-annotation?annotationId=${annotationId}&docPath=${encodeURIComponent(docPath)}`, {
           method: 'DELETE',
-          headers,
         });
       } else {
         // 普通用户删除自己的标注

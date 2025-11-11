@@ -23,7 +23,7 @@ interface AuthUser {
 }
 
 export default function AdminAuth({ children }: AdminAuthProps) {
-  const { isAuthenticated, user, isLoading, verifyAuth } = useAuthState();
+  const { isAuthenticated, user, isLoading, verifyAuth, logout } = useAuthState();
   const [securityStatus, setSecurityStatus] = useState<SecurityStatus | null>(null);
   const [showUnifiedLogin, setShowUnifiedLogin] = useState(false);
 
@@ -36,11 +36,7 @@ export default function AdminAuth({ children }: AdminAuthProps) {
       const isValid = await verifyAuth();
       if (isValid) {
         // 获取安全状态
-        const response = await fetch('/api/auth/verify', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-          },
-        });
+        const response = await fetch('/api/auth/verify');
 
         if (response.ok) {
           const data = await response.json();
@@ -52,9 +48,15 @@ export default function AdminAuth({ children }: AdminAuthProps) {
     }
   };
 
-  const handleLogout = () => {
-    // 登出逻辑现在由useAuthState处理
-    setSecurityStatus(null);
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('注销失败:', error);
+    } finally {
+      logout();
+      setSecurityStatus(null);
+    }
   };
 
   if (isLoading) {

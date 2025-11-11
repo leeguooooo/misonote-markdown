@@ -34,11 +34,6 @@ export default function AdminControls({ docPath }: AdminControlsProps) {
         'Content-Type': 'application/json',
       };
 
-      // 添加 JWT token 到请求头
-      if (user?.token) {
-        headers['Authorization'] = `Bearer ${user.token}`;
-      }
-
       if (deleteType === 'comments' || deleteType === 'all') {
         // 删除评论
         const response = await fetch('/api/admin/clear-comments', {

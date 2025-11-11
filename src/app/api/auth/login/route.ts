@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminPassword, generateToken, getSecurityStatus } from '@/core/auth/auth';
+import { ADMIN_TOKEN_COOKIE, adminCookieOptions } from '@/lib/server/auth-cookies';
 import { log } from '@/core/logger';
 
 export async function POST(request: NextRequest) {
@@ -48,12 +49,15 @@ export async function POST(request: NextRequest) {
 
     log.info(`登录成功 - 用户: ${user.username}, IP: ${clientIP}`);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       token,
       user,
       securityStatus,
     });
+
+    response.cookies.set(ADMIN_TOKEN_COOKIE, token, adminCookieOptions);
+    return response;
   } catch (error) {
     log.error('登录处理异常', {
       error: error instanceof Error ? error.message : '未知错误',

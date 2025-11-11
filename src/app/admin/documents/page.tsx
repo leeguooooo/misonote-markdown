@@ -39,20 +39,10 @@ export default function DocumentsPage() {
     loadDocuments();
   }, []);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('admin-token');
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    };
-  };
-
   const loadDocuments = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/admin/docs', {
-        headers: getAuthHeaders(),
-      });
+      const response = await fetch('/api/admin/docs');
       const data = await response.json();
       if (data.docs) {
         setFiles(data.docs);

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Edit3, Lock } from 'lucide-react';
 import Link from 'next/link';
 import UnifiedLogin from '@/components/auth/UnifiedLogin';
+import { useAuthState } from '@/core/auth/useAuthState';
 
 interface EditButtonProps {
   docPath: string;
@@ -11,44 +12,17 @@ interface EditButtonProps {
 }
 
 export default function EditButton({ docPath, className = '' }: EditButtonProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated } = useAuthState();
   const [showUnifiedLogin, setShowUnifiedLogin] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    // 检查是否已登录管理员
-    const checkAuth = () => {
-      const token = localStorage.getItem('admin-token');
-      if (token) {
-        try {
-          // 简单验证 token 是否存在且未过期
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          const isExpired = payload.exp * 1000 < Date.now();
-          setIsAuthenticated(!isExpired);
-        } catch {
-          setIsAuthenticated(false);
-        }
-      } else {
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuth();
-
-    // 监听存储变化
-    const handleStorageChange = () => {
-      checkAuth();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    // 定期检查认证状态
-    const interval = setInterval(checkAuth, 60000); // 每分钟检查一次
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
-    };
+    setIsMounted(true);
   }, []);
+
+  if (!isMounted) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return (

@@ -35,9 +35,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
   const loadServers = async () => {
     try {
       const response = await fetch('/api/mcp/servers', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       if (response.ok) {
@@ -55,10 +53,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
     try {
       const response = await fetch('/api/mcp/servers', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(serverData),
       });
 
@@ -79,10 +74,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
     try {
       const response = await fetch(`/api/mcp/servers/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
 
@@ -107,9 +99,6 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
     try {
       const response = await fetch(`/api/mcp/servers/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
       });
 
       if (response.ok) {
@@ -130,9 +119,7 @@ export default function MCPServerManager({ onClose }: MCPServerManagerProps) {
     try {
       const response = await fetch(`/api/mcp/servers/${id}/test`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       const result = await response.json();

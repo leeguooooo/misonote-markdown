@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { log } from '../logger';
+import { ADMIN_TOKEN_COOKIE } from '@/lib/server/auth-cookies';
 
 const DEFAULT_ADMIN_PASSWORD = 'admin123'; // 仅用于开发环境
 
@@ -172,11 +173,19 @@ export function verifyToken(token: string): AuthUser | null {
 export function authenticateRequest(request: NextRequest): AuthUser | null {
   const authHeader = request.headers.get('authorization');
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  let token: string | null = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  }
+
+  if (!token) {
+    token = request.cookies.get(ADMIN_TOKEN_COOKIE)?.value || null;
+  }
+
+  if (!token) {
     return null;
   }
 
-  const token = authHeader.substring(7);
   return verifyToken(token);
 }
 

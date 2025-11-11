@@ -43,11 +43,7 @@ export default function MCPDocumentPusher({ documents, onClose }: MCPDocumentPus
 
   const loadServers = async () => {
     try {
-      const response = await fetch('/api/mcp/servers', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
-      });
+      const response = await fetch('/api/mcp/servers');
 
       if (response.ok) {
         const data = await response.json();
@@ -108,10 +104,7 @@ export default function MCPDocumentPusher({ documents, onClose }: MCPDocumentPus
 
       const response = await fetch('/api/mcp/push', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serverId: selectedServer,
           documents: operation === 'batch' ? selectedDocuments : selectedDocuments[0],

@@ -29,36 +29,3 @@ export function setupApiInterceptor() {
     return response;
   };
 }
-
-// 创建一个带拦截器的 fetch 函数
-export async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  // 添加认证头
-  const token = localStorage.getItem('admin-token');
-  const headers = {
-    ...options.headers,
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
-
-  const response = await fetch(url, {
-    ...options,
-    headers
-  });
-
-  // 处理 401 响应
-  if (response.status === 401) {
-    // 清除认证信息
-    localStorage.removeItem('admin-token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('auth-cache');
-    
-    // 跳转到登录页
-    const currentPath = window.location.pathname;
-    if (currentPath.startsWith('/admin')) {
-      window.location.href = '/admin';
-    } else {
-      window.location.href = '/login';
-    }
-  }
-
-  return response;
-}

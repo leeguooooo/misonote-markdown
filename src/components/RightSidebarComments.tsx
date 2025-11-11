@@ -289,10 +289,6 @@ export default function RightSidebarComments({ docPath }: RightSidebarCommentsPr
         'Content-Type': 'application/json',
       };
 
-      if (user?.token) {
-        headers['Authorization'] = `Bearer ${user.token}`;
-      }
-
       const response = await fetch(`/api/admin/delete-comment?commentId=${commentId}&docPath=${encodeURIComponent(docPath)}`, {
         method: 'DELETE',
         headers,

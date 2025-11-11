@@ -63,20 +63,10 @@ export default function DocumentsPage() {
     }
   }, [files]);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('admin-token');
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    };
-  };
-
   const loadExistingDocs = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/admin/docs', {
-        headers: getAuthHeaders(),
-      });
+      const response = await fetch('/api/admin/docs');
       const data = await response.json();
       if (data.docs) {
         setFiles(data.docs);
@@ -179,7 +169,7 @@ export default function DocumentsPage() {
     try {
       const response = await fetch('/api/admin/save-doc', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           path: file.path,
           content: file.content,
@@ -208,7 +198,7 @@ export default function DocumentsPage() {
     try {
       const response = await fetch('/api/admin/delete-doc', {
         method: 'DELETE',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ path: file.path }),
       });
 
@@ -249,7 +239,7 @@ export default function DocumentsPage() {
     try {
       const response = await fetch('/api/admin/file-operations', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           operation: 'move',
           source: sourcePath,
@@ -275,7 +265,7 @@ export default function DocumentsPage() {
     try {
       const response = await fetch('/api/admin/file-operations', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           operation: 'rename',
           source: filePath,
@@ -301,7 +291,7 @@ export default function DocumentsPage() {
     try {
       const response = await fetch('/api/admin/file-operations', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           operation: 'create-directory',
           target: parentPath ? `${parentPath}/${dirName}` : dirName,
@@ -326,7 +316,7 @@ export default function DocumentsPage() {
     try {
       const response = await fetch('/api/admin/file-operations', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           operation: 'toggle-hidden',
           source: filePath,

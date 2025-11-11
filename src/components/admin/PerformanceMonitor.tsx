@@ -81,11 +81,7 @@ export default function PerformanceMonitor() {
   // 获取性能数据
   const fetchPerformanceData = async () => {
     try {
-      const response = await fetch('/api/admin/performance', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
+      const response = await fetch('/api/admin/performance');
       
       if (response.ok) {
         const newData = await response.json();

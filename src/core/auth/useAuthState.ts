@@ -54,7 +54,7 @@ export function useAuthState() {
   }, [authManager]);
 
   // 登录
-  const login = useCallback((user: any, token: string) => {
+  const login = useCallback((user: any, token?: string | null) => {
     if (!authManager) return;
     authManager.setAuthState(user, token);
     setError(null);

@@ -66,13 +66,7 @@ export default function CollaborativeEditor({
     
     // 获取认证令牌
     const getAuthToken = () => {
-      // 从 cookie 或 localStorage 获取令牌
-      const cookies = document.cookie.split(';');
-      const tokenCookie = cookies.find(c => c.trim().startsWith('token='));
-      if (tokenCookie) {
-        return tokenCookie.split('=')[1];
-      }
-      return localStorage.getItem('token') || '';
+      return localStorage.getItem('admin-token') || '';
     };
     
     // 创建WebSocket提供者

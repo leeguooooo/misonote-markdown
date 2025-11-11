@@ -45,13 +45,18 @@ export default function UserManager() {
 
 
 
-  const handleLogout = () => {
-    // 如果是真正的管理员，清除 token
-    if (user?.isRealAdmin && user?.token) {
-      localStorage.removeItem('admin-token');
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('登出失败:', error);
+    } finally {
+      if (user?.isRealAdmin) {
+        localStorage.removeItem('admin-token');
+      }
+      setUser(null);
+      setShowUserMenu(false);
     }
-    setUser(null);
-    setShowUserMenu(false);
   };
 
   const getUserAvatar = (user: UserInfo) => {

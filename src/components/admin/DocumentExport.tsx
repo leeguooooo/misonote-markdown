@@ -55,20 +55,10 @@ const DocumentExport: React.FC = () => {
     loadDocuments();
   }, []);
 
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('admin-token');
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    };
-  };
-
   const loadDocuments = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/docs', {
-        headers: getAuthHeaders()
-      });
+      const response = await fetch('/api/admin/docs');
       if (response.ok) {
         const data = await response.json();
         // 加载所有项目（文件和文件夹），以显示完整的目录结构
@@ -77,7 +67,7 @@ const DocumentExport: React.FC = () => {
         setError('加载文档列表失败');
       }
     } catch (err) {
-      setError('加载文档列表时发生错误');
+      setError(err instanceof Error ? err.message : '加载文档列表时发生错误');
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +93,7 @@ const DocumentExport: React.FC = () => {
 
       const response = await fetch('/api/admin/export', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(exportData)
       });
 
@@ -139,7 +129,7 @@ const DocumentExport: React.FC = () => {
         setError(errorData.error || '导出失败');
       }
     } catch (err) {
-      setError('导出过程中发生错误');
+      setError(err instanceof Error ? err.message : '导出过程中发生错误');
     } finally {
       setIsExporting(false);
       setExportProgress(0);
