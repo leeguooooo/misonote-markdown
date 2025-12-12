@@ -80,7 +80,7 @@ export class DatabaseOperations {
     }
   }
 
-  // 准备语句（模拟 better-sqlite3 的 prepare 方法）
+  // 准备语句（模拟旧 SQLite 风格的 prepare 方法）
   prepare(sql: string) {
     return {
       get: async (params?: any[]) => {

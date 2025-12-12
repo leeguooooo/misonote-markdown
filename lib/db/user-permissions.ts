@@ -266,12 +266,12 @@ export class UserPermissionManager {
   private static async isEnterpriseEnabled(): Promise<boolean> {
     try {
       const result = await pool.query(`
-        SELECT setting_value
+        SELECT value
         FROM system_settings
-        WHERE setting_key = 'enterprise_enabled'
+        WHERE key = 'enterprise_enabled'
       `);
 
-      return result.rows[0]?.setting_value === 'true';
+      return result.rows[0]?.value === 'true';
     } catch (error) {
       return false;
     }

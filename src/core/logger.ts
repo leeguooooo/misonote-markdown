@@ -15,7 +15,7 @@ if (typeof window === 'undefined' && winston) {
       format: 'YYYY-MM-DD HH:mm:ss.SSS'
     }),
     winston.format.errors({ stack: true }),
-    winston.format.printf(({ timestamp, level, message, ...meta }) => {
+    winston.format.printf(({ timestamp, level, message, ...meta }: { timestamp?: string; level: string; message: string; [key: string]: any }) => {
       let log = `${timestamp} [${level.toUpperCase()}] ${message}`;
 
       // 添加额外的元数据

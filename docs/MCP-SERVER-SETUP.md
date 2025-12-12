@@ -180,8 +180,12 @@ Content-Type: application/json
 ### 环境变量
 
 ```bash
-# 数据库配置（自动创建 SQLite）
-# 无需额外配置
+# 数据库配置（PostgreSQL，与主站一致）
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=misonote
+DB_USER=postgres
+DB_PASSWORD=password
 
 # API 密钥设置
 MCP_DEFAULT_RATE_LIMIT=1000  # 默认速率限制

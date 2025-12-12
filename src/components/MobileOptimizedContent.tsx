@@ -98,7 +98,7 @@ export default function MobileOptimizedContent({ children }: MobileOptimizedCont
     });
 
     // 优化长链接
-    const links = contentRef.current.querySelectorAll('a[href]');
+    const links = contentRef.current.querySelectorAll<HTMLAnchorElement>('a[href]');
     links.forEach((link) => {
       if (link.textContent && link.textContent.length > 50) {
         link.setAttribute('title', link.textContent);

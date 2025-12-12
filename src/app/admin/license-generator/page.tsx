@@ -95,7 +95,7 @@ const LicenseGeneratorPage: React.FC = () => {
       const licenseKey = 'misonote_' + Buffer.from(JSON.stringify(licenseData)).toString('base64');
       setGeneratedLicense(licenseKey);
 
-    } catch (err) {
+    } catch {
       setError('生成许可证失败，请重试');
     } finally {
       setGenerating(false);

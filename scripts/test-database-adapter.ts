@@ -6,21 +6,12 @@
  */
 
 import { DatabaseAdapter } from '../lib/storage/database-adapter';
-import { StorageStrategy } from '../lib/storage/storage-adapter';
 
 async function testDatabaseAdapter() {
   console.log('🧪 开始测试数据库适配器...\n');
   
   // 创建适配器实例
-  const adapter = new DatabaseAdapter({
-    strategy: StorageStrategy.DATABASE_ONLY,
-    database: {
-      enabled: true,
-      storeContent: true,
-      storeMetadata: true,
-      compression: false
-    }
-  });
+  const adapter = new DatabaseAdapter();
   
   const testPath = 'test/sample-document.md';
   const testContent = `---

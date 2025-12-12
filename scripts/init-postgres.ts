@@ -25,7 +25,7 @@ async function initPostgreSQL() {
     console.log('📝 注意事项：');
     console.log('   - 确保 PostgreSQL 服务正在运行');
     console.log('   - 检查 .env 文件中的数据库配置');
-    console.log('   - 如有旧的 SQLite 数据需要迁移，请使用 pnpm run db:migrate');
+    console.log('   - 当前版本仅支持 PostgreSQL；如需从旧 SQLite 版本迁移，请使用旧版迁移脚本');
     
   } catch (error) {
     console.error('❌ 数据库初始化失败:', error);

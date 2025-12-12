@@ -61,8 +61,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Import error:', error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: `导入失败: ${error.message}` },
+      { error: `导入失败: ${message}` },
       { status: 500 }
     );
   }
@@ -88,7 +89,7 @@ async function importMarkdownFile(file: File, targetFolder: string, overwriteExi
 
   // 保存文件
   try {
-    await fileSystemManager.saveDocument(targetPath, content);
+    await fileSystemManager.writeFile(targetPath, content);
     return {
       importedFiles: 1,
       skippedFiles: 0,
@@ -96,7 +97,8 @@ async function importMarkdownFile(file: File, targetFolder: string, overwriteExi
       files: [{ path: targetPath, action: exists ? 'overwritten' : 'created' }]
     };
   } catch (error) {
-    throw new Error(`保存文件失败: ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`保存文件失败: ${message}`);
   }
 }
 
@@ -109,7 +111,16 @@ async function importJSONFile(fileBuffer: ArrayBuffer, preservePaths: boolean, o
     throw new Error('无效的JSON格式，缺少documents数组');
   }
 
-  const results = {
+  const results: {
+    importedFiles: number;
+    skippedFiles: number;
+    overwrittenFiles: number;
+    files: Array<{
+      path: string;
+      action: 'created' | 'overwritten' | 'skipped' | 'error';
+      error?: string;
+    }>;
+  } = {
     importedFiles: 0,
     skippedFiles: 0,
     overwrittenFiles: 0,
@@ -135,7 +146,7 @@ async function importJSONFile(fileBuffer: ArrayBuffer, preservePaths: boolean, o
     }
 
     try {
-      await fileSystemManager.saveDocument(targetPath, doc.content);
+      await fileSystemManager.writeFile(targetPath, doc.content);
       
       if (exists) {
         results.overwrittenFiles++;
@@ -147,7 +158,8 @@ async function importJSONFile(fileBuffer: ArrayBuffer, preservePaths: boolean, o
     } catch (error) {
       console.error(`保存文档失败 ${targetPath}:`, error);
       results.skippedFiles++;
-      results.files.push({ path: targetPath, action: 'error', error: error.message });
+      const message = error instanceof Error ? error.message : String(error);
+      results.files.push({ path: targetPath, action: 'error', error: message });
     }
   }
 
@@ -158,7 +170,16 @@ async function importZipFile(fileBuffer: ArrayBuffer, preservePaths: boolean, ta
   const zip = new JSZip();
   const zipContent = await zip.loadAsync(fileBuffer);
 
-  const results = {
+  const results: {
+    importedFiles: number;
+    skippedFiles: number;
+    overwrittenFiles: number;
+    files: Array<{
+      path: string;
+      action: 'created' | 'overwritten' | 'skipped' | 'error';
+      error?: string;
+    }>;
+  } = {
     importedFiles: 0,
     skippedFiles: 0,
     overwrittenFiles: 0,
@@ -181,11 +202,11 @@ async function importZipFile(fileBuffer: ArrayBuffer, preservePaths: boolean, ta
     const content = await zipEntry.async('text');
     
     // 确定目标路径
-    let targetPath;
+    let targetPath: string;
     if (preservePaths) {
       targetPath = targetFolder ? `${targetFolder}/${filePath}` : filePath;
     } else {
-      const fileName = filePath.split('/').pop();
+      const fileName = filePath.split('/').pop() || filePath;
       targetPath = targetFolder ? `${targetFolder}/${fileName}` : fileName;
     }
 
@@ -198,7 +219,7 @@ async function importZipFile(fileBuffer: ArrayBuffer, preservePaths: boolean, ta
     }
 
     try {
-      await fileSystemManager.saveDocument(targetPath, content);
+      await fileSystemManager.writeFile(targetPath, content);
       
       if (exists) {
         results.overwrittenFiles++;
@@ -210,7 +231,8 @@ async function importZipFile(fileBuffer: ArrayBuffer, preservePaths: boolean, ta
     } catch (error) {
       console.error(`保存文档失败 ${targetPath}:`, error);
       results.skippedFiles++;
-      results.files.push({ path: targetPath, action: 'error', error: error.message });
+      const message = error instanceof Error ? error.message : String(error);
+      results.files.push({ path: targetPath, action: 'error', error: message });
     }
   }
 

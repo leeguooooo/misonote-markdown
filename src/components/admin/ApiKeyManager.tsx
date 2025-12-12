@@ -1,21 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  Plus,
-  Key,
-  Trash2,
-  Edit,
-  Eye,
-  EyeOff,
-  Copy,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Shield,
-  X,
-  Save
-} from 'lucide-react';
+import { Plus, Key, Trash2, Edit, Copy, CheckCircle, XCircle, Clock, X, Save } from 'lucide-react';
 
 interface ApiKey {
   id: string;
@@ -35,6 +21,15 @@ interface ApiKey {
 
 interface ApiKeyManagerProps {
   onClose?: () => void;
+}
+
+interface ApiKeyPayload {
+  name: string;
+  permissions: string[];
+  expiresAt?: string;
+  rateLimit?: number;
+  description?: string;
+  isActive?: boolean;
 }
 
 export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
@@ -64,12 +59,26 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
     }
   };
 
-  const handleCreateApiKey = async (keyData: any) => {
+  const handleCreateApiKey = async (keyData: Partial<ApiKeyPayload>) => {
+    if (!keyData.name || !keyData.permissions) {
+      alert('缺少必要字段');
+      return;
+    }
+
+    const payload: ApiKeyPayload = {
+      name: keyData.name,
+      permissions: keyData.permissions,
+      expiresAt: keyData.expiresAt,
+      rateLimit: keyData.rateLimit,
+      description: keyData.description,
+      isActive: keyData.isActive,
+    };
+
     try {
       const response = await fetch('/api/admin/api-keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(keyData),
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -88,7 +97,7 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
     }
   };
 
-  const handleUpdateApiKey = async (id: string, updates: any) => {
+  const handleUpdateApiKey = async (id: string, updates: Partial<ApiKeyPayload>) => {
     try {
       const response = await fetch(`/api/admin/api-keys/${id}`, {
         method: 'PUT',
@@ -297,15 +306,15 @@ export default function ApiKeyManager({ onClose }: ApiKeyManagerProps) {
 
 interface ApiKeyFormProps {
   apiKey?: ApiKey;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: Partial<ApiKeyPayload>) => void | Promise<void>;
   onCancel: () => void;
 }
 
 function ApiKeyForm({ apiKey, onSubmit, onCancel }: ApiKeyFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ApiKeyPayload>({
     name: apiKey?.name || '',
     permissions: apiKey?.permissions || ['read', 'write'],
-    expiresAt: apiKey?.expiresAt ? apiKey.expiresAt.split('T')[0] : '',
+    expiresAt: apiKey?.expiresAt ? apiKey.expiresAt.split('T')[0] : undefined,
     rateLimit: apiKey?.rateLimit || 1000,
     description: apiKey?.description || '',
     isActive: apiKey?.isActive !== false,
@@ -388,8 +397,8 @@ function ApiKeyForm({ apiKey, onSubmit, onCancel }: ApiKeyFormProps) {
         <label className="block text-sm font-medium mb-1">过期时间（可选）</label>
         <input
           type="date"
-          value={formData.expiresAt}
-          onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
+          value={formData.expiresAt ?? ''}
+          onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value || undefined })}
           className="w-full px-3 py-2 border rounded-lg"
           min={new Date().toISOString().split('T')[0]}
         />

@@ -15,7 +15,7 @@ import { log } from '@/core/logger';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证认证
@@ -27,7 +27,7 @@ export async function GET(
       );
     }
 
-    const organizationId = params.id;
+    const { id: organizationId } = await params;
 
     // 检查权限
     const permission = await checkPermission(
@@ -73,7 +73,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证认证
@@ -85,7 +85,7 @@ export async function PUT(
       );
     }
 
-    const organizationId = params.id;
+    const { id: organizationId } = await params;
 
     // 检查权限
     const permission = await checkPermission(
@@ -160,7 +160,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证认证
@@ -172,7 +172,7 @@ export async function DELETE(
       );
     }
 
-    const organizationId = params.id;
+    const { id: organizationId } = await params;
 
     // 检查权限 - 只有所有者可以删除组织
     const permission = await checkPermission(

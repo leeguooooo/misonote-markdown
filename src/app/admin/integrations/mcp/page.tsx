@@ -4,12 +4,13 @@ import React, { useState } from 'react';
 import MCPServerManager from '@/components/admin/MCPServerManager';
 import MCPDocumentPusher from '@/components/admin/MCPDocumentPusher';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Server, Send, Globe, Zap, Shield, AlertCircle, CheckCircle, Info } from 'lucide-react';
 
 export default function MCPPage() {
-  const [documents, setDocuments] = useState([]); // This would normally come from your document store
+  const [documents] = useState<
+    { name: string; path: string; content: string; type: 'file' | 'folder' }[]
+  >([]); // This would normally come from your document store
 
   return (
     <div className="px-6 space-y-6">

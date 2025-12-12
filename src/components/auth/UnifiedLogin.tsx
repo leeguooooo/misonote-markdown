@@ -57,20 +57,27 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
       if (diagnosis.recommendations.length > 0) {
         clearAllData();
       }
+
+      if (purpose !== 'general') {
+        setActiveTab('admin');
+      }
+
       fetchVersionInfo();
     }
-  }, [isOpen]);
+  }, [isOpen, purpose]);
 
   useEffect(() => {
-    if (versionInfo) {
-      // 根据版本和目的设置默认标签页
-      if (purpose === 'edit' || purpose === 'admin') {
-        setActiveTab('admin');
-      } else if (versionInfo.loginOptions.supportsUserRegistration) {
-        setActiveTab('user');
-      } else {
-        setActiveTab('guest');
-      }
+    if (!versionInfo) return;
+
+    // 根据版本和目的设置默认标签页
+    if (purpose === 'edit' || purpose === 'admin') {
+      setActiveTab('admin');
+    } else if (versionInfo.loginOptions.supportsUserRegistration) {
+      setActiveTab('user');
+    } else if (versionInfo.loginOptions.guestAccess) {
+      setActiveTab('guest');
+    } else {
+      setActiveTab('admin');
     }
   }, [versionInfo, purpose]);
 
@@ -117,11 +124,8 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
           token: data.token
         };
 
-        // 使用AuthStateManager保存认证状态（包括token）
-        login(adminUser, data.token);
-
-        // 同时保存到UserContext以保持兼容性
-        setUser(adminUser);
+        // 使用AuthStateManager保存认证状态
+        login(adminUser);
 
         onClose();
 
@@ -158,6 +162,13 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
   };
 
   const handleGuestAccess = () => {
+    const guestUser = {
+      id: `guest-${Date.now()}`,
+      name: '访客',
+      role: 'guest' as const,
+    };
+
+    setUser(guestUser);
     onClose();
     if (redirectTo) {
       window.location.href = redirectTo;
@@ -171,6 +182,9 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
   }, []);
 
   if (!isOpen || !mounted) return null;
+
+  const showGuestTab = purpose === 'general' && !!versionInfo?.loginOptions.guestAccess;
+  const showUserTab = purpose === 'general' && !!versionInfo?.loginOptions.supportsUserRegistration;
 
   return createPortal(
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
@@ -232,7 +246,7 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
 
             {/* 登录选项标签页 */}
             <div className="flex border-b border-gray-200 mb-6">
-              {versionInfo.loginOptions.guestAccess && (
+              {showGuestTab && (
                 <button
                   onClick={() => setActiveTab('guest')}
                   className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
@@ -245,7 +259,7 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
                 </button>
               )}
 
-              {versionInfo.loginOptions.supportsUserRegistration && (
+              {showUserTab && (
                 <button
                   onClick={() => setActiveTab('user')}
                   className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
@@ -279,7 +293,7 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
               )}
 
               {/* 访客模式 */}
-              {activeTab === 'guest' && versionInfo.loginOptions.guestAccess && (
+              {activeTab === 'guest' && showGuestTab && (
                 <div className="text-center py-8">
                   <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">访客模式</h3>
@@ -297,7 +311,7 @@ export default function UnifiedLogin({ isOpen, onClose, redirectTo, purpose = 'g
               )}
 
               {/* 用户登录 */}
-              {activeTab === 'user' && versionInfo.loginOptions.supportsUserRegistration && (
+              {activeTab === 'user' && showUserTab && (
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium text-gray-900">用户登录</h3>
 

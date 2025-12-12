@@ -26,11 +26,11 @@ async function checkEnterpriseLicense(): Promise<boolean> {
 
     // 检查数据库中的许可证设置
     const result = await pool.query(
-      "SELECT setting_value FROM system_settings WHERE setting_key = 'enterprise_enabled'"
+      "SELECT value FROM system_settings WHERE key = 'enterprise_enabled'"
     );
     
     if (result.rows.length > 0) {
-      return result.rows[0].setting_value === 'true';
+      return result.rows[0].value === 'true';
     }
 
     return false;
@@ -96,8 +96,8 @@ async function initEnterpriseDatabase(): Promise<void> {
     // 更新企业版启用状态
     await pool.query(`
       UPDATE system_settings 
-      SET setting_value = 'true' 
-      WHERE setting_key = 'enterprise_enabled'
+      SET value = 'true' 
+      WHERE key = 'enterprise_enabled'
     `);
     
     console.log('✅ 企业版数据库扩展初始化完成');
@@ -240,14 +240,14 @@ export async function getDatabaseStatus(): Promise<{
     }
     
     const [enterpriseResult, userResult, documentResult] = await Promise.all([
-      pool.query("SELECT setting_value FROM system_settings WHERE setting_key = 'enterprise_enabled'"),
+      pool.query("SELECT value FROM system_settings WHERE key = 'enterprise_enabled'"),
       pool.query("SELECT COUNT(*) as count FROM users"),
       pool.query("SELECT COUNT(*) as count FROM documents")
     ]);
     
     return {
       initialized: true,
-      enterpriseEnabled: enterpriseResult.rows[0]?.setting_value === 'true',
+      enterpriseEnabled: enterpriseResult.rows[0]?.value === 'true',
       userCount: parseInt(userResult.rows[0].count),
       documentCount: parseInt(documentResult.rows[0].count),
       version: '1.0.0'

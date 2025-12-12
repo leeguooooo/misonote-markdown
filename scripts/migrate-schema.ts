@@ -31,6 +31,24 @@ async function applyMigrations() {
     );
     await client.query(collabMigration);
     console.log('✅ 协作会话表迁移完成');
+
+    // 应用全文检索索引迁移
+    console.log('📊 应用全文检索索引迁移...');
+    const searchMigration = readFileSync(
+      join(__dirname, 'migrations', '0003_add_search_index.sql'),
+      'utf-8'
+    );
+    await client.query(searchMigration);
+    console.log('✅ 全文检索索引迁移完成');
+
+    // 应用完整 PostgreSQL 架构对齐迁移
+    console.log('📊 应用完整架构对齐迁移...');
+    const fullSchemaMigration = readFileSync(
+      join(__dirname, 'migrations', '0004_full_pg_schema.sql'),
+      'utf-8'
+    );
+    await client.query(fullSchemaMigration);
+    console.log('✅ 完整架构对齐迁移完成');
     
     console.log('🎉 所有迁移应用成功！');
   } catch (error) {

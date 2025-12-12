@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, FileText, X, Check } from 'lucide-react';
+import { Upload, X, Check } from 'lucide-react';
 
 interface DragDropUploadProps {
   onFilesUpload: (files: FileList) => void;

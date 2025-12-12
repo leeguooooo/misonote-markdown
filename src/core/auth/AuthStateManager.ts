@@ -63,7 +63,6 @@ export class AuthStateManager {
 
   // localStorage keys
   private readonly ADMIN_TOKEN_KEY = 'admin-token';
-  private readonly CURRENT_USER_KEY = 'currentUser';
   private readonly AUTH_STATE_KEY = 'authState';
   private readonly AUTH_VERSION_KEY = 'authVersion';
 
@@ -177,8 +176,9 @@ export class AuthStateManager {
     // 清理localStorage
     const keysToRemove = [
       this.ADMIN_TOKEN_KEY,
-      this.CURRENT_USER_KEY,
       this.AUTH_STATE_KEY,
+      // 向后兼容旧的用户缓存 key
+      'currentUser',
       // 清理可能的旧版本keys
       'token',
       'user',

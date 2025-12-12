@@ -1,6 +1,6 @@
 /**
  * PostgreSQL 数据库适配器
- * 提供与 better-sqlite3 兼容的接口，使用 PostgreSQL
+ * 提供与旧 SQLite 风格兼容的接口，底层使用 PostgreSQL
  */
 
 import { pool } from '../../../lib/db/config';
@@ -8,7 +8,7 @@ import { PoolClient } from 'pg';
 import { log } from '../logger';
 
 /**
- * 模拟 better-sqlite3 的 prepare 语句接口
+ * 模拟旧 SQLite 风格的 prepare 语句接口
  */
 class PreparedStatement {
   private sql: string;
@@ -87,7 +87,7 @@ class PreparedStatement {
 
 /**
  * PostgreSQL 数据库接口
- * 模拟 better-sqlite3 的接口
+ * 模拟旧 SQLite 风格的接口
  */
 class PostgreSQLDatabase {
   private transactionClient?: PoolClient;

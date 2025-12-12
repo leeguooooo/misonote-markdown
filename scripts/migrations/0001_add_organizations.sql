@@ -10,8 +10,15 @@ CREATE TABLE IF NOT EXISTS organizations (
 
 -- 为组织添加工作区关联
 ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS organization_id VARCHAR(36);
-ALTER TABLE workspaces ADD CONSTRAINT fk_workspace_organization 
-    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'fk_workspace_organization'
+  ) THEN
+    ALTER TABLE workspaces ADD CONSTRAINT fk_workspace_organization 
+      FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE;
+  END IF;
+END $$;
 
 -- 用户组织角色表
 CREATE TABLE IF NOT EXISTS user_organization_roles (
@@ -35,10 +42,17 @@ CREATE INDEX IF NOT EXISTS idx_user_org_roles_role ON user_organization_roles(ro
 CREATE INDEX IF NOT EXISTS idx_workspaces_organization_id ON workspaces(organization_id);
 
 -- 添加更新时间触发器
-CREATE TRIGGER update_organizations_updated_at 
-    BEFORE UPDATE ON organizations 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_organizations_updated_at') THEN
+    CREATE TRIGGER update_organizations_updated_at 
+      BEFORE UPDATE ON organizations 
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
 
-CREATE TRIGGER update_user_organization_roles_updated_at 
-    BEFORE UPDATE ON user_organization_roles 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_user_organization_roles_updated_at') THEN
+    CREATE TRIGGER update_user_organization_roles_updated_at 
+      BEFORE UPDATE ON user_organization_roles 
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;

@@ -15,13 +15,19 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { 
+    const {
       format = 'zip', // 'markdown', 'json', 'zip'
       paths = [], // 要导出的文档路径，空数组表示全部
       includeMetadata = true,
       includeComments = false,
       includeAnnotations = false
-    } = body;
+    } = body as {
+      format?: 'markdown' | 'json' | 'zip';
+      paths?: string[];
+      includeMetadata?: boolean;
+      includeComments?: boolean;
+      includeAnnotations?: boolean;
+    };
 
     // 获取要导出的文档
     let documentsToExport;
@@ -31,7 +37,7 @@ export async function POST(request: NextRequest) {
         .filter(item => item.type === 'file');
     } else {
       // 导出指定文档
-      documentsToExport = paths.map(path => 
+      documentsToExport = paths.map((path: string) => 
         fileSystemManager.getFileSystemStructure()
           .find(item => item.path === path && item.type === 'file')
       ).filter(Boolean);

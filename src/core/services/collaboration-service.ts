@@ -4,7 +4,7 @@
  */
 
 import { v4 as uuidv4 } from 'uuid';
-import { getPool } from '@/lib/db/config';
+import { getPool } from '../database/postgres-adapter';
 import { log } from '../logger';
 import * as Y from 'yjs';
 
@@ -130,7 +130,7 @@ export async function updateCollaborationSession(
       values
     );
     
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   } catch (error) {
     log.error('更新协作会话失败:', error);
     throw error;
@@ -151,7 +151,7 @@ export async function updateSessionHeartbeat(sessionId: string): Promise<boolean
       [sessionId]
     );
     
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   } catch (error) {
     log.error('更新会话心跳失败:', error);
     throw error;
@@ -172,11 +172,11 @@ export async function endCollaborationSession(sessionId: string): Promise<boolea
       [sessionId]
     );
     
-    if (result.rowCount > 0) {
+    if ((result.rowCount ?? 0) > 0) {
       log.info('结束协作会话', { sessionId });
     }
     
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   } catch (error) {
     log.error('结束协作会话失败:', error);
     throw error;
@@ -243,11 +243,11 @@ export async function cleanupInactiveSessions(): Promise<number> {
        AND is_active = true`
     );
     
-    if (result.rowCount > 0) {
-      log.info('清理非活动会话', { count: result.rowCount });
+    if ((result.rowCount ?? 0) > 0) {
+      log.info('清理非活动会话', { count: result.rowCount ?? 0 });
     }
     
-    return result.rowCount;
+    return result.rowCount ?? 0;
   } catch (error) {
     log.error('清理非活动会话失败:', error);
     throw error;
@@ -388,14 +388,14 @@ export async function cleanupOldYjsUpdates(days: number = 7): Promise<number> {
        WHERE created_at < NOW() - INTERVAL '${days} days'`
     );
     
-    if (result.rowCount > 0) {
+    if ((result.rowCount ?? 0) > 0) {
       log.info('清理旧 Yjs 更新', {
-        count: result.rowCount,
+        count: result.rowCount ?? 0,
         days
       });
     }
     
-    return result.rowCount;
+    return result.rowCount ?? 0;
   } catch (error) {
     log.error('清理旧 Yjs 更新失败:', error);
     throw error;

@@ -9,7 +9,6 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { DatabaseAdapter } from '../lib/storage/database-adapter';
-import { StorageStrategy } from '../lib/storage/storage-adapter';
 
 interface MigrationStats {
   totalFiles: number;
@@ -25,15 +24,7 @@ class DocumentMigrator {
   private stats: MigrationStats;
   
   constructor() {
-    this.dbAdapter = new DatabaseAdapter({
-      strategy: StorageStrategy.DATABASE_ONLY,
-      database: {
-        enabled: true,
-        storeContent: true,
-        storeMetadata: true,
-        compression: false
-      }
-    });
+    this.dbAdapter = new DatabaseAdapter();
     
     this.docsDir = path.join(process.cwd(), 'docs');
     this.stats = {

@@ -23,6 +23,7 @@ class DocsCache {
   private directoryCache = new Map<string, DirectoryCache>();
   private readonly CACHE_TTL = 5000; // 5秒缓存过期时间
   private readonly DOCS_DIR = path.join(process.cwd(), 'docs');
+  private watcher: fs.FSWatcher | null = null;
 
   /**
  * 检查文件是否需要重新读取
@@ -172,6 +173,29 @@ class DocsCache {
     this.cache.clear();
     this.directoryCache.clear();
     console.log('🗑️ 缓存已清除');
+  }
+
+  /**
+   * 启动文档目录监听（开发/自建环境使用）
+   */
+  startWatching(): void {
+    if (typeof window !== 'undefined' || this.watcher) return;
+    if (process.env.DISABLE_DOCS_WATCHER === 'true') return;
+    if (!fs.existsSync(this.DOCS_DIR)) return;
+
+    try {
+      this.watcher = fs.watch(this.DOCS_DIR, { recursive: true }, () => {
+        this.clearCache();
+      });
+    } catch (error) {
+      try {
+        this.watcher = fs.watch(this.DOCS_DIR, () => {
+          this.clearCache();
+        });
+      } catch (fallbackError) {
+        console.warn('启动 docs 目录监听失败:', fallbackError);
+      }
+    }
   }
 
   /**

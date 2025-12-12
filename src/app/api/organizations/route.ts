@@ -22,8 +22,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const numericUserId = Number(user.id);
+    if (!Number.isFinite(numericUserId)) {
+      return NextResponse.json({
+        success: true,
+        data: [],
+        total: 0
+      });
+    }
+
     // 获取用户的组织列表
-    const organizations = await getOrganizationsByUser(user.id);
+    const organizations = await getOrganizationsByUser(numericUserId);
 
     return NextResponse.json({
       success: true,
@@ -66,11 +75,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const numericUserId = Number(user.id);
+    if (!Number.isFinite(numericUserId)) {
+      return NextResponse.json(
+        { error: '用户ID无效，无法创建组织' },
+        { status: 400 }
+      );
+    }
+
     // 创建组织请求
     const createRequest: CreateOrganizationRequest = {
       name: name.trim(),
       description: description || undefined,
-      ownerId: user.id,
+      ownerId: numericUserId,
       metadata: metadata || {}
     };
 

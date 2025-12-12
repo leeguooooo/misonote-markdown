@@ -194,7 +194,7 @@ export async function updateOrganization(
       values
     );
     
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   } catch (error) {
     log.error('更新组织失败:', error);
     throw error;
@@ -213,11 +213,11 @@ export async function deleteOrganization(id: string): Promise<boolean> {
       [id]
     );
     
-    if (result.rowCount > 0) {
+    if ((result.rowCount ?? 0) > 0) {
       log.info('删除组织', { id });
     }
     
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   } catch (error) {
     log.error('删除组织失败:', error);
     throw error;
@@ -299,7 +299,7 @@ export async function assignUserRole(
       role
     });
     
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   } catch (error) {
     log.error('分配用户角色失败:', error);
     throw error;
@@ -322,14 +322,14 @@ export async function removeUserRole(
       [userId, organizationId]
     );
     
-    if (result.rowCount > 0) {
+    if ((result.rowCount ?? 0) > 0) {
       log.info('移除用户角色', {
         userId,
         organizationId
       });
     }
     
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   } catch (error) {
     log.error('移除用户角色失败:', error);
     throw error;

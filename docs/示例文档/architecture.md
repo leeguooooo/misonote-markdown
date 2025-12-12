@@ -191,10 +191,9 @@ class PluginManager {
 }
 ```
 
-### 数据库支持 (未来)
-- **SQLite**: 轻量级部署
-- **PostgreSQL**: 生产环境
-- **MongoDB**: 文档存储
+### 数据库支持
+- **PostgreSQL**: 当前/生产环境
+- **MongoDB**: 文档存储（未来）
 
 ### 多租户支持 (未来)
 - **用户管理**: 多用户权限

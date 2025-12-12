@@ -24,6 +24,11 @@ export interface DocTree {
 }
 
 const DOCS_DIR = path.join(process.cwd(), 'docs');
+const DOC_TREE_TTL_MS = 5000;
+
+let cachedDocTree: DocTree | null = null;
+let cachedDocTreeMtime: number | null = null;
+let cachedDocTreeAt = 0;
 
 export function getAllDocs(): DocFile[] {
   // 使用智能缓存获取所有文档
@@ -36,6 +41,18 @@ export function getDocBySlug(slug: string[]): DocFile | null {
 }
 
 export function getDocTree(): DocTree {
+  const now = Date.now();
+
+  if (cachedDocTree && cachedDocTreeMtime !== null && now - cachedDocTreeAt < DOC_TREE_TTL_MS) {
+    try {
+      const stat = fs.statSync(DOCS_DIR);
+      if (stat.mtime.getTime() === cachedDocTreeMtime) {
+        return cachedDocTree;
+      }
+    } catch {
+    }
+  }
+
   function buildTree(dir: string, basePath: string[] = []): DocTree {
     const name = path.basename(dir);
     const items = fs.readdirSync(dir);
@@ -57,7 +74,7 @@ export function getDocTree(): DocTree {
         const file: DocFile = {
           id,
           title: frontmatter.title || extractTitleFromContent(markdownContent) || item.replace('.md', ''),
-          content: markdownContent,
+          content: '',
           path: fullPath,
           slug,
           lastModified: stat.mtime,
@@ -90,15 +107,29 @@ export function getDocTree(): DocTree {
   }
 
   if (!fs.existsSync(DOCS_DIR)) {
-    return {
+    const emptyTree: DocTree = {
       name: 'docs',
       path: DOCS_DIR,
       type: 'directory',
       children: [],
     };
+
+    cachedDocTree = emptyTree;
+    cachedDocTreeMtime = null;
+    cachedDocTreeAt = now;
+    return emptyTree;
   }
 
-  return buildTree(DOCS_DIR);
+  const tree = buildTree(DOCS_DIR);
+  try {
+    const stat = fs.statSync(DOCS_DIR);
+    cachedDocTreeMtime = stat.mtime.getTime();
+  } catch {
+    cachedDocTreeMtime = null;
+  }
+  cachedDocTree = tree;
+  cachedDocTreeAt = now;
+  return tree;
 }
 
 function extractTitleFromContent(content: string): string | null {
@@ -132,4 +163,27 @@ export function searchDocs(query: string): DocFile[] {
 
     return a.title.localeCompare(b.title);
   });
+}
+
+// 启动时预热缓存与监听（仅服务端）
+if (typeof window === 'undefined' && process.env.PREWARM_DOCS_CACHE !== 'false') {
+  const globalAny = globalThis as any;
+  if (!globalAny.__misonote_docs_prewarmed) {
+    globalAny.__misonote_docs_prewarmed = true;
+
+    try {
+      docsCache.getAllDocs();
+      getDocTree();
+
+      const shouldWatch =
+        process.env.ENABLE_DOCS_WATCHER === 'true' ||
+        process.env.NODE_ENV !== 'production';
+
+      if (shouldWatch) {
+        docsCache.startWatching();
+      }
+    } catch (error) {
+      console.warn('预热 docs 缓存失败:', error);
+    }
+  }
 }

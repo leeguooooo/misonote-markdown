@@ -75,13 +75,23 @@ const permissionCache = new LRUCache<string, PermissionResult>({
  * 检查用户权限
  */
 export async function checkPermission(
-  userId: number,
+  userId: number | string,
   organizationId: string,
   resource: ResourceType,
   action: Action
 ): Promise<PermissionResult> {
+  // 管理员账号（基于 admin JWT）直接放行
+  if (userId === 'admin') {
+    return { allowed: true };
+  }
+
+  const normalizedUserId = typeof userId === 'string' ? Number(userId) : userId;
+  if (!Number.isFinite(normalizedUserId)) {
+    return { allowed: false, reason: '用户ID无效' };
+  }
+
   // 构建缓存键
-  const cacheKey = `${userId}:${organizationId}:${resource}:${action}`;
+  const cacheKey = `${normalizedUserId}:${organizationId}:${resource}:${action}`;
   
   // 检查缓存
   const cached = permissionCache.get(cacheKey);
@@ -91,7 +101,7 @@ export async function checkPermission(
   
   try {
     // 获取用户角色
-    const userRole = await getUserRole(userId, organizationId);
+    const userRole = await getUserRole(normalizedUserId, organizationId);
     
     if (!userRole) {
       const result = { allowed: false, reason: '用户不属于该组织' };
@@ -144,7 +154,7 @@ function hasRolePermission(role: UserRole, resource: ResourceType, action: Actio
  * 批量检查权限
  */
 export async function checkPermissions(
-  userId: number,
+  userId: number | string,
   organizationId: string,
   permissions: Array<{ resource: ResourceType; action: Action }>
 ): Promise<Record<string, PermissionResult>> {

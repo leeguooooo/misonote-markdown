@@ -126,9 +126,9 @@ misonote-markdown/
 // 关键：私有子模块可能无法访问
 
 // 数据库不匹配问题：
-// 服务从'../database'导入，使用better-sqlite3
-// 但项目在lib/db/中迁移到PostgreSQL
-// 新服务应使用lib/db/的PostgreSQL模式
+// 旧服务从'../database'导入（SQLite 实现）
+// 但项目在 lib/db/ 中已迁移到 PostgreSQL
+// 新服务应使用 lib/db/ 的 PostgreSQL 模式
 
 // Next.js的WebSocket：
 // Next.js API路由不支持WebSocket

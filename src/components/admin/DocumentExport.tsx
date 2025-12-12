@@ -3,22 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { FileTreeSelector } from '@/components/admin/FileTreeSelector';
-import {
-  Download,
-  FileText,
-  Package,
-  Database,
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-  Settings,
-  FolderOpen
-} from 'lucide-react';
+import { Download, FileText, Package, Database, AlertCircle, CheckCircle, Loader2, Settings } from 'lucide-react';
 
 interface ExportOptions {
   format: 'markdown' | 'json' | 'zip';
@@ -102,7 +91,6 @@ const DocumentExport: React.FC = () => {
 
       if (response.ok) {
         // 处理文件下载
-        const contentType = response.headers.get('content-type');
         const disposition = response.headers.get('content-disposition');
         
         let filename = 'export';

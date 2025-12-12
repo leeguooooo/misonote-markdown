@@ -28,10 +28,6 @@ interface OnlineUser {
   name: string;
   color: string;
   avatar?: string;
-  cursor?: {
-    line: number;
-    column: number;
-  };
 }
 
 export default function CollaborativeEditor({
@@ -55,148 +51,17 @@ export default function CollaborativeEditor({
   // Yjs文档和提供者
   const ydocRef = useRef<Y.Doc | null>(null);
   const providerRef = useRef<WebsocketProvider | null>(null);
-  
-  // 初始化协作编辑器
-  useEffect(() => {
-    if (!editorRef.current) return;
-    
-    // 创建Yjs文档
-    const ydoc = new Y.Doc();
-    ydocRef.current = ydoc;
-    
-    // 获取认证令牌
-    const getAuthToken = () => {
-      return localStorage.getItem('admin-token') || '';
-    };
-    
-    // 创建WebSocket提供者
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsHost = process.env.NODE_ENV === 'development' 
-      ? 'localhost:3002'
-      : window.location.host.replace(':3001', ':3002'); // 生产环境也需要使用3002端口
-    
-    const token = getAuthToken();
-    const wsUrl = `${wsProtocol}//${wsHost}/${documentId}?token=${encodeURIComponent(token)}`;
-    
-    const provider = new WebsocketProvider(wsUrl, documentId, ydoc, {
-      params: {
-        userId: user.id,
-        userName: user.name,
-        userColor: user.color,
-        token: token // 备用：也在params中传递token
-      }
-    });
-    providerRef.current = provider;
-    
-    // 监听连接状态
-    provider.on('status', (event: { status: string }) => {
-      setConnectionStatus(event.status === 'connected' ? 'connected' : 'disconnected');
-    });
-    
-    // 监听连接错误
-    provider.on('connection-error', (event: any) => {
-      console.error('WebSocket连接错误:', event);
-      if (event.code === 1008) {
-        // 认证失败
-        alert('认证失败，请重新登录');
-        window.location.href = '/login';
-      }
-    });
-    
-    // 监听连接关闭
-    provider.on('connection-close', (event: any) => {
-      if (event.code === 1008) {
-        // 认证相关的关闭
-        console.error('认证失败，连接被关闭');
-      }
-    });
-    
-    // 监听在线用户变化
-    provider.awareness.on('change', () => {
-      const users: OnlineUser[] = [];
-      provider.awareness.getStates().forEach((state, clientId) => {
-        if (clientId !== provider.awareness.clientID && state.user) {
-          users.push({
-            id: state.user.id,
-            name: state.user.name,
-            color: state.user.color,
-            avatar: state.user.avatar,
-            cursor: state.cursor
-          });
-        }
-      });
-      setOnlineUsers(users);
-    });
-    
-    // 设置用户信息
-    provider.awareness.setLocalStateField('user', {
-      id: user.id,
-      name: user.name,
-      color: user.color,
-      avatar: user.avatar
-    });
-    
-    // 创建编辑器
-    const editorInstance = new Editor({
-      element: editorRef.current,
-      extensions: [
-        StarterKit.configure({
-          history: false, // 禁用默认历史，使用协作历史
-        }),
-        Collaboration.configure({
-          document: ydoc,
-        }),
-        CollaborationCursor.configure({
-          provider: provider,
-          user: {
-            name: user.name,
-            color: user.color,
-          },
-        }),
-        Placeholder.configure({
-          placeholder: '开始协作编辑...',
-        }),
-      ],
-      content: initialContent,
-      editable: !readOnly,
-      onUpdate: ({ editor }) => {
-        const content = editor.getHTML();
-        onContentChange?.(content);
-        setSaveStatus('unsaved');
-        
-        // 自动保存
-        debouncedSave();
-      },
-      onSelectionUpdate: ({ editor }) => {
-        // 更新光标位置
-        const { from } = editor.state.selection;
-        const pos = editor.state.doc.resolve(from);
-        
-        provider.awareness.setLocalStateField('cursor', {
-          line: pos.line,
-          column: pos.column
-        });
-      },
-    });
-    
-    setEditor(editorInstance);
-    
-    // 清理函数
-    return () => {
-      editorInstance?.destroy();
-      provider?.destroy();
-      ydoc?.destroy();
-    };
-  }, [documentId, user.id, user.name, user.color]);
+  const editorInstanceRef = useRef<Editor | null>(null);
   
   // 防抖保存
   const debouncedSave = useCallback(
     debounce(async () => {
-      if (!editor) return;
+      const currentEditor = editorInstanceRef.current;
+      if (!currentEditor) return;
       
       setSaveStatus('saving');
       try {
-        const content = editor.getHTML();
+        const content = currentEditor.getHTML();
         
         // 保存到服务器
         await fetch(`/api/documents/${documentId}/save`, {
@@ -217,8 +82,144 @@ export default function CollaborativeEditor({
         setSaveStatus('unsaved');
       }
     }, 2000),
-    [editor, documentId, onSave]
+    [documentId, onSave]
   );
+  
+  // 初始化协作编辑器
+  useEffect(() => {
+    if (!editorRef.current) return;
+    
+    const ydoc = new Y.Doc();
+    ydocRef.current = ydoc;
+    let provider: WebsocketProvider | null = null;
+    let editorInstance: Editor | null = null;
+    let cancelled = false;
+    
+    const init = async () => {
+      try {
+        const tokenResponse = await fetch('/api/collab/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ documentId }),
+        });
+  
+        if (!tokenResponse.ok) {
+          throw new Error('无法获取协作令牌');
+        }
+  
+        const { token } = await tokenResponse.json();
+        if (cancelled) return;
+        
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsHost = process.env.NODE_ENV === 'development' 
+          ? 'localhost:3002'
+          : window.location.host.replace(':3001', ':3002');
+        
+        const wsUrl = `${wsProtocol}//${wsHost}/${documentId}?token=${encodeURIComponent(token)}`;
+        
+        provider = new WebsocketProvider(wsUrl, documentId, ydoc, {
+          params: {
+            userId: user.id,
+            userName: user.name,
+            userColor: user.color,
+          }
+        });
+        providerRef.current = provider;
+        
+        provider.on('status', (event: { status: string }) => {
+          if (cancelled) return;
+          setConnectionStatus(event.status === 'connected' ? 'connected' : 'disconnected');
+        });
+        
+        const isAuthError = (code?: number) => code === 1008 || code === 4401 || code === 4403;
+
+        provider.on('connection-error', (event: Event) => {
+          console.error('WebSocket连接错误:', event);
+          const code = (event as any)?.code as number | undefined;
+          if (isAuthError(code)) {
+            alert('认证失败，请重新登录');
+            window.location.href = '/admin';
+          }
+        });
+        
+        provider.on('connection-close', (event: CloseEvent | null) => {
+          if (isAuthError(event?.code)) {
+            console.error('认证失败，连接被关闭:', event);
+          }
+        });
+        
+        provider.awareness.on('change', () => {
+          if (cancelled) return;
+          const users: OnlineUser[] = [];
+          provider!.awareness.getStates().forEach((state, clientId) => {
+            if (clientId !== provider!.awareness.clientID && state.user) {
+              users.push({
+                id: state.user.id,
+                name: state.user.name,
+                color: state.user.color,
+                avatar: state.user.avatar
+              });
+            }
+          });
+          setOnlineUsers(users);
+        });
+        
+        provider.awareness.setLocalStateField('user', {
+          id: user.id,
+          name: user.name,
+          color: user.color,
+          avatar: user.avatar
+        });
+        
+        editorInstance = new Editor({
+          element: editorRef.current!,
+          extensions: [
+            StarterKit.configure({
+              history: false,
+            }),
+            Collaboration.configure({
+              document: ydoc,
+            }),
+            CollaborationCursor.configure({
+              provider,
+              user: {
+                name: user.name,
+                color: user.color,
+              },
+            }),
+            Placeholder.configure({
+              placeholder: '开始协作编辑...',
+            }),
+          ],
+          content: initialContent,
+          editable: !readOnly,
+          onUpdate: ({ editor }) => {
+            const content = editor.getHTML();
+            onContentChange?.(content);
+            setSaveStatus('unsaved');
+            debouncedSave();
+          },
+        });
+        
+        if (!cancelled) {
+          editorInstanceRef.current = editorInstance;
+          setEditor(editorInstance);
+        }
+      } catch (error) {
+        console.error('初始化协作编辑器失败:', error);
+      }
+    };
+    
+    init();
+    
+    return () => {
+      cancelled = true;
+      editorInstance?.destroy();
+      provider?.destroy();
+      editorInstanceRef.current = null;
+      ydoc.destroy();
+    };
+  }, [documentId, user.id, user.name, user.color, user.avatar, initialContent, readOnly, onContentChange, debouncedSave]);
   
   // 手动保存
   const handleSave = useCallback(async () => {

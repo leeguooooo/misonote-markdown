@@ -14,7 +14,7 @@ import { log } from '@/core/logger';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证认证
@@ -26,7 +26,7 @@ export async function GET(
       );
     }
 
-    const organizationId = params.id;
+    const { id: organizationId } = await params;
 
     // 检查权限
     const permission = await checkPermission(
@@ -66,7 +66,7 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // 验证认证
@@ -78,7 +78,7 @@ export async function POST(
       );
     }
 
-    const organizationId = params.id;
+    const { id: organizationId } = await params;
 
     // 检查权限
     const permission = await checkPermission(
@@ -107,12 +107,20 @@ export async function POST(
       );
     }
 
+    const numericUserId = Number(user.id);
+    if (!Number.isFinite(numericUserId)) {
+      return NextResponse.json(
+        { error: '用户ID无效，无法创建工作区' },
+        { status: 400 }
+      );
+    }
+
     // 创建工作区请求
     const createRequest: CreateWorkspaceRequest = {
       organizationId,
       name: name.trim(),
       description: description || undefined,
-      ownerId: user.id
+      ownerId: numericUserId
     };
 
     // 创建工作区

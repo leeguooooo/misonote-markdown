@@ -3,6 +3,8 @@ import { isEnterpriseAvailable, getAvailableFeatures } from '@/business/features
 import { LicenseManager } from '@/business/license/manager';
 import { log } from '@/core/logger';
 
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     log.api('获取系统版本信息');
@@ -13,6 +15,11 @@ export async function GET(request: NextRequest) {
     // 获取许可证管理器
     const licenseManager = LicenseManager.getInstance();
     const currentLicense = licenseManager.getCurrentLicense();
+    const licenseValid = !!currentLicense && (
+      currentLicense.type === 'community' ||
+      !currentLicense.expiresAt ||
+      currentLicense.expiresAt > new Date()
+    );
     
     // 获取可用功能
     const availableFeatures = await getAvailableFeatures();
@@ -46,13 +53,13 @@ export async function GET(request: NextRequest) {
       name: versionName,
       description: versionDescription,
       enterpriseAvailable,
-      hasValidLicense: !!currentLicense,
+      hasValidLicense: licenseValid,
       licenseInfo: currentLicense ? {
         organization: currentLicense.organization,
         type: currentLicense.type,
         expiresAt: currentLicense.expiresAt,
         maxUsers: currentLicense.maxUsers,
-        isValid: currentLicense.isValid
+        isValid: licenseValid
       } : null,
       features: {
         available: availableFeatures,
@@ -83,7 +90,7 @@ export async function GET(request: NextRequest) {
       loginOptions: {
         adminRequired: versionType === 'community',
         supportsUserRegistration: versionType !== 'community',
-        supportsSSO: versionType === 'enterprise' && currentLicense?.isValid,
+        supportsSSO: versionType === 'enterprise' && licenseValid,
         guestAccess: true
       }
     };

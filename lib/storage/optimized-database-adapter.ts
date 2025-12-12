@@ -255,7 +255,7 @@ export class OptimizedDatabaseAdapter {
         WHERE d.file_path = $1 AND dc.content_type = 'markdown'
       `;
 
-      const params = [path];
+      const params: Array<string | number> = [path];
 
       if (version) {
         query += ` AND dc.version_number = $2`;

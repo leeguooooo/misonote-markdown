@@ -44,7 +44,7 @@ export class DatabaseAdapter implements StorageAdapter, DocumentStorage {
    */
   async writeFile(path: string, content: string | Buffer, options?: StorageOptions): Promise<StorageResult> {
     try {
-      const contentStr = content instanceof Buffer ? content.toString('utf8') : content;
+      const contentStr = typeof content === 'string' ? content : content.toString('utf8');
       const contentHash = this.calculateHash(contentStr);
       const contentSize = Buffer.byteLength(contentStr, 'utf8');
       
@@ -138,10 +138,11 @@ export class DatabaseAdapter implements StorageAdapter, DocumentStorage {
       });
     } catch (error) {
       console.error('Database write error:', error);
+      const message = error instanceof Error ? error.message : 'Database write error';
       return {
         success: false,
         path,
-        error: error.message
+        error: message
       };
     }
   }
@@ -238,10 +239,11 @@ export class DatabaseAdapter implements StorageAdapter, DocumentStorage {
         path: targetPath
       };
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Move file failed';
       return {
         success: false,
         path: targetPath,
-        error: error.message
+        error: message
       };
     }
   }
@@ -312,10 +314,11 @@ export class DatabaseAdapter implements StorageAdapter, DocumentStorage {
         };
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Copy file failed';
       return {
         success: false,
         path: targetPath,
-        error: error.message
+        error: message
       };
     }
   }
@@ -489,7 +492,7 @@ export class DatabaseAdapter implements StorageAdapter, DocumentStorage {
         WHERE d.file_path = $1 AND dc.content_type = 'markdown'
       `;
       
-      const params = [path];
+      const params: Array<string | number> = [path];
       
       if (version) {
         query += ` AND dc.version_number = $2`;

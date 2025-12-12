@@ -85,7 +85,8 @@ export default function PerformanceMonitor() {
       
       if (response.ok) {
         const newData = await response.json();
-        setData(newData);
+        const payload = newData.data || newData;
+        setData(payload);
         
         // 更新历史数据
         const now = new Date().toLocaleTimeString();
@@ -94,11 +95,11 @@ export default function PerformanceMonitor() {
           
           return {
             timestamps: [...prev.timestamps, now].slice(-maxPoints),
-            readLatency: [...prev.readLatency, newData.storage.avgReadLatency].slice(-maxPoints),
-            writeLatency: [...prev.writeLatency, newData.storage.avgWriteLatency].slice(-maxPoints),
-            cacheHitRate: [...prev.cacheHitRate, newData.storage.cacheHitRate * 100].slice(-maxPoints),
-            memoryUsage: [...prev.memoryUsage, newData.system.memoryUsage].slice(-maxPoints),
-            operationsPerSecond: [...prev.operationsPerSecond, newData.storage.operationsPerSecond].slice(-maxPoints)
+            readLatency: [...prev.readLatency, payload.storage.avgReadLatency].slice(-maxPoints),
+            writeLatency: [...prev.writeLatency, payload.storage.avgWriteLatency].slice(-maxPoints),
+            cacheHitRate: [...prev.cacheHitRate, payload.storage.cacheHitRate * 100].slice(-maxPoints),
+            memoryUsage: [...prev.memoryUsage, payload.system.memoryUsage].slice(-maxPoints),
+            operationsPerSecond: [...prev.operationsPerSecond, payload.storage.operationsPerSecond].slice(-maxPoints)
           };
         });
       }

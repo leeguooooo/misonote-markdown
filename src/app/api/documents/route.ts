@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/core/auth/auth';
 import { DatabaseAdapter } from '../../../../lib/storage/database-adapter';
-import { StorageConfig, StorageStrategy } from '../../../../lib/storage/storage-adapter';
 
 // 创建数据库适配器实例
-const dbAdapter = new DatabaseAdapter({
-  strategy: StorageStrategy.DATABASE_ONLY,
-  database: {
-    enabled: true,
-    storeContent: true,
-    storeMetadata: true,
-    compression: false
-  }
-});
+const dbAdapter = new DatabaseAdapter();
 
 /**
  * 获取文档列表

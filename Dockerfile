@@ -29,7 +29,6 @@ ENV PYTHON=/usr/bin/python3
 ENV npm_config_build_from_source=false
 ENV MAKEFLAGS="-j$(nproc)"
 ENV npm_config_target_platform=linux
-ENV npm_config_target_arch=x64
 ENV npm_config_cache=/tmp/.npm
 
 # 使用一键安装命令（自动处理构建脚本）

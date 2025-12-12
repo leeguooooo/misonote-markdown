@@ -1,428 +1,141 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
-import {
-  LayoutDashboard,
-  FileText,
-  Users,
-  Settings,
-  Database,
-  Upload,
-  Download,
-  BarChart3,
-  Shield,
-  Key,
-  MessageSquare,
-  Bookmark,
-  Search,
-  GitBranch,
-  Server,
-  Bell,
-  HelpCircle,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  Crown,
-  Zap,
-  Globe,
-  Lock
-} from 'lucide-react';
+import { LayoutDashboard, FileText, GitBranch, Shield, X, LifeBuoy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface MenuItem {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  href: string;
-  badge?: string;
-  badgeVariant?: 'default' | 'secondary' | 'destructive' | 'outline';
-  children?: MenuItem[];
-  requiresLicense?: 'professional' | 'enterprise';
+interface AdminSidebarProps {
+  variant?: 'desktop' | 'mobile';
+  onClose?: () => void;
 }
 
-const menuItems: MenuItem[] = [
+interface NavItem {
+  id: string;
+  label: string;
+  description: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const primaryNav: NavItem[] = [
   {
     id: 'dashboard',
-    label: '仪表盘',
-    icon: LayoutDashboard,
-    href: '/admin/dashboard'
+    label: '工作台',
+    description: '首选入口 / 待办 / 最近动态',
+    href: '/admin/dashboard',
+    icon: LayoutDashboard
   },
   {
     id: 'documents',
-    label: '文档管理',
-    icon: FileText,
+    label: '文档中心',
+    description: '创建、发布与同步内容',
     href: '/admin/documents',
-    children: [
-      {
-        id: 'doc-editor',
-        label: '文档编辑器',
-        icon: FileText,
-        href: '/admin/documents/editor'
-      },
-      {
-        id: 'doc-export',
-        label: '文档导出',
-        icon: Download,
-        href: '/admin/documents/export'
-      },
-      {
-        id: 'doc-import',
-        label: '文档导入',
-        icon: Upload,
-        href: '/admin/documents/import'
-      }
-    ]
-  },
-  {
-    id: 'content',
-    label: '内容管理',
-    icon: MessageSquare,
-    href: '/admin/content',
-    children: [
-      {
-        id: 'comments',
-        label: '评论管理',
-        icon: MessageSquare,
-        href: '/admin/content/comments'
-      },
-      {
-        id: 'annotations',
-        label: '注释管理',
-        icon: Bookmark,
-        href: '/admin/content/annotations'
-      },
-      {
-        id: 'search',
-        label: '搜索索引',
-        icon: Search,
-        href: '/admin/content/search'
-      }
-    ]
-  },
-  {
-    id: 'users',
-    label: '用户管理',
-    icon: Users,
-    href: '/admin/users',
-    requiresLicense: 'professional',
-    children: [
-      {
-        id: 'user-list',
-        label: '用户列表',
-        icon: Users,
-        href: '/admin/users/list',
-        requiresLicense: 'professional'
-      },
-      {
-        id: 'permissions',
-        label: '权限管理',
-        icon: Shield,
-        href: '/admin/users/permissions',
-        requiresLicense: 'enterprise'
-      },
-      {
-        id: 'groups',
-        label: '用户组',
-        icon: Users,
-        href: '/admin/users/groups',
-        requiresLicense: 'enterprise'
-      }
-    ]
-  },
-  {
-    id: 'analytics',
-    label: '数据分析',
-    icon: BarChart3,
-    href: '/admin/analytics',
-    requiresLicense: 'professional',
-    children: [
-      {
-        id: 'usage',
-        label: '使用统计',
-        icon: BarChart3,
-        href: '/admin/analytics/usage',
-        requiresLicense: 'professional'
-      },
-      {
-        id: 'performance',
-        label: '性能监控',
-        icon: Zap,
-        href: '/admin/analytics/performance',
-        requiresLicense: 'enterprise'
-      },
-      {
-        id: 'reports',
-        label: '报告中心',
-        icon: FileText,
-        href: '/admin/analytics/reports',
-        requiresLicense: 'enterprise'
-      }
-    ]
+    icon: FileText
   },
   {
     id: 'integrations',
-    label: '集成管理',
-    icon: GitBranch,
+    label: '集成与自动化',
+    description: 'API 密钥 · Webhook · MCP',
     href: '/admin/integrations',
-    children: [
-      {
-        id: 'api-keys',
-        label: 'API 密钥',
-        icon: Key,
-        href: '/admin/integrations/api-keys'
-      },
-      {
-        id: 'webhooks',
-        label: 'Webhooks',
-        icon: Globe,
-        href: '/admin/integrations/webhooks',
-        requiresLicense: 'professional'
-      },
-      {
-        id: 'mcp',
-        label: 'MCP 服务器',
-        icon: Server,
-        href: '/admin/integrations/mcp'
-      }
-    ]
+    icon: GitBranch
   },
   {
     id: 'license',
-    label: '许可证管理',
-    icon: Crown,
+    label: '许可证与安全',
+    description: '配额 · 授权 · 审计日志',
     href: '/admin/license',
-    children: [
-      {
-        id: 'license-status',
-        label: '许可证状态',
-        icon: Shield,
-        href: '/admin/license/status'
-      },
-      {
-        id: 'license-generator',
-        label: '许可证生成',
-        icon: Key,
-        href: '/admin/license/generator'
-      },
-      {
-        id: 'enterprise-features',
-        label: '企业功能',
-        icon: Crown,
-        href: '/admin/license/enterprise',
-        requiresLicense: 'enterprise',
-        badge: 'Enterprise',
-        badgeVariant: 'default'
-      }
-    ]
-  },
-  {
-    id: 'system',
-    label: '系统设置',
-    icon: Settings,
-    href: '/admin/system',
-    children: [
-      {
-        id: 'general',
-        label: '常规设置',
-        icon: Settings,
-        href: '/admin/system/general'
-      },
-      {
-        id: 'database',
-        label: '数据库管理',
-        icon: Database,
-        href: '/admin/system/database'
-      },
-      {
-        id: 'security',
-        label: '安全设置',
-        icon: Lock,
-        href: '/admin/system/security'
-      },
-      {
-        id: 'notifications',
-        label: '通知设置',
-        icon: Bell,
-        href: '/admin/system/notifications',
-        requiresLicense: 'professional'
-      }
-    ]
+    icon: Shield
   }
 ];
 
-interface AdminSidebarProps {
-  className?: string;
-}
-
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ className }) => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set(['documents']));
+export default function AdminSidebar({ variant = 'desktop', onClose }: AdminSidebarProps) {
   const pathname = usePathname();
 
-  const toggleExpanded = (itemId: string) => {
-    const newExpanded = new Set(expandedItems);
-    if (newExpanded.has(itemId)) {
-      newExpanded.delete(itemId);
-    } else {
-      newExpanded.add(itemId);
-    }
-    setExpandedItems(newExpanded);
-  };
-
-  const isActive = (href: string) => {
-    if (href === '/admin') {
-      return pathname === '/admin';
-    }
-    return pathname.startsWith(href);
-  };
-
-  const getLicenseBadge = (requiresLicense?: string) => {
-    if (!requiresLicense) return null;
-    
-    const badgeText = requiresLicense === 'enterprise' ? 'Enterprise' : 'Pro';
-    const badgeVariant = requiresLicense === 'enterprise' ? 'default' : 'secondary';
-    
-    return (
-      <Badge variant={badgeVariant} className="text-xs">
-        {badgeText}
-      </Badge>
-    );
-  };
-
-  const renderMenuItem = (item: MenuItem, level = 0) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isExpanded = expandedItems.has(item.id);
-    const active = isActive(item.href);
+  const renderNav = (item: NavItem) => {
+    const isActive =
+      item.href === '/admin/dashboard'
+        ? pathname === '/admin/dashboard'
+        : pathname.startsWith(item.href);
+    const Icon = item.icon;
 
     return (
-      <div key={item.id}>
+      <Link
+        key={item.id}
+        href={item.href}
+        onClick={onClose}
+        className={cn(
+          'flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition',
+          isActive
+            ? 'border-blue-200 bg-blue-50/80 text-blue-900'
+            : 'border-transparent text-slate-600 hover:border-slate-200 hover:bg-slate-50'
+        )}
+      >
         <div
           className={cn(
-            'flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer',
-            level > 0 && 'ml-4 pl-6 border-l border-gray-200',
-            active
-              ? 'bg-blue-100 text-blue-700'
-              : 'text-gray-700 hover:bg-gray-100',
-            collapsed && level === 0 && 'justify-center px-2'
+            'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-2xl border',
+            isActive ? 'border-blue-200 bg-white text-blue-600' : 'border-slate-200 bg-white text-slate-500'
           )}
-          onClick={() => {
-            if (hasChildren) {
-              toggleExpanded(item.id);
-            }
-          }}
         >
-          <Link
-            href={item.href}
-            className="flex items-center flex-1 min-w-0"
-            onClick={(e) => hasChildren && e.preventDefault()}
-          >
-            <item.icon className={cn('h-4 w-4 flex-shrink-0', collapsed && level === 0 && 'h-5 w-5')} />
-            {(!collapsed || level > 0) && (
-              <>
-                <span className="ml-3 truncate">{item.label}</span>
-                <div className="flex items-center ml-2 space-x-1">
-                  {item.badge && (
-                    <Badge variant={item.badgeVariant || 'outline'} className="text-xs">
-                      {item.badge}
-                    </Badge>
-                  )}
-                  {getLicenseBadge(item.requiresLicense)}
-                </div>
-              </>
-            )}
-          </Link>
-          {hasChildren && (!collapsed || level > 0) && (
-            <ChevronRight
-              className={cn(
-                'h-4 w-4 transition-transform text-gray-400',
-                isExpanded && 'transform rotate-90'
-              )}
-            />
-          )}
+          <Icon className="h-4 w-4" />
         </div>
-
-        {hasChildren && isExpanded && (!collapsed || level > 0) && (
-          <div className="mt-1 space-y-1">
-            {item.children!.map(child => renderMenuItem(child, level + 1))}
-          </div>
-        )}
-      </div>
+        <div className="flex-1">
+          <p className="font-semibold">{item.label}</p>
+          <p className="text-xs text-slate-500">{item.description}</p>
+        </div>
+      </Link>
     );
   };
 
   return (
-    <div className={cn('flex flex-col h-full bg-white border-r border-gray-200', className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        {!collapsed && (
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <FileText className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-gray-800">Misonote</h2>
-              <p className="text-xs text-gray-500">管理后台</p>
-            </div>
-          </Link>
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-5">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Misonote</p>
+          <p className="text-base font-semibold text-slate-900">Docs 控制台</p>
+          <Badge variant="outline" className="mt-2 text-xs text-slate-600">
+            社区计划
+          </Badge>
+        </div>
+        {variant === 'mobile' && (
+          <button
+            className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
+            onClick={onClose}
+            aria-label="关闭菜单"
+          >
+            <X className="h-5 w-5" />
+          </button>
         )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-        {/* Quick Actions */}
-        {!collapsed && (
-          <div className="mb-6">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              快速操作
-            </p>
-            <Link
-              href="/"
-              className="flex items-center px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <Home className="h-4 w-4 mr-3" />
-              返回前台
-            </Link>
+      <div className="flex-1 overflow-y-auto px-5 py-6">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <p className="text-xs uppercase tracking-wide text-slate-500">主要入口</p>
+            <div className="space-y-2">
+              {primaryNav.map(renderNav)}
+            </div>
           </div>
-        )}
-
-        {/* Main Menu */}
-        <div className="space-y-1">
-          {!collapsed && (
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
-              主要功能
-            </p>
-          )}
-          {menuItems.map(item => renderMenuItem(item))}
         </div>
-      </nav>
+      </div>
 
-      {/* Footer */}
-      {!collapsed && (
-        <div className="p-4 border-t border-gray-200">
+      <div className="border-t border-slate-200 px-5 py-4 text-sm text-slate-500">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-semibold text-slate-800">遇到问题？</p>
+            <p className="text-xs text-slate-500">进入帮助中心或联系支持</p>
+          </div>
           <Link
-            href="/admin/help"
-            className="flex items-center px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            href="/docs/integrations"
+            className="flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300"
           >
-            <HelpCircle className="h-4 w-4 mr-3" />
-            帮助文档
+            <LifeBuoy className="h-3.5 w-3.5" />
+            支持
           </Link>
         </div>
-      )}
+      </div>
     </div>
   );
-};
-
-export default AdminSidebar;
+}

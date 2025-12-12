@@ -1,15 +1,16 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
+import { useAuthState } from './useAuthState';
 
-interface UserInfo {
+export interface UserInfo {
   id: string;
   name: string;
   avatar?: string;
   role: 'admin' | 'user' | 'guest';
   email?: string;
-  isRealAdmin?: boolean; // 区分真正的管理员和模拟管理员
-  token?: string; // JWT token
+  isRealAdmin?: boolean;
+  token?: string | null;
 }
 
 interface UserContextType {
@@ -21,7 +22,7 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType>({
   user: null,
-  setUser: () => { },
+  setUser: () => {},
   isAdmin: false,
   isLoggedIn: false,
 });
@@ -29,38 +30,36 @@ const UserContext = createContext<UserContextType>({
 export const useUser = () => useContext(UserContext);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const { user: authUser, isAdmin: isAuthAdmin, isLoggedIn: isAuthLoggedIn, login, logout } = useAuthState();
+  const [customUser, setCustomUser] = useState<UserInfo | null>(null);
 
-  useEffect(() => {
-    setIsMounted(true);
+  const effectiveUser = authUser ?? customUser;
+  const isAdmin = isAuthAdmin || effectiveUser?.role === 'admin';
+  const isLoggedIn = isAuthLoggedIn || !!customUser;
 
-    // 从 localStorage 加载用户信息
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (error) {
-        console.error('Failed to parse saved user:', error);
-        localStorage.removeItem('currentUser');
+  const contextValue = useMemo<UserContextType>(() => ({
+    user: effectiveUser,
+    setUser: (userInfo: UserInfo | null) => {
+      if (!userInfo) {
+        logout();
+        setCustomUser(null);
+        return;
       }
-    }
-  }, []);
 
-  useEffect(() => {
-    // 保存用户信息到 localStorage
-    if (user) {
-      localStorage.setItem('currentUser', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('currentUser');
-    }
-  }, [user]);
+      if (userInfo.isRealAdmin) {
+        login(userInfo, userInfo.token);
+        setCustomUser(null);
+        return;
+      }
 
-  const isAdmin = user?.role === 'admin';
-  const isLoggedIn = user !== null;
+      setCustomUser(userInfo);
+    },
+    isAdmin,
+    isLoggedIn,
+  }), [effectiveUser, isAdmin, isLoggedIn, login, logout]);
 
   return (
-    <UserContext.Provider value={{ user, setUser, isAdmin, isLoggedIn }}>
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );

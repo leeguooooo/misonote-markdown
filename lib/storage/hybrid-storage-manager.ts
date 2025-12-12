@@ -3,9 +3,8 @@
  * 针对协同编辑优化的高性能存储方案
  */
 
-import { StorageAdapter, DocumentStorage, StorageConfig, StorageStrategy } from './storage-adapter';
+import { StorageAdapter, DocumentStorage, StorageConfig, StorageStrategy, ListResult } from './storage-adapter';
 import { DatabaseAdapter } from './database-adapter';
-import { FileSystemAdapter } from './filesystem-adapter';
 import { LRUCache } from 'lru-cache';
 
 interface PerformanceMetrics {
@@ -30,7 +29,6 @@ interface CacheEntry {
  */
 export class HybridStorageManager implements DocumentStorage {
   private dbAdapter: DatabaseAdapter;
-  private fsAdapter: FileSystemAdapter;
   private config: StorageConfig;
   
   // 多层缓存系统
@@ -52,8 +50,7 @@ export class HybridStorageManager implements DocumentStorage {
   
   constructor(config: StorageConfig) {
     this.config = config;
-    this.dbAdapter = new DatabaseAdapter(config);
-    this.fsAdapter = new FileSystemAdapter(config);
+    this.dbAdapter = new DatabaseAdapter();
     
     // 初始化缓存
     this.contentCache = new LRUCache({
@@ -158,11 +155,10 @@ export class HybridStorageManager implements DocumentStorage {
         return dbResult;
       }
     } catch (error) {
-      console.warn('数据库加载失败，尝试文件系统:', error);
+      console.warn('数据库加载失败:', error);
     }
-    
-    // 回退到文件系统
-    return await this.fsAdapter.loadDocument(documentId, version);
+
+    return null;
   }
   
   /**
@@ -208,6 +204,19 @@ export class HybridStorageManager implements DocumentStorage {
       this.recordMetric('write', Date.now() - startTime, false, error);
       throw error;
     }
+  }
+
+  async exists(path: string): Promise<boolean> {
+    return await this.dbAdapter.exists(path);
+  }
+
+  async listFiles(path: string, options?: { 
+    recursive?: boolean; 
+    limit?: number; 
+    nextToken?: string;
+    pattern?: string;
+  }): Promise<ListResult> {
+    return await this.dbAdapter.listFiles(path, options);
   }
   
   /**
@@ -278,20 +287,9 @@ export class HybridStorageManager implements DocumentStorage {
     
     const entries = Array.from(this.writeBuffer.entries());
     this.writeBuffer.clear();
-    
-    // 并行写入文件系统
-    const writePromises = entries.map(async ([documentId, data]) => {
-      try {
-        await this.fsAdapter.saveDocument(documentId, data.content, {
-          version: data.version,
-          metadata: { lastModified: data.timestamp }
-        });
-      } catch (error) {
-        console.error(`批量写入失败: ${documentId}`, error);
-      }
-    });
-    
-    await Promise.allSettled(writePromises);
+
+    // 内容已在 saveDocument 中实时写入数据库，这里保留缓冲队列结构以便未来扩展。
+    void entries;
   }
   
   /**

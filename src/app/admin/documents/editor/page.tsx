@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Upload, Plus, FolderPlus, Shield, FileText, Search, Filter, Download } from 'lucide-react';
-import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, FolderPlus, FileText, Search } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import EnhancedFileTree from '@/components/admin/EnhancedFileTree';
@@ -18,7 +17,7 @@ interface FileItem {
   content: string;
   isNew?: boolean;
   isHidden?: boolean;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   type?: 'file' | 'folder';
   lastModified?: Date;
 }
@@ -362,7 +361,7 @@ export default function DocumentsPage() {
                 <CardTitle className="text-base">文件浏览器</CardTitle>
                 <div className="flex items-center space-x-1">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => setShowCreateDialog(true)}
                     title="新建文档"
@@ -371,7 +370,7 @@ export default function DocumentsPage() {
                     <Plus className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       const dirName = prompt('请输入文件夹名称:');

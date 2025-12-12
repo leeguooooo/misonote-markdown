@@ -12,7 +12,7 @@ interface UserInfo {
   role: 'admin' | 'user' | 'guest';
   email?: string;
   isRealAdmin?: boolean;
-  token?: string;
+  token?: string | null;
 }
 
 // 重新导出UserProvider和useUser以保持向后兼容
@@ -51,9 +51,6 @@ export default function UserManager() {
     } catch (error) {
       console.error('登出失败:', error);
     } finally {
-      if (user?.isRealAdmin) {
-        localStorage.removeItem('admin-token');
-      }
       setUser(null);
       setShowUserMenu(false);
     }
@@ -102,7 +99,7 @@ export default function UserManager() {
     return (
       <button className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors min-h-[44px] touch-feedback">
         <User className="w-4 h-4" />
-        <span className="hidden sm:inline">登录</span>
+        <span className="hidden sm:inline">登录 / 身份</span>
       </button>
     );
   }
@@ -116,7 +113,7 @@ export default function UserManager() {
           aria-label="登录"
         >
           <User className="w-4 h-4" />
-          <span className="hidden sm:inline">登录</span>
+          <span className="hidden sm:inline">登录 / 身份</span>
         </button>
 
         <UnifiedLogin

@@ -1,193 +1,306 @@
 /**
  * 简化的 WebSocket 服务器 - 实时协作
- * 集成 Yjs 和 JWT 认证
+ * 使用 y-websocket 协议（sync + awareness），并在握手阶段做 JWT 认证。
+ *
+ * 该文件用于本地开发和测试的轻量服务器实现。
  */
 
 import { WebSocketServer, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
 import * as Y from 'yjs';
-import jwt from 'jsonwebtoken';
+import * as encoding from 'lib0/encoding';
+import * as decoding from 'lib0/decoding';
+import * as syncProtocol from 'y-protocols/sync';
+import * as awarenessProtocol from 'y-protocols/awareness';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-// WebSocket 连接元数据
 interface AuthenticatedWebSocket extends WebSocket {
-  userId?: number;
+  userId?: string;
   documentId?: string;
-  organizationId?: string;
   isAlive?: boolean;
-  ydoc?: Y.Doc;
+  awarenessStates?: Set<number>;
 }
 
-// 房间管理
-const rooms = new Map<string, Set<AuthenticatedWebSocket>>();
-const documents = new Map<string, Y.Doc>();
+const COLLAB_TOKEN_SECRET = process.env.COLLAB_TOKEN_SECRET || process.env.JWT_SECRET || 'collab-secret';
+const LEGACY_JWT_SECRET = process.env.JWT_SECRET;
 
-// 创建 WebSocket 服务器
+const messageSync = 0;
+const messageAwareness = 1;
+const messageAuth = 2;
+const messageQueryAwareness = 3;
+
+type DocEntry = {
+  doc: Y.Doc;
+  awareness: awarenessProtocol.Awareness;
+  conns: Set<AuthenticatedWebSocket>;
+};
+
+const docs = new Map<string, DocEntry>();
+
 const wss = new WebSocketServer({
   port: parseInt(process.env.WEBSOCKET_PORT || '3002'),
   verifyClient: async (info, cb) => {
-    // 验证客户端连接
     const token = extractToken(info.req);
-    
     if (!token) {
       cb(false, 401, 'Unauthorized');
       return;
     }
-    
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
-      // 将用户信息附加到请求对象
-      (info.req as any).userId = decoded.sub || decoded.userId;
-      cb(true);
-    } catch (error) {
-      console.error('WebSocket 认证失败:', error);
+
+    const payload = verifyCollaborationToken(token);
+    if (!payload) {
       cb(false, 401, 'Unauthorized');
+      return;
     }
+
+    (info.req as any).authPayload = payload;
+    cb(true);
   }
 });
 
-// 提取认证令牌
+function verifyWithSecret(secret: string | undefined, token: string): JwtPayload | null {
+  if (!secret) return null;
+  try {
+    const decoded = jwt.verify(token, secret);
+    if (typeof decoded === 'string') {
+      return { sub: decoded };
+    }
+    return decoded;
+  } catch {
+    return null;
+  }
+}
+
+function verifyCollaborationToken(token: string): { userId: string; documentId?: string } | null {
+  const decoded = verifyWithSecret(COLLAB_TOKEN_SECRET, token);
+  if (decoded) {
+    const userId = decoded.userId ?? decoded.sub ?? decoded.id;
+    if (userId == null) return null;
+    return {
+      userId: String(userId),
+      documentId: (decoded as any).documentId,
+    };
+  }
+
+  const legacy = verifyWithSecret(LEGACY_JWT_SECRET, token);
+  if (legacy) {
+    console.warn('使用 legacy JWT 令牌进行协作认证，请尽快迁移到短期协作令牌。');
+    const userId = legacy.userId ?? legacy.sub ?? legacy.id;
+    if (userId == null) return null;
+    return { userId: String(userId) };
+  }
+
+  return null;
+}
+
 function extractToken(req: IncomingMessage): string | null {
-  // 从 Authorization 头提取
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     return authHeader.substring(7);
   }
-  
-  // 从查询参数提取（用于浏览器 WebSocket）
+
   const url = new URL(req.url || '', `http://${req.headers.host}`);
-  const token = url.searchParams.get('token');
-  
-  return token;
+  return url.searchParams.get('token');
 }
 
-// 获取或创建文档
-function getYDoc(documentId: string): Y.Doc {
-  if (!documents.has(documentId)) {
-    const doc = new Y.Doc();
-    documents.set(documentId, doc);
-    
-    // 监听文档更新，广播给房间内的所有客户端
-    doc.on('update', (update: Uint8Array) => {
-      broadcastToRoom(documentId, update);
+function getDoc(documentId: string): DocEntry {
+  let entry = docs.get(documentId);
+  if (entry) return entry;
+
+  const doc = new Y.Doc();
+  const awareness = new awarenessProtocol.Awareness(doc);
+  const conns = new Set<AuthenticatedWebSocket>();
+
+  entry = { doc, awareness, conns };
+  docs.set(documentId, entry);
+
+  doc.on('update', (update: Uint8Array, origin: unknown) => {
+    const encoder = encoding.createEncoder();
+    encoding.writeVarUint(encoder, messageSync);
+    syncProtocol.writeUpdate(encoder, update);
+    const message = encoding.toUint8Array(encoder);
+
+    conns.forEach((conn) => {
+      if (conn !== origin && conn.readyState === WebSocket.OPEN) {
+        conn.send(message);
+      }
     });
-  }
-  
-  return documents.get(documentId)!;
+  });
+
+  awareness.on('update', ({ added, updated, removed }: any, origin: unknown) => {
+    const changed = added.concat(updated, removed);
+    const encoder = encoding.createEncoder();
+    encoding.writeVarUint(encoder, messageAwareness);
+    encoding.writeVarUint8Array(
+      encoder,
+      awarenessProtocol.encodeAwarenessUpdate(awareness, changed)
+    );
+    const message = encoding.toUint8Array(encoder);
+
+    conns.forEach((conn) => {
+      if (conn !== origin && conn.readyState === WebSocket.OPEN) {
+        conn.send(message);
+      }
+    });
+  });
+
+  return entry;
 }
 
-// 加入房间
-function joinRoom(documentId: string, ws: AuthenticatedWebSocket) {
-  if (!rooms.has(documentId)) {
-    rooms.set(documentId, new Set());
-  }
-  
-  rooms.get(documentId)!.add(ws);
-  
-  // 发送当前文档状态
-  const ydoc = getYDoc(documentId);
-  const state = Y.encodeStateAsUpdate(ydoc);
-  
-  if (state.length > 0) {
-    ws.send(state);
-  }
-}
-
-// 离开房间
-function leaveRoom(documentId: string, ws: AuthenticatedWebSocket) {
-  const room = rooms.get(documentId);
-  if (room) {
-    room.delete(ws);
-    
-    // 如果房间为空，清理文档
-    if (room.size === 0) {
-      rooms.delete(documentId);
-      documents.delete(documentId);
+function trackAwarenessStates(conn: AuthenticatedWebSocket, update: Uint8Array) {
+  if (!conn.awarenessStates) return;
+  const decoder = decoding.createDecoder(update);
+  const len = decoding.readVarUint(decoder);
+  for (let i = 0; i < len; i++) {
+    const clientId = decoding.readVarUint(decoder);
+    decoding.readVarUint(decoder); // clock
+    const state = JSON.parse(decoding.readVarString(decoder));
+    if (state === null) {
+      conn.awarenessStates.delete(clientId);
+    } else {
+      conn.awarenessStates.add(clientId);
     }
   }
 }
 
-// 广播到房间
-function broadcastToRoom(documentId: string, data: Uint8Array) {
-  const room = rooms.get(documentId);
-  if (!room) return;
-  
-  room.forEach((ws) => {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(data);
+function setupWSConnection(conn: AuthenticatedWebSocket, req: IncomingMessage, documentId: string) {
+  const { doc, awareness, conns } = getDoc(documentId);
+
+  conn.documentId = documentId;
+  conn.isAlive = true;
+  conn.awarenessStates = new Set();
+  conns.add(conn);
+
+  // send sync step1
+  {
+    const encoder = encoding.createEncoder();
+    encoding.writeVarUint(encoder, messageSync);
+    syncProtocol.writeSyncStep1(encoder, doc);
+    conn.send(encoding.toUint8Array(encoder));
+  }
+
+  // send current awareness states
+  {
+    const encoder = encoding.createEncoder();
+    encoding.writeVarUint(encoder, messageAwareness);
+    encoding.writeVarUint8Array(
+      encoder,
+      awarenessProtocol.encodeAwarenessUpdate(awareness, Array.from(awareness.getStates().keys()))
+    );
+    conn.send(encoding.toUint8Array(encoder));
+  }
+
+  conn.on('message', (data: Buffer) => {
+    try {
+      const decoder = decoding.createDecoder(new Uint8Array(data));
+      const messageType = decoding.readVarUint(decoder);
+
+      switch (messageType) {
+        case messageSync: {
+          const encoder = encoding.createEncoder();
+          encoding.writeVarUint(encoder, messageSync);
+          syncProtocol.readSyncMessage(decoder, encoder, doc, conn);
+          if (encoding.length(encoder) > 1) {
+            conn.send(encoding.toUint8Array(encoder));
+          }
+          break;
+        }
+        case messageAwareness: {
+          const update = decoding.readVarUint8Array(decoder);
+          trackAwarenessStates(conn, update);
+          awarenessProtocol.applyAwarenessUpdate(awareness, update, conn);
+          break;
+        }
+        case messageQueryAwareness: {
+          const encoder = encoding.createEncoder();
+          encoding.writeVarUint(encoder, messageAwareness);
+          encoding.writeVarUint8Array(
+            encoder,
+            awarenessProtocol.encodeAwarenessUpdate(awareness, Array.from(awareness.getStates().keys()))
+          );
+          conn.send(encoding.toUint8Array(encoder));
+          break;
+        }
+        case messageAuth:
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error('处理 WebSocket 消息失败:', error);
     }
   });
-}
 
-// 处理 WebSocket 连接
-wss.on('connection', async (ws: AuthenticatedWebSocket, req: IncomingMessage) => {
-  // 获取文档 ID
-  const url = new URL(req.url || '', `http://${req.headers.host}`);
-  const documentId = url.pathname.slice(1) || 'default';
-  const userId = (req as any).userId;
-  
-  // 设置连接元数据
-  ws.userId = userId;
-  ws.documentId = documentId;
-  ws.isAlive = true;
-  ws.ydoc = getYDoc(documentId);
-  
+  conn.on('pong', () => {
+    conn.isAlive = true;
+  });
+
+  conn.on('close', () => {
+    conns.delete(conn);
+    if (conn.awarenessStates && conn.awarenessStates.size > 0) {
+      awarenessProtocol.removeAwarenessStates(
+        awareness,
+        Array.from(conn.awarenessStates),
+        conn
+      );
+    }
+
+    if (conns.size === 0) {
+      awareness.destroy();
+      doc.destroy();
+      docs.delete(documentId);
+    }
+
+    console.log('WebSocket 连接关闭', { documentId, userId: conn.userId });
+  });
+
+  conn.on('error', (error) => {
+    console.error('WebSocket 错误:', error);
+  });
+
   console.log('WebSocket 连接建立', {
-    userId,
     documentId,
+    userId: conn.userId,
     ip: req.socket.remoteAddress
   });
-  
-  // 加入房间
-  joinRoom(documentId, ws);
-  
-  // 处理消息
-  ws.on('message', (data: Buffer) => {
-    try {
-      // 应用 Yjs 更新
-      Y.applyUpdate(ws.ydoc!, new Uint8Array(data));
-    } catch (error) {
-      console.error('处理 Yjs 更新失败:', error);
-    }
-  });
-  
-  // 处理连接关闭
-  ws.on('close', () => {
-    console.log('WebSocket 连接关闭', { userId, documentId });
-    leaveRoom(documentId, ws);
-  });
-  
-  // 处理错误
-  ws.on('error', (error) => {
-    console.error('WebSocket 错误:', error);
-    leaveRoom(documentId, ws);
-  });
-  
-  // 心跳检测
-  ws.on('pong', () => {
-    ws.isAlive = true;
-  });
+}
+
+wss.on('connection', (ws: AuthenticatedWebSocket, req: IncomingMessage) => {
+  const url = new URL(req.url || '', `http://${req.headers.host}`);
+  const documentId = url.pathname.slice(1) || 'default';
+  const authPayload = (req as any).authPayload as { userId?: string; documentId?: string };
+
+  if (authPayload?.userId == null) {
+    ws.close(4401, 'Unauthorized');
+    return;
+  }
+
+  if (authPayload.documentId && authPayload.documentId !== documentId) {
+    console.warn('协作令牌与文档不匹配', {
+      tokenDoc: authPayload.documentId,
+      requestedDoc: documentId,
+      userId: authPayload.userId,
+    });
+    ws.close(4403, 'Document mismatch');
+    return;
+  }
+
+  ws.userId = authPayload.userId;
+  setupWSConnection(ws, req, documentId);
 });
 
-// 心跳检测
 const heartbeat = setInterval(() => {
-  wss.clients.forEach((ws: AuthenticatedWebSocket) => {
-    if (ws.isAlive === false) {
-      if (ws.documentId) {
-        leaveRoom(ws.documentId, ws);
-      }
-      return ws.terminate();
+  wss.clients.forEach((ws) => {
+    const conn = ws as AuthenticatedWebSocket;
+    if (conn.isAlive === false) {
+      return conn.terminate();
     }
-    
-    ws.isAlive = false;
-    ws.ping();
+    conn.isAlive = false;
+    conn.ping();
   });
 }, 30000);
 
-// 优雅关闭
 process.on('SIGINT', () => {
   console.log('正在关闭 WebSocket 服务器...');
   clearInterval(heartbeat);
-  
   wss.close(() => {
     console.log('WebSocket 服务器已关闭');
     process.exit(0);
@@ -197,4 +310,5 @@ process.on('SIGINT', () => {
 console.log(`🚀 WebSocket 服务器运行在端口 ${parseInt(process.env.WEBSOCKET_PORT || '3002')}`);
 console.log('等待客户端连接...');
 
-export { wss, getYDoc };
+export { wss };
+

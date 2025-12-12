@@ -188,7 +188,7 @@ export class DocumentManager {
       }
 
       // 构建完整的frontmatter
-      const fullFrontmatter = {
+      const fullFrontmatter: Record<string, any> = {
         title,
         status,
         public: isPublic,
@@ -239,7 +239,7 @@ export class DocumentManager {
       }
 
       // 合并更新选项
-      const updatedFrontmatter = {
+      const updatedFrontmatter: Record<string, any> = {
         ...existingDoc.frontmatter,
         updated: new Date().toISOString()
       };

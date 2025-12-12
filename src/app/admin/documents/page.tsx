@@ -25,7 +25,7 @@ interface FileItem {
   content: string;
   isNew?: boolean;
   isHidden?: boolean;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   type?: 'file' | 'folder';
   lastModified?: Date;
 }
